@@ -124,6 +124,32 @@ input {
   line-height: 0.9;
 }
 
+/* The logo file has a white background, so present it as a white tile. */
+.brand-logo {
+  display: block;
+  height: clamp(2.4rem, 4.5vw, 3rem);
+  width: auto;
+  padding: 0.25rem 0.3rem;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  object-fit: contain;
+}
+
+:root[data-theme="light"] .brand-logo {
+  box-shadow: 0 0 0 1px rgba(21, 34, 56, 0.12);
+}
+
+:root[data-theme="odyssey"] .brand-logo {
+  box-shadow: 0 0 0 2px #d9a74a, 0 0 14px rgba(217, 167, 74, 0.35);
+}
+
+.brand-block:has(.brand-logo) {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
 .tagline {
   margin: 0.15rem 0 0;
   font-size: 0.92rem;

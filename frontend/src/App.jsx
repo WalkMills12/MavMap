@@ -20,6 +20,8 @@ import { clearInterests, markSeen, markSuggested, pickSuggestions, recordInteres
 
 const UTA_CENTER = { lat: 32.7296, lng: -97.1135 };
 const EMPTY_TRAFFIC = [];
+// Official UTA A-star logo (frontend/public/uta-logo.png). If the file is missing, the header falls back to "MavMap".
+const LOGO_SRC = "/uta-logo.png";
 const isPhone = () => typeof window !== "undefined" && window.matchMedia("(max-width: 820px)").matches;
 
 function useResolvedTheme(theme) {
@@ -58,6 +60,7 @@ export default function App() {
   const [menuOpen, setMenuOpen] = useState(() => prefs.openMenuOnStart && !isPhone());
   const [menuTab, setMenuTab] = useState(prefs.defaultTab);
   const [suggestions, setSuggestions] = useState([]);
+  const [logoOk, setLogoOk] = useState(true);
   const suggestionsChecked = useRef(false);
 
   useEffect(() => {
@@ -223,7 +226,16 @@ export default function App() {
           </svg>
         </button>
         <div className="brand-block">
-          <p className="brand">MavMap</p>
+          {logoOk ? (
+            <img
+              className="brand-logo"
+              src={LOGO_SRC}
+              alt="UTA MavMap"
+              onError={() => setLogoOk(false)}
+            />
+          ) : (
+            <p className="brand">MavMap</p>
+          )}
           <p className="tagline">{odyssey ? "Begin your odyssey across campus" : "Find every building on campus"}</p>
         </div>
         <BuildingSearch
