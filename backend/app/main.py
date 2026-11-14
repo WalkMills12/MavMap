@@ -9,7 +9,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from .buildings import get_building, get_buildings
 from .config import settings
 from .events import build_traffic, fetch_localist_events
-from .models import Building, CampusEvent, HealthResponse, TrafficResponse
+from .faqs import get_faqs
+from .transit import get_transit
+from .models import Building, CampusEvent, Faq, HealthResponse, TrafficResponse
 
 app = FastAPI(title="MavMap API", version="0.1.0")
 
@@ -39,9 +41,19 @@ def building_detail(building_id: str) -> Building:
     return get_building(building_id)
 
 
+@app.get("/api/faqs", response_model=List[Faq])
+def list_faqs() -> List[Faq]:
+    return get_faqs()
+
+
+@app.get("/api/transit")
+def transit() -> dict:
+    return get_transit()
+
+
 @app.get("/api/events", response_model=List[CampusEvent])
 async def list_events(
-    days: int = Query(default=1, ge=1, le=7),
+    days: int = Query(default=1, ge=1, le=14),
 ) -> List[CampusEvent]:
     try:
         return await fetch_localist_events(days=days)

@@ -1,4 +1,5 @@
 import { appleMapsUrl, googleMapsUrl } from "../api.js";
+import { categoryLabel } from "../categories.js";
 
 function formatWhen(start) {
   if (!start) return null;
@@ -13,7 +14,7 @@ function formatWhen(start) {
   }
 }
 
-export default function BuildingDetail({ building, onClose, nearbyEvents = [] }) {
+export default function BuildingDetail({ building, onClose, nearbyEvents = [], isFavorite = false, onToggleFavorite }) {
   const apple = appleMapsUrl(building);
   const google = googleMapsUrl(building);
 
@@ -22,10 +23,25 @@ export default function BuildingDetail({ building, onClose, nearbyEvents = [] })
       <button type="button" className="close-btn" onClick={onClose} aria-label="Close">
         ×
       </button>
-      <p className="detail-category">{building.category.replace("_", " ")}</p>
-      <h2>{building.name}</h2>
-      <p className="detail-abbr">{(building.abbr || []).join(" · ")}</p>
-      <p className="detail-address">{building.address}</p>
+      <p className="detail-category">{categoryLabel(building.category)}</p>
+      <div className="detail-title-row">
+        <h2>{building.name}</h2>
+        {onToggleFavorite && (
+          <button
+            type="button"
+            className={`star-toggle${isFavorite ? " is-on" : ""}`}
+            aria-pressed={isFavorite}
+            aria-label={isFavorite ? `Remove ${building.name} from saved places` : `Save ${building.name}`}
+            title={isFavorite ? "Saved" : "Save"}
+            onClick={() => onToggleFavorite(building.id)}
+          >
+            {isFavorite ? "★" : "☆"}
+          </button>
+        )}
+      </div>
+      {building.abbr?.length > 0 && <p className="detail-abbr">{building.abbr.join(" · ")}</p>}
+      {building.note && <p className="detail-abbr">{building.note}</p>}
+      {building.address && <p className="detail-address">{building.address}</p>}
       <div className="direction-actions">
         <a className="btn apple" href={apple} target="_blank" rel="noreferrer">
           Apple Maps

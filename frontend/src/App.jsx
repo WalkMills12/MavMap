@@ -1,49 +1,123 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CampusMap from "./components/CampusMap.jsx";
 import BuildingSearch from "./components/BuildingSearch.jsx";
 import BuildingDetail from "./components/BuildingDetail.jsx";
-import { fetchBuildings, fetchEvents, fetchTraffic } from "./api.js";
+import FaqChat from "./components/FaqChat.jsx";
+import SideMenu from "./components/SideMenu.jsx";
+import DirectoryTab from "./components/DirectoryTab.jsx";
+import EventsTab from "./components/EventsTab.jsx";
+import TransitTab from "./components/TransitTab.jsx";
+import PreferencesMenu from "./components/PreferencesMenu.jsx";
+import SuggestionPopup from "./components/SuggestionPopup.jsx";
+import StormLayer from "./components/StormLayer.jsx";
+import OdysseyFx from "./components/OdysseyFx.jsx";
+import { fetchBuildings, fetchEvents, fetchTraffic, fetchTransit } from "./api.js";
 import { nearbyEvents } from "./geo.js";
+import { hasEnded } from "./calendar.js";
+import { usePreferences } from "./prefs.js";
+import { useFavorites } from "./favorites.js";
+import { clearInterests, markSeen, markSuggested, pickSuggestions, recordInterest } from "./interests.js";
 
 const UTA_CENTER = { lat: 32.7296, lng: -97.1135 };
 const EMPTY_TRAFFIC = [];
+const isPhone = () => typeof window !== "undefined" && window.matchMedia("(max-width: 820px)").matches;
+
+function useResolvedTheme(theme) {
+  const [resolved, setResolved] = useState("dark");
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const apply = () => {
+      const next = theme === "system" ? (mq.matches ? "dark" : "light") : theme;
+      document.documentElement.dataset.theme = next;
+      setResolved(next);
+    };
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, [theme]);
+  return resolved;
+}
 
 export default function App() {
+  const [prefs, updatePrefs, resetPrefs] = usePreferences();
+  const favorites = useFavorites();
+  const theme = useResolvedTheme(prefs.theme);
+
   const [buildings, setBuildings] = useState([]);
   const [events, setEvents] = useState([]);
+  const [eventsLoading, setEventsLoading] = useState(true);
+  const [eventsError, setEventsError] = useState(null);
+  const [transit, setTransit] = useState(null);
+  const [transitError, setTransitError] = useState(false);
   const [selected, setSelected] = useState(null);
+  const [focusStop, setFocusStop] = useState(null);
   const [query, setQuery] = useState("");
-  const [showTraffic, setShowTraffic] = useState(true);
   const [traffic, setTraffic] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(() => prefs.openMenuOnStart && !isPhone());
+  const [menuTab, setMenuTab] = useState(prefs.defaultTab);
+  const [suggestions, setSuggestions] = useState([]);
+  const suggestionsChecked = useRef(false);
 
+  useEffect(() => {
+    document.documentElement.dataset.text = prefs.textSize;
+  }, [prefs.textSize]);
+
+  // Buildings, transit and traffic load once. Optional layers failing shouldn't hide the buildings.
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const [buildingData, trafficData, eventData] = await Promise.all([
-          fetchBuildings(),
-          fetchTraffic(3),
-          fetchEvents(1),
-        ]);
+        const buildingData = await fetchBuildings();
         if (cancelled) return;
         setBuildings(buildingData);
-        setTraffic(trafficData);
-        setEvents(eventData);
         setError(null);
       } catch (err) {
-        if (!cancelled) {
-          setError(err.message || "Failed to load campus data");
-        }
+        if (!cancelled) setError(err.message || "Failed to load campus data");
       } finally {
         if (!cancelled) setLoading(false);
       }
     })();
+    fetchTransit()
+      .then((data) => !cancelled && setTransit(data))
+      .catch(() => !cancelled && setTransitError(true));
+    fetchTraffic(3)
+      .then((data) => !cancelled && setTraffic(data))
+      .catch(() => {});
     return () => {
       cancelled = true;
     };
   }, []);
+
+  // Events reload whenever the "Show events for" preference changes.
+  useEffect(() => {
+    let cancelled = false;
+    setEventsLoading(true);
+    fetchEvents(prefs.eventDays)
+      .then((data) => {
+        if (cancelled) return;
+        setEvents(data);
+        setEventsError(null);
+      })
+      .catch((err) => !cancelled && setEventsError(err.message || "Failed to load events"))
+      .finally(() => !cancelled && setEventsLoading(false));
+    return () => {
+      cancelled = true;
+    };
+  }, [prefs.eventDays]);
+
+  // Once per app start: suggest new events that match what this student likes, then remember what they've seen.
+  useEffect(() => {
+    if (suggestionsChecked.current || eventsLoading || eventsError || !events.length) return;
+    suggestionsChecked.current = true;
+    const picks = prefs.suggestions ? pickSuggestions(events, favorites.eventIds) : [];
+    markSeen(events);
+    if (picks.length) {
+      markSuggested(picks.map((p) => p.event.id));
+      setSuggestions(picks);
+    }
+  }, [events, eventsLoading, eventsError, prefs.suggestions, favorites.eventIds]);
 
   const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -54,59 +128,192 @@ export default function App() {
     });
   }, [buildings, query]);
 
+  const upcomingEvents = useMemo(() => events.filter((e) => !hasEnded(e)), [events]);
+
   const selectedNearby = useMemo(
-    () => (selected ? nearbyEvents(selected, events, 280) : []),
-    [selected, events],
+    () => (selected ? nearbyEvents(selected, upcomingEvents, 280) : []),
+    [selected, upcomingEvents],
   );
+
+  const showBuilding = useCallback((building) => {
+    setFocusStop(null);
+    setSelected(building);
+    setQuery(building.name);
+    // On phones the menu covers the map, so get it out of the way.
+    if (isPhone()) setMenuOpen(false);
+  }, []);
+
+  const showStop = useCallback((stop) => {
+    setFocusStop(stop);
+    if (stop) setSelected(null);
+    if (stop && isPhone()) setMenuOpen(false);
+  }, []);
+
+  const toggleRoute = useCallback(
+    (id) => {
+      const hidden = prefs.hiddenRoutes.includes(id)
+        ? prefs.hiddenRoutes.filter((r) => r !== id)
+        : [...prefs.hiddenRoutes, id];
+      updatePrefs({ hiddenRoutes: hidden });
+    },
+    [prefs.hiddenRoutes, updatePrefs],
+  );
+
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
+  const closeSuggestions = useCallback(() => setSuggestions([]), []);
+
+  const favoriteCount = favorites.buildingIds.size + favorites.eventIds.size;
+  const odyssey = theme === "odyssey";
+  const mapStyle = odyssey ? "odyssey" : theme === "dark" ? "dark" : null;
+
+  let tabContent;
+  if (menuTab === "events") {
+    tabContent = (
+      <EventsTab
+        events={events}
+        loading={eventsLoading}
+        error={eventsError}
+        days={prefs.eventDays}
+        calendarPref={prefs.calendar}
+        buildings={buildings}
+        onShowBuilding={showBuilding}
+        savedEvents={favorites.savedEvents}
+        isEventFav={favorites.isEventFav}
+        onToggleFavorite={favorites.toggleEvent}
+      />
+    );
+  } else if (menuTab === "transit") {
+    tabContent = (
+      <TransitTab
+        transit={transit}
+        error={transitError}
+        showTransit={prefs.showTransit}
+        hiddenRoutes={prefs.hiddenRoutes}
+        onToggleTransit={(on) => updatePrefs({ showTransit: on })}
+        onToggleRoute={toggleRoute}
+        onFocusStop={showStop}
+      />
+    );
+  } else {
+    tabContent = (
+      <DirectoryTab
+        buildings={buildings}
+        selected={selected}
+        onSelect={showBuilding}
+        favoriteIds={favorites.buildingIds}
+        onToggleFavorite={favorites.toggleBuilding}
+      />
+    );
+  }
 
   return (
     <div className="app-shell">
       <header className="top-bar">
+        {odyssey && <StormLayer />}
+        <button
+          type="button"
+          className="menu-toggle"
+          aria-expanded={menuOpen}
+          aria-controls="side-menu"
+          aria-label={menuOpen ? "Close side menu" : "Open directory, events and transit"}
+          onClick={() => setMenuOpen((o) => !o)}
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            {menuOpen ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
+          </svg>
+        </button>
         <div className="brand-block">
           <p className="brand">MavMap</p>
-          <p className="tagline">Find every building on campus</p>
+          <p className="tagline">{odyssey ? "Begin your odyssey across campus" : "Find every building on campus"}</p>
         </div>
         <BuildingSearch
           query={query}
           onQueryChange={setQuery}
           results={filtered}
-          onSelect={(building) => {
-            setSelected(building);
-            setQuery(building.name);
-          }}
+          onSelect={showBuilding}
         />
-        <label className="traffic-toggle">
-          <input
-            type="checkbox"
-            checked={showTraffic}
-            onChange={(e) => setShowTraffic(e.target.checked)}
-          />
-          Event traffic
-          {traffic?.points?.length != null && (
-            <span className="traffic-count">({traffic.points.length})</span>
-          )}
-        </label>
+        <PreferencesMenu
+          prefs={prefs}
+          onChange={updatePrefs}
+          onReset={resetPrefs}
+          trafficCount={traffic?.points?.length}
+          onClearInterests={clearInterests}
+          onClearFavorites={favorites.clear}
+          favoriteCount={favoriteCount}
+        />
       </header>
 
-      <main className="map-stage">
-        {loading && <div className="status-banner">Loading campus map…</div>}
-        {error && <div className="status-banner error">{error}</div>}
-        <CampusMap
-          center={UTA_CENTER}
-          buildings={buildings}
-          selected={selected}
-          onSelect={setSelected}
-          showTraffic={showTraffic}
-          trafficPoints={traffic?.points ?? EMPTY_TRAFFIC}
-        />
-        {selected && (
-          <BuildingDetail
-            building={selected}
-            nearbyEvents={selectedNearby}
-            onClose={() => setSelected(null)}
+      <div className={`map-area${menuOpen ? " map-area--menu" : ""}`}>
+        <SideMenu
+          open={menuOpen}
+          tab={menuTab}
+          onTabChange={setMenuTab}
+          onClose={closeMenu}
+          counts={{
+            directory: buildings.length,
+            events: upcomingEvents.length,
+            transit: transit ? transit.routes.length : undefined,
+          }}
+        >
+          {tabContent}
+        </SideMenu>
+
+        <main className="map-stage">
+          {loading && <div className="status-banner">Loading campus map…</div>}
+          {error && <div className="status-banner error">{error}</div>}
+          <CampusMap
+            center={UTA_CENTER}
+            buildings={buildings}
+            selected={selected}
+            onSelect={showBuilding}
+            showTraffic={prefs.showTraffic}
+            trafficPoints={traffic?.points ?? EMPTY_TRAFFIC}
+            mapType={prefs.mapType}
+            mapStyle={mapStyle}
+            favoriteIds={favorites.buildingIds}
+            transit={transit}
+            showTransit={prefs.showTransit}
+            hiddenRoutes={prefs.hiddenRoutes}
+            focusStop={focusStop}
+            onFocusStop={showStop}
           />
-        )}
-      </main>
+          {selected && (
+            <BuildingDetail
+              building={selected}
+              nearbyEvents={selectedNearby}
+              onClose={() => setSelected(null)}
+              isFavorite={favorites.isBuildingFav(selected.id)}
+              onToggleFavorite={favorites.toggleBuilding}
+            />
+          )}
+          <FaqChat buildings={buildings} detailOpen={Boolean(selected)} onShowBuilding={showBuilding} />
+        </main>
+      </div>
+
+      {odyssey && <OdysseyFx />}
+
+      {suggestions.length > 0 && (
+        <SuggestionPopup
+          suggestions={suggestions}
+          calendarPref={prefs.calendar}
+          isSaved={favorites.isEventFav}
+          onSave={(e) => {
+            const nowSaved = favorites.toggleEvent(e);
+            recordInterest(e, nowSaved ? "favorite" : "unfavorite");
+          }}
+          onCalendar={(e) => recordInterest(e, "calendar")}
+          onViewAll={() => {
+            setMenuTab("events");
+            setMenuOpen(true);
+            closeSuggestions();
+          }}
+          onTurnOff={() => {
+            updatePrefs({ suggestions: false });
+            closeSuggestions();
+          }}
+          onClose={closeSuggestions}
+        />
+      )}
     </div>
   );
 }

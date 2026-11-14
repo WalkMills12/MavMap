@@ -12,7 +12,19 @@ class Building(BaseModel):
     lat: float
     lng: float
     category: str
-    address: str
+    address: str = ""
+    note: Optional[str] = None  # short description, e.g. "UC food court"
+    source: Optional[str] = None  # where the coordinates came from
+
+
+class Faq(BaseModel):
+    id: str
+    question: str
+    answer: str
+    keywords: List[str] = Field(default_factory=list)
+    link: Optional[str] = None
+    building: Optional[str] = None  # building id from buildings.json, shown as "Show on map"
+    featured: bool = False
 
 
 class CampusEvent(BaseModel):
@@ -24,6 +36,12 @@ class CampusEvent(BaseModel):
     lng: Optional[float] = None
     location: Optional[str] = None
     url: Optional[str] = None
+    all_day: bool = False
+    room: Optional[str] = None
+    address: Optional[str] = None
+    description: Optional[str] = None
+    types: List[str] = Field(default_factory=list)  # Localist "event_types", e.g. "Workshops"
+    photo_url: Optional[str] = None
 
 
 class TrafficPoint(BaseModel):

@@ -1,0 +1,191 @@
+[
+  {
+    "id": "parking",
+    "question": "Where can I park on campus?",
+    "answer": "Most campus lots and garages need a UTA parking permit. Students buy and manage permits through Parking & Transportation Services at uta.edu/parking. Visitors can use pay parking in the campus garages.",
+    "keywords": ["park", "parking", "permit", "garage", "citation", "parking ticket", "visitor parking"],
+    "link": "https://www.uta.edu/parking",
+    "building": null,
+    "featured": true
+  },
+  {
+    "id": "food",
+    "question": "Where can I get food?",
+    "answer": "The University Center (UC) has the main food court and coffee spots. Dining hall hours change by semester, so check the UTA Dining page before you go.",
+    "keywords": ["food", "eat", "lunch", "dinner", "breakfast", "hungry", "dining", "meal", "meal plan", "coffee", "food court"],
+    "link": null,
+    "building": "uc",
+    "featured": true
+  },
+  {
+    "id": "library-hours",
+    "question": "What are the library hours?",
+    "answer": "Central Library hours change each semester and during finals. Check library.uta.edu for today's hours. The library has study floors, group study rooms you can reserve, computer labs, printing and the FabLab makerspace.",
+    "keywords": ["library hours", "library open", "library close", "when does the library", "hours"],
+    "link": "https://library.uta.edu",
+    "building": "cl",
+    "featured": true
+  },
+  {
+    "id": "study",
+    "question": "Where can I study?",
+    "answer": "The Central Library is the best bet, with quiet floors and group study rooms you can reserve on library.uta.edu. The University Center has lounges if you want somewhere less quiet.",
+    "keywords": ["study", "quiet", "study room", "group room", "study spot"],
+    "link": "https://library.uta.edu",
+    "building": "cl",
+    "featured": false
+  },
+  {
+    "id": "mav-express",
+    "question": "How do I get or replace my student ID?",
+    "answer": "Your student ID is the Mav Express card. It's used for building access, printing, meal plans and the MAC. Get or replace it at the Mav Express office in the University Center, and bring a government photo ID.",
+    "keywords": ["mav express", "id card", "student id", "id", "lost my id", "replace id", "card"],
+    "link": null,
+    "building": "uc",
+    "featured": true
+  },
+  {
+    "id": "bookstore",
+    "question": "Where is the bookstore?",
+    "answer": "The campus bookstore is in the University Center. It sells textbooks, supplies and UTA apparel.",
+    "keywords": ["bookstore", "textbook", "textbooks", "books", "apparel", "merch", "supplies"],
+    "link": null,
+    "building": "uc",
+    "featured": false
+  },
+  {
+    "id": "registration",
+    "question": "How do I register for or drop a class?",
+    "answer": "Register for, add and drop classes in MyMav (mymav.uta.edu) with your NetID. For transcripts, holds or enrollment problems, contact the Office of the Registrar.",
+    "keywords": ["register", "registration", "enroll", "enrollment", "add a class", "drop a class", "drop", "mymav", "transcript", "registrar", "hold"],
+    "link": "https://mymav.uta.edu",
+    "building": "uab",
+    "featured": true
+  },
+  {
+    "id": "financial-aid",
+    "question": "Where is financial aid?",
+    "answer": "You can check your financial aid, bill and refunds in MyMav. For help, contact the Office of Financial Aid & Scholarships (uta.edu/financialaid).",
+    "keywords": ["financial aid", "fafsa", "scholarship", "scholarships", "tuition", "bill", "refund", "payment"],
+    "link": "https://www.uta.edu/financialaid",
+    "building": "uab",
+    "featured": false
+  },
+  {
+    "id": "canvas",
+    "question": "How do I log in to Canvas?",
+    "answer": "UTA courses use Canvas. Sign in with your NetID, or use the Canvas Student app and search for UTA.",
+    "keywords": ["canvas", "lms", "online class", "homework", "assignments"],
+    "link": null,
+    "building": null,
+    "featured": false
+  },
+  {
+    "id": "wifi",
+    "question": "How do I connect to campus Wi-Fi?",
+    "answer": "Connect to the eduroam network with your full UTA email address and password. If it won't connect, contact the OIT help desk (search “OIT help” on uta.edu).",
+    "keywords": ["wifi", "wi-fi", "internet", "eduroam", "network", "connect"],
+    "link": null,
+    "building": null,
+    "featured": false
+  },
+  {
+    "id": "printing",
+    "question": "Where can I print?",
+    "answer": "You can print in the Central Library and campus computer labs. Printing is paid with your Mav Express card.",
+    "keywords": ["print", "printing", "printer", "scan", "copies"],
+    "link": null,
+    "building": "cl",
+    "featured": false
+  },
+  {
+    "id": "gym",
+    "question": "Where is the gym?",
+    "answer": "The Maverick Activities Center (MAC) is the campus rec center, with weights, courts, an indoor track and fitness classes. Students get in with their Mav Express card.",
+    "keywords": ["gym", "workout", "work out", "exercise", "fitness", "rec center", "recreation", "weights", "basketball court"],
+    "link": null,
+    "building": "mac",
+    "featured": false
+  },
+  {
+    "id": "health",
+    "question": "Where can I see a doctor?",
+    "answer": "Student Health Services runs a clinic for students with appointments, a pharmacy and immunizations. Book through the Health Services page on uta.edu. For an emergency, call 911.",
+    "keywords": ["health", "sick", "doctor", "clinic", "nurse", "vaccine", "immunization", "pharmacy", "medical"],
+    "link": null,
+    "building": null,
+    "featured": false
+  },
+  {
+    "id": "counseling",
+    "question": "Is there free counseling?",
+    "answer": "Counseling and Psychological Services (CAPS) offers free, confidential support for students. Search “CAPS” on uta.edu for hours and booking. If you're in crisis right now, call or text 988, or call 911.",
+    "keywords": ["counseling", "counselor", "therapy", "therapist", "mental health", "stress", "stressed", "anxiety", "anxious", "depressed", "depression", "overwhelmed", "lonely", "panic", "caps", "talk to someone"],
+    "link": null,
+    "building": null,
+    "featured": false
+  },
+  {
+    "id": "police",
+    "question": "What's the campus police number?",
+    "answer": "For an emergency, call 911. The UTA Police Department's number is 817-272-3003. They also handle lost and found and can arrange a safety escort after dark.",
+    "keywords": ["police", "emergency", "unsafe", "safety", "escort", "security", "lost and found", "stolen", "campus police"],
+    "link": null,
+    "building": null,
+    "featured": true
+  },
+  {
+    "id": "tutoring",
+    "question": "Where can I get tutoring?",
+    "answer": "Free tutoring, supplemental instruction and the Writing Center are listed on uta.edu (search “tutoring” or “Writing Center”). Many sessions meet in the Central Library.",
+    "keywords": ["tutor", "tutoring", "supplemental instruction", "writing center", "essay help", "help with class"],
+    "link": null,
+    "building": "cl",
+    "featured": false
+  },
+  {
+    "id": "advising",
+    "question": "How do I find my advisor?",
+    "answer": "Each college has its own advising office. Find yours and book an appointment on uta.edu/advising, or through MyMav.",
+    "keywords": ["advisor", "adviser", "advising", "degree plan", "change major", "major"],
+    "link": "https://www.uta.edu/advising",
+    "building": null,
+    "featured": false
+  },
+  {
+    "id": "cse",
+    "question": "Where is the Computer Science department?",
+    "answer": "The Computer Science & Engineering (CSE) department is in the Engineering Research Building (ERB). Many CSE classes also meet in Nedderman Hall and Woolf Hall.",
+    "keywords": ["cse", "computer science", "cs department", "computer engineering", "cse office"],
+    "link": null,
+    "building": "erb",
+    "featured": false
+  },
+  {
+    "id": "tours",
+    "question": "Where do campus tours start?",
+    "answer": "Campus tours and visitor check-in happen at the Dan Dipert University Welcome Center. Book a tour on uta.edu/admissions.",
+    "keywords": ["tour", "tours", "campus tour", "visit", "visitor", "admissions", "welcome center"],
+    "link": "https://www.uta.edu/admissions",
+    "building": "welcome",
+    "featured": false
+  },
+  {
+    "id": "shuttle",
+    "question": "Is there a campus shuttle?",
+    "answer": "Yes. The free MavMover shuttle runs Orange, Blue and Black routes on weekdays from 7:30 AM to 6:00 PM, plus Red and Green evening routes. Open the Transit tab in the side menu to see the stops on the map. Routes can change, so check uta.edu for the current schedule.",
+    "keywords": ["shuttle", "bus", "mavmover", "mav mover", "bus stop", "bus route", "ride", "transportation"],
+    "link": "https://www.uta.edu/campus-ops/pats/transportation/mav-mover-shuttles",
+    "building": null,
+    "featured": false
+  },
+  {
+    "id": "rooms",
+    "question": "How do UTA room numbers work?",
+    "answer": "A room is written as the building abbreviation plus a number, like NH 106 or ERB 228. The first digit is usually the floor, so NH 106 is on the 1st floor of Nedderman Hall. Type a room here and I'll show you the building.",
+    "keywords": ["room number", "room numbers", "find a room", "find my class", "classroom", "which floor", "floor"],
+    "link": null,
+    "building": null,
+    "featured": true
+  }
+]

@@ -14,6 +14,14 @@ export function fetchBuildings(query = "") {
   return request(`/api/buildings${params}`);
 }
 
+export function fetchTransit() {
+  return request("/api/transit");
+}
+
+export function fetchFaqs() {
+  return request("/api/faqs");
+}
+
 export function fetchEvents(days = 1) {
   return request(`/api/events?days=${days}`);
 }

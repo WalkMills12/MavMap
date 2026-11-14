@@ -214,5 +214,37 @@
     "lng": -97.11485,
     "category": "admin",
     "address": "701 S Nedderman Dr, Arlington, TX 76019"
-  }
+  },
+
+  { "id": "maverick-garage", "name": "Maverick Parking Garage", "abbr": [], "lat": 32.72943, "lng": -97.11164, "category": "parking", "address": "", "note": "Parking garage", "source": "OpenStreetMap way/286852862" },
+  { "id": "park-north", "name": "Park North Garage", "abbr": [], "lat": 32.73326, "lng": -97.10768, "category": "parking", "address": "", "note": "Parking garage (permit)", "source": "OpenStreetMap way/472239612" },
+  { "id": "park-central", "name": "Park Central Garage", "abbr": [], "lat": 32.73264, "lng": -97.10786, "category": "parking", "address": "", "note": "Parking garage (permit)", "source": "OpenStreetMap way/668767199" },
+  { "id": "park-south", "name": "Park South Garage", "abbr": [], "lat": 32.73171, "lng": -97.10783, "category": "parking", "address": "", "note": "Parking garage", "source": "OpenStreetMap way/1049104123" },
+  { "id": "west-garage", "name": "West Campus Parking Garage", "abbr": [], "lat": 32.7336, "lng": -97.11704, "category": "parking", "address": "", "note": "Parking garage", "source": "OpenStreetMap way/286867628" },
+  { "id": "commuter-lot", "name": "Commuter Parking Lot", "abbr": [], "lat": 32.72811, "lng": -97.1105, "category": "parking", "address": "", "note": "Surface lot", "source": "OpenStreetMap way/286848470" },
+  { "id": "kc-lot", "name": "Kalpana Chawla Residents Parking Lot", "abbr": [], "lat": 32.72894, "lng": -97.10923, "category": "parking", "address": "", "note": "Surface lot for Kalpana Chawla Hall residents", "source": "OpenStreetMap way/301572235" },
+
+  { "id": "arlington-hall", "name": "Arlington Hall", "abbr": [], "lat": 32.7311, "lng": -97.10937, "category": "housing", "address": "600 Spaniolo Dr, Arlington, TX 76010", "note": "Residence hall", "source": "OpenStreetMap way/287015034" },
+  { "id": "vandergriff-hall", "name": "Vandergriff Hall", "abbr": [], "lat": 32.73255, "lng": -97.10842, "category": "housing", "address": "587 Spaniolo Dr, Arlington, TX 76010", "note": "Residence hall", "source": "OpenStreetMap way/472239611" },
+  { "id": "kc-hall", "name": "Kalpana Chawla Hall", "abbr": ["KC"], "lat": 32.72834, "lng": -97.10937, "category": "housing", "address": "", "note": "Residence hall", "source": "OpenStreetMap way/286852871" },
+  { "id": "west-hall", "name": "West Hall", "abbr": [], "lat": 32.73307, "lng": -97.11841, "category": "housing", "address": "", "note": "Residence hall", "source": "OpenStreetMap way/567601709" },
+  { "id": "maverick-hall", "name": "Maverick Hall", "abbr": [], "lat": 32.73374, "lng": -97.1184, "category": "housing", "address": "UTA Blvd, Arlington, TX 76019", "note": "Residence hall", "source": "OpenStreetMap way/1418143404" },
+  { "id": "timber-brook", "name": "Timber Brook", "abbr": [], "lat": 32.73379, "lng": -97.11988, "category": "housing", "address": "", "note": "Student apartments", "source": "OpenStreetMap way/301613902" },
+  { "id": "meadow-run", "name": "Meadow Run", "abbr": [], "lat": 32.7312, "lng": -97.12142, "category": "housing", "address": "", "note": "Student apartments", "source": "OpenStreetMap way/301613910" },
+  { "id": "centennial-court", "name": "Centennial Court", "abbr": [], "lat": 32.72578, "lng": -97.11633, "category": "housing", "address": "700 W Mitchell Cir, Arlington, TX 76013", "note": "Student apartments", "source": "OpenStreetMap way/1218981544" },
+  { "id": "maverick-place", "name": "Maverick Place", "abbr": [], "lat": 32.72438, "lng": -97.11925, "category": "housing", "address": "", "note": "Student apartments", "source": "OpenStreetMap node/3056851075" },
+
+  { "id": "connection-cafe", "name": "Connection Cafe", "abbr": [], "lat": 32.73147, "lng": -97.11083, "category": "dining", "address": "University Center, 300 W 1st St, Arlington, TX 76019", "note": "Dining hall in the University Center", "source": "OpenStreetMap node/9525396352" },
+  { "id": "chick-fil-a-uc", "name": "Chick-fil-A (University Center)", "abbr": [], "lat": 32.73174, "lng": -97.11149, "category": "dining", "address": "University Center, 300 W 1st St, Arlington, TX 76019", "note": "UC food court", "source": "OpenStreetMap node/8486929805" },
+  { "id": "panda-express-uc", "name": "Panda Express (University Center)", "abbr": [], "lat": 32.73174, "lng": -97.11158, "category": "dining", "address": "University Center, 300 W 1st St, Arlington, TX 76019", "note": "UC food court", "source": "OpenStreetMap node/9525396348" },
+  { "id": "rusty-taco-uc", "name": "Rusty Taco (University Center)", "abbr": [], "lat": 32.73168, "lng": -97.11164, "category": "dining", "address": "University Center, 300 W 1st St, Arlington, TX 76019", "note": "UC food court", "source": "OpenStreetMap node/9525396349" },
+  { "id": "subway-uc", "name": "Subway (University Center)", "abbr": [], "lat": 32.73173, "lng": -97.1119, "category": "dining", "address": "University Center, 300 W 1st St, Arlington, TX 76019", "note": "UC food court", "source": "OpenStreetMap node/9525396347" },
+  { "id": "tea-co-uc", "name": "Tea Co (University Center)", "abbr": [], "lat": 32.73161, "lng": -97.11164, "category": "dining", "address": "University Center, 300 W 1st St, Arlington, TX 76019", "note": "Bubble tea", "source": "OpenStreetMap node/11817371388" },
+  { "id": "kalachandjis-uc", "name": "Kalachandji's (University Center)", "abbr": [], "lat": 32.73154, "lng": -97.11184, "category": "dining", "address": "University Center, 300 W 1st St, Arlington, TX 76019", "note": "Indian vegetarian", "source": "OpenStreetMap node/11817371386" },
+  { "id": "starbucks-uc", "name": "Starbucks (University Center)", "abbr": [], "lat": 32.73194, "lng": -97.11171, "category": "dining", "address": "300 W 1st St, Arlington, TX 76019", "note": "Coffee", "source": "OpenStreetMap node/3056808768" },
+  { "id": "starbucks-spaniolo", "name": "Starbucks (Spaniolo Dr)", "abbr": [], "lat": 32.73336, "lng": -97.10924, "category": "dining", "address": "400 Spaniolo Dr, Arlington, TX 76010", "note": "Coffee", "source": "OpenStreetMap way/1033962252" },
+  { "id": "starbucks-nedderman", "name": "Starbucks (Nedderman Dr)", "abbr": [], "lat": 32.73286, "lng": -97.11681, "category": "dining", "address": "440 Nedderman Dr, Arlington, TX 76019", "note": "Coffee", "source": "OpenStreetMap node/11537919641" },
+  { "id": "maverick-cafe", "name": "Maverick Cafe", "abbr": [], "lat": 32.73275, "lng": -97.11731, "category": "dining", "address": "", "note": "Cafe on the west side of campus", "source": "OpenStreetMap node/11537919642" },
+  { "id": "panera-spaniolo", "name": "Panera Bread", "abbr": [], "lat": 32.73138, "lng": -97.10854, "category": "dining", "address": "593 Spaniolo Dr, Arlington, TX 76010", "note": "Bakery cafe next to campus", "source": "OpenStreetMap node/3056782499" },
+  { "id": "pie-five-spaniolo", "name": "Pie Five Pizza Co", "abbr": [], "lat": 32.73191, "lng": -97.10856, "category": "dining", "address": "501 Spaniolo Dr, Arlington, TX 76010", "note": "Pizza next to campus", "source": "OpenStreetMap node/3056782500" }
 ]

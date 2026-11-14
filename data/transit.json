@@ -1,0 +1,67 @@
+{
+  "name": "MavMover shuttle",
+  "source": "Routes, stop order and hours from the UTA MavMover page. Stop positions come from OpenStreetMap shuttle stops where they exist (exact: true), otherwise from the building at that stop (exact: false). Lines connect stops in order and do not follow the exact streets.",
+  "info_url": "https://www.uta.edu/campus-ops/pats/transportation/mav-mover-shuttles",
+  "phone": "817-272-3907",
+  "stops": {
+    "studio-arts": { "name": "Studio Arts", "lat": 32.72956, "lng": -97.1248, "exact": true },
+    "maverick-stadium": { "name": "Maverick Stadium (Lot 26)", "lat": 32.72787, "lng": -97.12616, "exact": true },
+    "maverick-place": { "name": "Maverick Place", "lat": 32.72438, "lng": -97.11925, "exact": true },
+    "848-mitchell": { "name": "848 Mitchell", "lat": 32.72541, "lng": -97.11837, "exact": false },
+    "centennial-court": { "name": "Centennial Court", "lat": 32.72578, "lng": -97.11633, "exact": false },
+    "pickard-hall": { "name": "Pickard Hall", "lat": 32.72879, "lng": -97.11159, "exact": false },
+    "business-building": { "name": "Business Building", "lat": 32.72938, "lng": -97.10997, "exact": true },
+    "smart-hospital": { "name": "Social Work / Smart Hospital", "lat": 32.72769, "lng": -97.11176, "exact": false },
+    "meadow-run": { "name": "Meadow Run", "lat": 32.73162, "lng": -97.12156, "exact": true },
+    "timber-brook": { "name": "Timber Brook", "lat": 32.73368, "lng": -97.11913, "exact": true },
+    "university-center": { "name": "University Center", "lat": 32.73214, "lng": -97.11178, "exact": true },
+    "college-park-center": { "name": "College Park Center", "lat": 32.73038, "lng": -97.10808, "exact": false },
+    "the-mac": { "name": "The MAC", "lat": 32.73265, "lng": -97.11649, "exact": true },
+    "heights-on-pecan": { "name": "Heights on Pecan", "lat": 32.7242, "lng": -97.10834, "exact": false },
+    "liv-plus": { "name": "Liv+ Apartments", "lat": 32.72738, "lng": -97.10559, "exact": false }
+  },
+  "routes": [
+    {
+      "id": "orange",
+      "name": "Orange",
+      "color": "#f58220",
+      "hours": "Mon–Fri, 7:30 AM–6:00 PM",
+      "stops": ["studio-arts", "maverick-stadium", "maverick-place", "848-mitchell", "centennial-court", "pickard-hall", "business-building", "smart-hospital"],
+      "unmapped_stops": []
+    },
+    {
+      "id": "blue",
+      "name": "Blue",
+      "color": "#3d7bf0",
+      "hours": "Mon–Fri, 7:30 AM–6:00 PM",
+      "stops": ["meadow-run", "timber-brook", "university-center", "business-building", "college-park-center", "university-center", "smart-hospital", "the-mac"],
+      "unmapped_stops": ["The Arlie"]
+    },
+    {
+      "id": "black",
+      "name": "Black",
+      "color": "#1f2633",
+      "hours": "Mon–Fri, 7:30 AM–6:00 PM",
+      "stops": ["heights-on-pecan", "liv-plus", "college-park-center", "business-building", "university-center"],
+      "unmapped_stops": ["Lot 49", "Lot 50"]
+    },
+    {
+      "id": "red",
+      "name": "Red",
+      "color": "#e0453a",
+      "hours": "Mon–Fri, 5:30–9:00 PM",
+      "stops": [],
+      "unmapped_stops": [],
+      "note": "UTA doesn't list stops for the Red route. Check the MavMover page for the current schedule."
+    },
+    {
+      "id": "green",
+      "name": "Green",
+      "color": "#2fa866",
+      "hours": "Mon–Fri, 6:30–10:30 PM",
+      "stops": [],
+      "unmapped_stops": [],
+      "note": "Evening shopping shuttle. Departs UTA at :00 and :30 and departs Walmart at :15 and :45."
+    }
+  ]
+}

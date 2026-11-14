@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     buildings_path: Path = DATA_DIR / "buildings.json"
+    faqs_path: Path = DATA_DIR / "faqs.json"
+    transit_path: Path = DATA_DIR / "transit.json"
     localist_base_url: str = "https://events.uta.edu/api/2"
     events_cache_ttl_seconds: int = 300
     traffic_window_hours: int = 3
