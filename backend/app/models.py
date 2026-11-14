@@ -24,6 +24,8 @@ class CampusEvent(BaseModel):
     lng: Optional[float] = None
     location: Optional[str] = None
     url: Optional[str] = None
+    ics_url: Optional[str] = None
+    experience: Optional[str] = None
 
 
 class TrafficPoint(BaseModel):

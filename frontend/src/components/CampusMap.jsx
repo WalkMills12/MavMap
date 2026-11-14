@@ -1,16 +1,23 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { GoogleMap, MarkerF, useJsApiLoader } from "@react-google-maps/api";
+import { GoogleMap, MarkerF, PolygonF, useJsApiLoader } from "@react-google-maps/api";
+import { footprintStyle, markerIconForCategory } from "../markerIcons.js";
 
 const mapContainerStyle = { width: "100%", height: "100%" };
 const libraries = ["visualization"];
 
-// Keep the camera on UTA + nearby streets (not all of Arlington).
 const UTA_BOUNDS = {
   north: 32.7405,
   south: 32.7205,
   east: -97.0985,
   west: -97.1265,
 };
+
+const CAMPUS_MAP_STYLES = [
+  { featureType: "poi", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.school", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.business", stylers: [{ visibility: "off" }] },
+  { featureType: "transit", stylers: [{ visibility: "simplified" }] },
+];
 
 const mapOptions = {
   disableDefaultUI: false,
@@ -19,6 +26,7 @@ const mapOptions = {
   streetViewControl: false,
   fullscreenControl: false,
   clickableIcons: false,
+  styles: CAMPUS_MAP_STYLES,
   minZoom: 14,
   maxZoom: 19,
   restriction: {
@@ -27,10 +35,29 @@ const mapOptions = {
   },
 };
 
+function ringsFromGeometry(geometry) {
+  if (!geometry) return [];
+  if (geometry.type === "Polygon") {
+    return [geometry.coordinates[0] || []];
+  }
+  if (geometry.type === "MultiPolygon") {
+    return (geometry.coordinates || []).map((poly) => poly[0] || []);
+  }
+  return [];
+}
+
+function pathFromRing(ring) {
+  // GeoJSON is [lng, lat]
+  return ring.map(([lng, lat]) => ({ lat, lng }));
+}
+
 export default function CampusMap({
   center,
   buildings,
+  markers = [],
+  footprints,
   selected,
+  focusPoint,
   onSelect,
   showTraffic,
   trafficPoints,
@@ -40,15 +67,31 @@ export default function CampusMap({
   const heatmapRef = useRef(null);
   const [mapReady, setMapReady] = useState(false);
 
+  const buildingById = useMemo(() => {
+    const map = new Map();
+    for (const building of buildings) map.set(building.id, building);
+    return map;
+  }, [buildings]);
+
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: apiKey,
     libraries,
   });
 
   const mapCenter = useMemo(() => {
+    if (focusPoint) return focusPoint;
     if (selected) return { lat: selected.lat, lng: selected.lng };
     return center;
-  }, [center, selected]);
+  }, [center, selected, focusPoint]);
+
+  const pins = useMemo(() => {
+    const byId = new Map();
+    for (const building of markers) byId.set(building.id, building);
+    if (selected) byId.set(selected.id, selected);
+    return Array.from(byId.values());
+  }, [markers, selected]);
+
+  const footprintFeatures = footprints?.features || [];
 
   useEffect(() => {
     const map = mapRef.current;
@@ -118,7 +161,7 @@ export default function CampusMap({
     <GoogleMap
       mapContainerStyle={mapContainerStyle}
       center={mapCenter}
-      zoom={selected ? 17 : 15.5}
+      zoom={selected || focusPoint ? 17 : 15.5}
       options={mapOptions}
       onLoad={(map) => {
         mapRef.current = map;
@@ -133,15 +176,42 @@ export default function CampusMap({
         setMapReady(false);
       }}
     >
-      {buildings.map((building) => (
-        <MarkerF
-          key={building.id}
-          position={{ lat: building.lat, lng: building.lng }}
-          title={`${building.name} (${(building.abbr || []).join(", ")})`}
-          onClick={() => onSelect(building)}
-          opacity={selected && selected.id !== building.id ? 0.55 : 1}
-        />
-      ))}
+      {footprintFeatures.map((feature) => {
+        const props = feature.properties || {};
+        const building = buildingById.get(props.id);
+        const isSelected = selected?.id === props.id;
+        const style = footprintStyle(
+          props.category,
+          isSelected,
+          props.fillColor || props.strokeColor,
+        );
+        const rings = ringsFromGeometry(feature.geometry);
+
+        return rings.map((ring, index) => (
+          <PolygonF
+            key={`${props.id}-${index}`}
+            paths={pathFromRing(ring)}
+            options={style}
+            onClick={() => {
+              if (building) onSelect(building);
+            }}
+          />
+        ));
+      })}
+
+      {pins.map((building) => {
+        const isSelected = selected?.id === building.id;
+        return (
+          <MarkerF
+            key={`pin-${building.id}`}
+            position={{ lat: building.lat, lng: building.lng }}
+            title={`${building.name} (${(building.abbr || []).join(", ")})`}
+            onClick={() => onSelect(building)}
+            icon={markerIconForCategory(building.category, isSelected)}
+            zIndex={isSelected ? 1000 : 2}
+          />
+        );
+      })}
     </GoogleMap>
   );
 }

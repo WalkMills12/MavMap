@@ -9,7 +9,15 @@ import httpx
 from .config import settings
 from .models import CampusEvent, TrafficPoint, TrafficResponse
 
-_cache: Dict[str, Any] = {"fetched_at": 0.0, "events": []}
+# Same footprint as the frontend map restriction — main campus + nearby UTA sites.
+UTA_BOUNDS = {
+    "north": 32.7405,
+    "south": 32.7205,
+    "east": -97.0985,
+    "west": -97.1265,
+}
+
+_cache: Dict[str, Any] = {}
 
 
 def _parse_localist_datetime(value: Optional[str]) -> Optional[datetime]:
@@ -19,6 +27,15 @@ def _parse_localist_datetime(value: Optional[str]) -> Optional[datetime]:
         return datetime.fromisoformat(value.replace("Z", "+00:00"))
     except ValueError:
         return None
+
+
+def is_on_uta_campus(lat: Optional[float], lng: Optional[float]) -> bool:
+    if lat is None or lng is None:
+        return False
+    return (
+        UTA_BOUNDS["south"] <= lat <= UTA_BOUNDS["north"]
+        and UTA_BOUNDS["west"] <= lng <= UTA_BOUNDS["east"]
+    )
 
 
 def _normalize_event(raw: Dict[str, Any]) -> Optional[CampusEvent]:
@@ -50,13 +67,21 @@ def _normalize_event(raw: Dict[str, Any]) -> Optional[CampusEvent]:
         lng=lng,
         location=event.get("location_name") or event.get("location"),
         url=event.get("localist_url"),
+        ics_url=event.get("localist_ics_url"),
+        experience=event.get("experience"),
     )
 
 
-async def fetch_localist_events(days: int = 2, per_page: int = 100) -> List[CampusEvent]:
+async def fetch_localist_events(
+    days: int = 2,
+    per_page: int = 100,
+    campus_only: bool = True,
+) -> List[CampusEvent]:
+    cache_key = f"events:{days}:{campus_only}"
+    cached = _cache.get(cache_key)
     now = time.time()
-    if _cache["events"] and now - _cache["fetched_at"] < settings.events_cache_ttl_seconds:
-        return _cache["events"]
+    if cached and now - cached["fetched_at"] < settings.events_cache_ttl_seconds:
+        return cached["events"]
 
     url = f"{settings.localist_base_url}/events"
     params = {"days": days, "pp": per_page}
@@ -68,11 +93,15 @@ async def fetch_localist_events(days: int = 2, per_page: int = 100) -> List[Camp
     events: List[CampusEvent] = []
     for item in payload.get("events") or []:
         normalized = _normalize_event(item)
-        if normalized:
-            events.append(normalized)
+        if not normalized:
+            continue
+        # Drop virtual / off-campus / no-location events when campus_only.
+        if campus_only and not is_on_uta_campus(normalized.lat, normalized.lng):
+            continue
+        events.append(normalized)
 
-    _cache["events"] = events
-    _cache["fetched_at"] = now
+    events.sort(key=lambda e: e.start or "")
+    _cache[cache_key] = {"events": events, "fetched_at": now}
     return events
 
 
@@ -108,6 +137,8 @@ def build_traffic(
 
     for event in events:
         if event.lat is None or event.lng is None:
+            continue
+        if not is_on_uta_campus(event.lat, event.lng):
             continue
         if not _event_in_window(event, now, window_end):
             continue
