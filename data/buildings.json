@@ -1,0 +1,218 @@
+[
+  {
+    "id": "nh",
+    "name": "Nedderman Hall",
+    "abbr": ["NH", "NEDDERMAN"],
+    "lat": 32.73245,
+    "lng": -97.11395,
+    "category": "academic",
+    "address": "416 Yates St, Arlington, TX 76019"
+  },
+  {
+    "id": "wh",
+    "name": "Woolf Hall",
+    "abbr": ["WH", "WOOLF"],
+    "lat": 32.73285,
+    "lng": -97.11255,
+    "category": "academic",
+    "address": "500 UTA Blvd, Arlington, TX 76019"
+  },
+  {
+    "id": "erb",
+    "name": "Engineering Research Building",
+    "abbr": ["ERB"],
+    "lat": 32.73325,
+    "lng": -97.11405,
+    "category": "academic",
+    "address": "500 UTA Blvd, Arlington, TX 76019"
+  },
+  {
+    "id": "elab",
+    "name": "Engineering Lab Building",
+    "abbr": ["ELAB", "ELB"],
+    "lat": 32.73305,
+    "lng": -97.11335,
+    "category": "academic",
+    "address": "500 UTA Blvd, Arlington, TX 76019"
+  },
+  {
+    "id": "uc",
+    "name": "University Center",
+    "abbr": ["UC", "UCENTER"],
+    "lat": 32.73145,
+    "lng": -97.11105,
+    "category": "student_life",
+    "address": "300 W 1st St, Arlington, TX 76019"
+  },
+  {
+    "id": "cl",
+    "name": "Central Library",
+    "abbr": ["CL", "LIBRARY", "LIB"],
+    "lat": 32.72985,
+    "lng": -97.11285,
+    "category": "academic",
+    "address": "702 Planetarium Pl, Arlington, TX 76019"
+  },
+  {
+    "id": "coba",
+    "name": "Business Building",
+    "abbr": ["COBA", "BUSINESS"],
+    "lat": 32.72855,
+    "lng": -97.11455,
+    "category": "academic",
+    "address": "701 S West St, Arlington, TX 76019"
+  },
+  {
+    "id": "fa",
+    "name": "Fine Arts Building",
+    "abbr": ["FA", "FINEARTS"],
+    "lat": 32.73055,
+    "lng": -97.11555,
+    "category": "academic",
+    "address": "700 Greek Row Dr, Arlington, TX 76019"
+  },
+  {
+    "id": "mac",
+    "name": "Maverick Activities Center",
+    "abbr": ["MAC"],
+    "lat": 32.73355,
+    "lng": -97.11705,
+    "category": "athletics",
+    "address": "500 W Nedderman Dr, Arlington, TX 76019"
+  },
+  {
+    "id": "ch",
+    "name": "College Hall",
+    "abbr": ["CH", "COLLEGE"],
+    "lat": 32.72905,
+    "lng": -97.11355,
+    "category": "academic",
+    "address": "600 S Cooper St, Arlington, TX 76019"
+  },
+  {
+    "id": "sh",
+    "name": "Science Hall",
+    "abbr": ["SH", "SCIENCE"],
+    "lat": 32.73005,
+    "lng": -97.11305,
+    "category": "academic",
+    "address": "502 Yates St, Arlington, TX 76019"
+  },
+  {
+    "id": "cpb",
+    "name": "Chemistry & Physics Building",
+    "abbr": ["CPB", "CHEM", "PHYSICS"],
+    "lat": 32.72955,
+    "lng": -97.11385,
+    "category": "academic",
+    "address": "700 Planetarium Pl, Arlington, TX 76019"
+  },
+  {
+    "id": "ls",
+    "name": "Life Sciences Building",
+    "abbr": ["LS", "LIFESCI"],
+    "lat": 32.72805,
+    "lng": -97.11205,
+    "category": "academic",
+    "address": "501 S Nedderman Dr, Arlington, TX 76019"
+  },
+  {
+    "id": "ph",
+    "name": "Pickard Hall",
+    "abbr": ["PH", "PICKARD"],
+    "lat": 32.72755,
+    "lng": -97.11155,
+    "category": "academic",
+    "address": "411 S Nedderman Dr, Arlington, TX 76019"
+  },
+  {
+    "id": "hh",
+    "name": "Hammond Hall",
+    "abbr": ["HH", "HAMMOND"],
+    "lat": 32.72925,
+    "lng": -97.11405,
+    "category": "academic",
+    "address": "701 S Cooper St, Arlington, TX 76019"
+  },
+  {
+    "id": "th",
+    "name": "Trimble Hall",
+    "abbr": ["TH", "TRIMBLE"],
+    "lat": 32.72885,
+    "lng": -97.11425,
+    "category": "academic",
+    "address": "700 S Cooper St, Arlington, TX 76019"
+  },
+  {
+    "id": "rh",
+    "name": "Ransom Hall",
+    "abbr": ["RH", "RANSOM"],
+    "lat": 32.72965,
+    "lng": -97.11325,
+    "category": "academic",
+    "address": "701 S Cooper St, Arlington, TX 76019"
+  },
+  {
+    "id": "prh",
+    "name": "Preston Hall",
+    "abbr": ["PHALL", "PRESTON"],
+    "lat": 32.73025,
+    "lng": -97.11355,
+    "category": "academic",
+    "address": "600 S Cooper St, Arlington, TX 76019"
+  },
+  {
+    "id": "tex",
+    "name": "Texas Hall",
+    "abbr": ["TEX", "TEXAS"],
+    "lat": 32.73105,
+    "lng": -97.11505,
+    "category": "student_life",
+    "address": "700 W Nedderman Dr, Arlington, TX 76019"
+  },
+  {
+    "id": "cappa",
+    "name": "CAPPA Building",
+    "abbr": ["CAPPA", "ARCH", "ARCHITECTURE"],
+    "lat": 32.73305,
+    "lng": -97.11555,
+    "category": "academic",
+    "address": "601 W Nedderman Dr, Arlington, TX 76019"
+  },
+  {
+    "id": "welcome",
+    "name": "Dan Dipert University Welcome Center",
+    "abbr": ["WELCOME", "DDWC", "COLLEGEPARK"],
+    "lat": 32.72705,
+    "lng": -97.11005,
+    "category": "student_life",
+    "address": "300 W 1st St, Arlington, TX 76010"
+  },
+  {
+    "id": "swsh",
+    "name": "School of Social Work / Smart Hospital",
+    "abbr": ["SWSH", "SOCIALWORK", "SMARTHOSPITAL"],
+    "lat": 32.72764,
+    "lng": -97.11164,
+    "category": "academic",
+    "address": "501 W Mitchell St, Arlington, TX 76010"
+  },
+  {
+    "id": "uh",
+    "name": "University Hall",
+    "abbr": ["UH", "UNIVHALL"],
+    "lat": 32.73075,
+    "lng": -97.11455,
+    "category": "academic",
+    "address": "601 S Nedderman Dr, Arlington, TX 76019"
+  },
+  {
+    "id": "uab",
+    "name": "University Administration Building",
+    "abbr": ["UAB", "ADMIN"],
+    "lat": 32.73095,
+    "lng": -97.11485,
+    "category": "admin",
+    "address": "701 S Nedderman Dr, Arlington, TX 76019"
+  }
+]

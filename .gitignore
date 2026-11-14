@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+backend/.venv/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+
+# Env / API keys / secrets (never commit)
+.env
+.env.*
+!.env.example
+!**/.env.example
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+
+# Common credential / key filenames
+*.pem
+*.p8
+*.p12
+*.key
+*credentials*.json
+*service-account*.json
+google-services.json
+AuthKey_*.p8
+secrets/
+.keys/
+api_keys/
+**/local.secrets.*
+
+# Build / cache
+frontend/dist/
+backend/*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.DS_Store
+*.log
+
+# Editors
+.idea/
+.vscode/
+*.swp
