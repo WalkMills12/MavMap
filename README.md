@@ -90,7 +90,7 @@ The **Transit** tab and map layer show UTA's MavMover routes from `data/transit.
 The **Preferences** button in the top-right holds settings saved in the browser (`localStorage`):
 
 - Theme (dark, light, match device, or **The Odyssey**) and text size (normal, large, extra large)
-  - *The Odyssey* (`[data-theme="odyssey"]` in `index.css`): wine-dark and bronze colors with Cinzel headings, a sea-chart map style (Street view), a bronze spear cursor that swings with a golden swoosh and sparks on every click (`OdysseyFx.jsx`), and a stormy top bar with animated rain and lightning (`StormLayer.jsx`). With *reduce motion* turned on in the OS, the rain and swing animations are off and clicks show a simple ring.
+  - *The Odyssey* (`[data-theme="odyssey"]` in `index.css`): wine-dark and bronze colors with Cinzel headings, a sea-chart map style (Street view), a sword cursor that swings when you click, with no trail left behind (`SwordCursor.jsx`, mouse and pen only), and a stormy top bar with animated rain and lightning (`StormLayer.jsx`). With *reduce motion* turned on in the OS, the rain and the swing are off.
 - Map view: Street, Satellite, or OpenStreetMap tiles (with OSM attribution, per the [tile usage policy](https://operations.osmfoundation.org/policies/tiles/))
 - Show MavMover shuttle stops and routes
 - Suggest new events at startup, plus buttons to clear learned interests and saved items

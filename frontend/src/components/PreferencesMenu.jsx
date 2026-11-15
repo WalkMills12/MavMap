@@ -136,7 +136,7 @@ export default function PreferencesMenu({ prefs, onChange, onReset, trafficCount
             />
             {prefs.theme === "odyssey" && (
               <p className="prefs-note">
-                Sea-chart map, spear cursor and a stormy sky. The chart styling shows in Street view.
+                Sea-chart map, sword cursor and a stormy sky. The chart styling shows in Street view.
               </p>
             )}
             <Segmented name="text-pref" label="Text size" options={TEXT_OPTIONS} value={prefs.textSize} onChange={(v) => onChange({ textSize: v })} />

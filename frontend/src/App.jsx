@@ -10,7 +10,7 @@ import TransitTab from "./components/TransitTab.jsx";
 import PreferencesMenu from "./components/PreferencesMenu.jsx";
 import SuggestionPopup from "./components/SuggestionPopup.jsx";
 import StormLayer from "./components/StormLayer.jsx";
-import OdysseyFx from "./components/OdysseyFx.jsx";
+import SwordCursor from "./components/SwordCursor.jsx";
 import { fetchBuildings, fetchEvents, fetchTraffic, fetchTransit } from "./api.js";
 import { nearbyEvents } from "./geo.js";
 import { hasEnded } from "./calendar.js";
@@ -236,7 +236,7 @@ export default function App() {
           ) : (
             <p className="brand">MavMap</p>
           )}
-          <p className="tagline">{odyssey ? "Begin your odyssey across campus" : "Find every building on campus"}</p>
+          {odyssey && <p className="tagline">Begin your odyssey across campus</p>}
         </div>
         <BuildingSearch
           query={query}
@@ -302,7 +302,7 @@ export default function App() {
         </main>
       </div>
 
-      {odyssey && <OdysseyFx />}
+      {odyssey && <SwordCursor />}
 
       {suggestions.length > 0 && (
         <SuggestionPopup
