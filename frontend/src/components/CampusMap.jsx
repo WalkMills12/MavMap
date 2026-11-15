@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { GoogleMap, InfoWindowF, MarkerF, PolylineF, useJsApiLoader } from "@react-google-maps/api";
+import { CircleF, GoogleMap, InfoWindowF, MarkerF, PolylineF, useJsApiLoader } from "@react-google-maps/api";
 import { CATEGORY_COLORS, badgeFor } from "../categories.js";
+import { snapToPath } from "../geo.js";
+import { useAnimatedPosition } from "../useAnimatedPosition.js";
+import { useIsMobile } from "../useIsMobile.js";
 
 const mapContainerStyle = { width: "100%", height: "100%" };
 const libraries = ["visualization"];
@@ -53,6 +56,7 @@ const ODYSSEY_STYLE = [
 const MAP_STYLES = { dark: DARK_STYLE, odyssey: ODYSSEY_STYLE };
 
 const OSM_TYPE_ID = "osm";
+const INITIAL_ZOOM = 15.5;
 
 const baseOptions = {
   disableDefaultUI: false,
@@ -99,6 +103,14 @@ export default function CampusMap({
   hiddenRoutes = [],
   focusStop,
   onFocusStop,
+  userPosition = null, // { lat, lng, accuracy, heading } from live GPS
+  routePath = null, // [{ lat, lng }] walking route to draw
+  routeEnd = null, // { lat, lng } the door / side of the building the walk ends at
+  routeEndKind = null, // "door" | "side" | "center"
+  navigating = false, // keep the map following the walker
+  recenterKey = 0, // bump to jump the map back to the user
+  onFollowChange, // (following: boolean) => void
+  navTargetId = null, // building being walked to (kept bright while others fade)
 }) {
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
   const mapRef = useRef(null);
@@ -111,15 +123,39 @@ export default function CampusMap({
     libraries,
   });
 
-  const mapCenter = useMemo(() => {
-    if (focusStop) return { lat: focusStop.lat, lng: focusStop.lng };
-    if (selected) return { lat: selected.lat, lng: selected.lng };
-    return center;
-  }, [center, selected, focusStop]);
+  // The map is positioned imperatively: it moves when you pick a building or stop, and stays
+  // where it is when you close a card (instead of snapping back to the whole campus).
+  const [initialCenter] = useState(center);
+  const focus = focusStop || selected;
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !mapReady || !focus) return;
+    map.panTo({ lat: focus.lat, lng: focus.lng });
+    if (map.getZoom() < 17) map.setZoom(17);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focus?.id, focus?.lat, focus?.lng, mapReady]);
 
+  // Where to draw "you are here": on the walking route when you're within 20 m of it (so GPS
+  // wobble doesn't pull you off the path), gliding smoothly between fixes.
+  const dotTarget = useMemo(() => {
+    if (!userPosition || !navigating || !routePath) return userPosition;
+    const s = snapToPath(userPosition, routePath);
+    return s && s.distance <= 20 ? { ...userPosition, lat: s.lat, lng: s.lng } : userPosition;
+  }, [userPosition, navigating, routePath]);
+  const shownPosition = useAnimatedPosition(dotTarget);
+  if (import.meta.env.DEV && typeof window !== "undefined") window.__mavmapDot = shownPosition; // for GPS tests
+
+  const mobile = useIsMobile();
   const options = useMemo(
-    () => ({ ...baseOptions, styles: mapType === "roadmap" ? MAP_STYLES[mapStyle] ?? null : null }),
-    [mapStyle, mapType],
+    () => ({
+      ...baseOptions,
+      // Phones pinch to zoom; Google's buttons would sit on top of ours.
+      zoomControl: !mobile,
+      cameraControl: false,
+      gestureHandling: "greedy", // one-finger pan on phones (no "use two fingers" overlay)
+      styles: mapType === "roadmap" ? MAP_STYLES[mapStyle] ?? null : null,
+    }),
+    [mapStyle, mapType, mobile],
   );
   const odyssey = mapStyle === "odyssey";
 
@@ -186,11 +222,80 @@ export default function CampusMap({
     };
   }, [showTraffic, trafficPoints, isLoaded, mapReady]);
 
+  // Live GPS follow mode (like Google Maps): keep the walker centered as they move. Dragging the
+  // map or opening a building stops following; the locate button (recenterKey) starts it again.
+  const followRef = useRef(false);
+  const hadFixRef = useRef(false);
+  const setFollow = (on) => {
+    if (followRef.current !== on) {
+      followRef.current = on;
+      onFollowChange?.(on);
+    }
+  };
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !mapReady) return;
+    const l = map.addListener("dragstart", () => setFollow(false));
+    return () => l.remove();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mapReady]);
+
+  useEffect(() => {
+    if (recenterKey || navigating) setFollow(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [recenterKey, navigating]);
+
+  // Looking at a building: let the map stay there instead of snapping back to you.
+  useEffect(() => {
+    if (selected && !navigating) setFollow(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected?.id]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !mapReady) return;
+    if (!dotTarget) {
+      hadFixRef.current = false;
+      return;
+    }
+    const first = !hadFixRef.current;
+    hadFixRef.current = true;
+    if (first || followRef.current) {
+      map.panTo({ lat: dotTarget.lat, lng: dotTarget.lng });
+      if (first && map.getZoom() < 17) map.setZoom(17);
+    }
+  }, [dotTarget, mapReady, recenterKey]);
+
+  // New walk: frame you, the path and the door together, close enough that campus walkways show.
+  const framedRef = useRef(null);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !mapReady || !routePath?.length || !routeEnd || !navigating) {
+      if (!navigating) framedRef.current = null;
+      return;
+    }
+    const key = `${navTargetId}:${routeEnd.lat.toFixed(5)},${routeEnd.lng.toFixed(5)}`;
+    if (framedRef.current === key) return;
+    framedRef.current = key;
+    const g = window.google.maps;
+    const bounds = new g.LatLngBounds();
+    for (const p of routePath) bounds.extend(p);
+    bounds.extend(routeEnd);
+    if (userPosition) bounds.extend(userPosition);
+    map.fitBounds(bounds, { top: 110, bottom: 90, left: 40, right: 40 });
+    g.event.addListenerOnce(map, "idle", () => {
+      const z = map.getZoom();
+      if (z > 19) map.setZoom(19);
+      else if (z < 17) map.setZoom(17);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routePath, routeEnd, navigating, mapReady, navTargetId]);
+
   // Which routes serve each stop, for stop colors and the info window.
   const visibleRoutes = useMemo(() => {
-    if (!transit || !showTransit) return [];
+    if (!transit || !showTransit || navigating) return []; // keep the walk uncluttered
     return transit.routes.filter((r) => r.stops.length && !hiddenRoutes.includes(r.id));
-  }, [transit, showTransit, hiddenRoutes]);
+  }, [transit, showTransit, hiddenRoutes, navigating]);
 
   const stopRoutes = useMemo(() => {
     const map = new Map();
@@ -236,8 +341,8 @@ export default function CampusMap({
   return (
     <GoogleMap
       mapContainerStyle={mapContainerStyle}
-      center={mapCenter}
-      zoom={selected || focusStop ? 17 : 15.5}
+      center={initialCenter}
+      zoom={INITIAL_ZOOM}
       options={options}
       onLoad={(map) => {
         mapRef.current = map;
@@ -294,6 +399,84 @@ export default function CampusMap({
         </InfoWindowF>
       )}
 
+      {routePath?.length > 1 && routeEnd && (
+        <>
+          {/* Last few steps from the walkway to the door */}
+          <PolylineF path={[routePath[routePath.length - 1], routeEnd]} options={{ ...dashedLine("#1a73e8"), zIndex: 22 }} />
+          <MarkerF
+            position={routeEnd}
+            title={routeEndKind === "door" ? "Entrance" : "Destination"}
+            zIndex={900}
+            clickable={false}
+            icon={{
+              path: "M -6 -9 L 6 -9 L 6 9 L -6 9 Z M -2 1 L -2 1", // door
+              scale: 1,
+              fillColor: routeEndKind === "door" ? "#188038" : "#1a73e8",
+              fillOpacity: 1,
+              strokeColor: "#ffffff",
+              strokeWeight: 2.5,
+            }}
+          />
+        </>
+      )}
+      {routePath?.length > 1 && (
+        <>
+          <PolylineF
+            path={routePath}
+            options={{ strokeColor: "#ffffff", strokeOpacity: 0.9, strokeWeight: 9, clickable: false, zIndex: 20 }}
+          />
+          <PolylineF
+            path={routePath}
+            options={{ strokeColor: "#1a73e8", strokeOpacity: 1, strokeWeight: 5, clickable: false, zIndex: 21 }}
+          />
+        </>
+      )}
+
+      {shownPosition && (
+        <>
+          <CircleF
+            center={{ lat: shownPosition.lat, lng: shownPosition.lng }}
+            radius={Math.min(shownPosition.accuracy || 0, 200)}
+            options={{
+              strokeColor: "#1a73e8",
+              strokeOpacity: 0.35,
+              strokeWeight: 1,
+              fillColor: "#1a73e8",
+              fillOpacity: 0.12,
+              clickable: false,
+              zIndex: 30,
+            }}
+          />
+          <MarkerF
+            position={{ lat: shownPosition.lat, lng: shownPosition.lng }}
+            title="You are here"
+            zIndex={1000}
+            clickable={false}
+            icon={
+              shownPosition.heading != null
+                ? {
+                    // Arrow pointing the way you're walking.
+                    path: g.SymbolPath.FORWARD_CLOSED_ARROW,
+                    scale: 6,
+                    rotation: shownPosition.heading,
+                    fillColor: "#1a73e8",
+                    fillOpacity: 1,
+                    strokeColor: "#ffffff",
+                    strokeWeight: 2.5,
+                  }
+                : {
+                    path: g.SymbolPath.CIRCLE,
+                    scale: 8,
+                    fillColor: "#1a73e8",
+                    fillOpacity: 1,
+                    strokeColor: "#ffffff",
+                    strokeWeight: 3,
+                  }
+            }
+          />
+        </>
+      )}
+
       {buildings.map((building) => {
         const isSelected = selected?.id === building.id;
         const isFav = favoriteIds?.has(building.id);
@@ -304,7 +487,7 @@ export default function CampusMap({
             title={`${building.name}${building.abbr?.length ? ` (${building.abbr.join(", ")})` : ""}${isFav ? " ★" : ""}`}
             onClick={() => onSelect(building)}
             zIndex={isSelected ? 10 : isFav ? 5 : 3}
-            opacity={selected && !isSelected ? 0.6 : 1}
+            opacity={navigating ? (building.id === navTargetId ? 1 : 0.35) : selected && !isSelected ? 0.6 : 1}
             icon={{
               path: g.SymbolPath.CIRCLE,
               scale: isSelected ? 11 : 8,

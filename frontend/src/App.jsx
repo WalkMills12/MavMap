@@ -15,11 +15,22 @@ import { fetchBuildings, fetchEvents, fetchTraffic, fetchTransit } from "./api.j
 import { nearbyEvents } from "./geo.js";
 import { hasEnded } from "./calendar.js";
 import { usePreferences } from "./prefs.js";
+import { buildIndex } from "./search.js";
+import { useGeolocation } from "./useGeolocation.js";
+import { useWalkingNav } from "./useWalkingNav.js";
+import NavBanner from "./components/NavBanner.jsx";
+import GpsStatus from "./components/GpsStatus.jsx";
+import ErrorBoundary from "./components/ErrorBoundary.jsx";
+import BottomNav from "./components/BottomNav.jsx";
+import MobileSheet from "./components/MobileSheet.jsx";
+import { useIsMobile } from "./useIsMobile.js";
 import { useFavorites } from "./favorites.js";
 import { clearInterests, markSeen, markSuggested, pickSuggestions, recordInterest } from "./interests.js";
 
 const UTA_CENTER = { lat: 32.7296, lng: -97.1135 };
 const EMPTY_TRAFFIC = [];
+const EVENTS_REFRESH_MS = 60_000;
+const SHEET_TITLES = { directory: "Places", events: "Events", transit: "Transit" };
 const isPhone = () => typeof window !== "undefined" && window.matchMedia("(max-width: 820px)").matches;
 
 function useResolvedTheme(theme) {
@@ -40,6 +51,7 @@ function useResolvedTheme(theme) {
 
 export default function App() {
   const [prefs, updatePrefs, resetPrefs] = usePreferences();
+  const mobile = useIsMobile();
   const favorites = useFavorites();
   const theme = useResolvedTheme(prefs.theme);
 
@@ -47,6 +59,7 @@ export default function App() {
   const [events, setEvents] = useState([]);
   const [eventsLoading, setEventsLoading] = useState(true);
   const [eventsError, setEventsError] = useState(null);
+  const [eventsUpdatedAt, setEventsUpdatedAt] = useState(null);
   const [transit, setTransit] = useState(null);
   const [transitError, setTransitError] = useState(false);
   const [selected, setSelected] = useState(null);
@@ -90,22 +103,55 @@ export default function App() {
     };
   }, []);
 
-  // Events reload whenever the "Show events for" preference changes.
+  // Live events: load when the "Show events for" preference changes, then refresh quietly every
+  // minute and whenever the tab comes back into view. A failed refresh keeps the last good list.
   useEffect(() => {
     let cancelled = false;
-    setEventsLoading(true);
-    fetchEvents(prefs.eventDays)
-      .then((data) => {
-        if (cancelled) return;
-        setEvents(data);
-        setEventsError(null);
-      })
-      .catch((err) => !cancelled && setEventsError(err.message || "Failed to load events"))
-      .finally(() => !cancelled && setEventsLoading(false));
+    let lastFetch = 0;
+    const load = (initial) => {
+      lastFetch = Date.now();
+      if (initial) setEventsLoading(true);
+      return fetchEvents(prefs.eventDays)
+        .then((data) => {
+          if (cancelled) return;
+          setEvents(data);
+          setEventsError(null);
+          setEventsUpdatedAt(Date.now());
+        })
+        .catch((err) => {
+          if (!cancelled && initial) setEventsError(err.message || "Failed to load events");
+        })
+        .finally(() => !cancelled && initial && setEventsLoading(false));
+    };
+    load(true);
+    const timer = setInterval(() => {
+      if (document.visibilityState === "visible") load(false);
+    }, EVENTS_REFRESH_MS);
+    const onVisible = () => {
+      if (document.visibilityState === "visible" && Date.now() - lastFetch > 30_000) load(false);
+    };
+    document.addEventListener("visibilitychange", onVisible);
     return () => {
       cancelled = true;
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVisible);
     };
   }, [prefs.eventDays]);
+
+  // Event-traffic heat follows the live events too.
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (document.visibilityState === "visible") fetchTraffic(3).then(setTraffic).catch(() => {});
+    }, 2 * EVENTS_REFRESH_MS);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Re-check "live now" / "ended" every 30 seconds even when the data hasn't changed.
+  const [clock, setClock] = useState(() => Date.now());
+  useEffect(() => {
+    const timer = setInterval(() => setClock(Date.now()), 30_000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Once per app start: suggest new events that match what this student likes, then remember what they've seen.
   useEffect(() => {
@@ -119,16 +165,35 @@ export default function App() {
     }
   }, [events, eventsLoading, eventsError, prefs.suggestions, favorites.eventIds]);
 
-  const filtered = useMemo(() => {
-    const needle = query.trim().toLowerCase();
-    if (!needle) return buildings;
-    return buildings.filter((b) => {
-      const hay = [b.name, b.id, ...(b.abbr || [])].join(" ").toLowerCase();
-      return hay.includes(needle);
-    });
-  }, [buildings, query]);
+  const searchIndex = useMemo(() => buildIndex(buildings), [buildings]);
 
-  const upcomingEvents = useMemo(() => events.filter((e) => !hasEnded(e)), [events]);
+  // Live GPS: "locate me" shows where you are; "Walk here (GPS)" also draws the walking route
+  // and keeps it updated as you move.
+  const [gpsOn, setGpsOn] = useState(false);
+  const [navTarget, setNavTarget] = useState(null);
+  const [recenterKey, setRecenterKey] = useState(0);
+  const [following, setFollowing] = useState(false);
+  const geo = useGeolocation(gpsOn || Boolean(navTarget));
+  const nav = useWalkingNav(geo.position, navTarget);
+
+  const { enableCompass } = geo;
+  const startNav = useCallback((building) => {
+    enableCompass(); // must run inside the tap (iPhone permission prompt)
+    setNavTarget(building);
+    setGpsOn(true);
+    setRecenterKey((k) => k + 1);
+    if (isPhone()) setMenuOpen(false);
+  }, [enableCompass]);
+
+  const stopNav = useCallback(() => setNavTarget(null), []);
+
+  const locate = useCallback(() => {
+    enableCompass();
+    if (!gpsOn) setGpsOn(true);
+    setRecenterKey((k) => k + 1);
+  }, [gpsOn, enableCompass]);
+
+  const upcomingEvents = useMemo(() => events.filter((e) => !hasEnded(e, new Date(clock))), [events, clock]);
 
   const selectedNearby = useMemo(
     () => (selected ? nearbyEvents(selected, upcomingEvents, 280) : []),
@@ -160,6 +225,11 @@ export default function App() {
   );
 
   const closeMenu = useCallback(() => setMenuOpen(false), []);
+  const tabCounts = {
+    directory: buildings.length,
+    events: upcomingEvents.length,
+    transit: transit ? transit.routes.length : undefined,
+  };
   const closeSuggestions = useCallback(() => setSuggestions([]), []);
 
   const favoriteCount = favorites.buildingIds.size + favorites.eventIds.size;
@@ -173,6 +243,8 @@ export default function App() {
         events={events}
         loading={eventsLoading}
         error={eventsError}
+        updatedAt={eventsUpdatedAt}
+        now={clock}
         days={prefs.eventDays}
         calendarPref={prefs.calendar}
         buildings={buildings}
@@ -207,7 +279,7 @@ export default function App() {
   }
 
   return (
-    <div className="app-shell">
+    <div className={`app-shell${mobile ? " app-shell--mobile" : ""}`}>
       <header className="top-bar">
         {odyssey && <StormLayer />}
         <button
@@ -223,13 +295,17 @@ export default function App() {
           </svg>
         </button>
         <div className="brand-block">
+          <span className="brand-logo">
+            <img src="/uta-logomark.png" alt="UTA" width="330" height="292" />
+          </span>
           <p className="brand">MavMap</p>
           <p className="tagline">{odyssey ? "Begin your odyssey across campus" : "Find every building on campus"}</p>
         </div>
         <BuildingSearch
           query={query}
           onQueryChange={setQuery}
-          results={filtered}
+          index={searchIndex}
+          events={upcomingEvents}
           onSelect={showBuilding}
         />
         <PreferencesMenu
@@ -244,23 +320,26 @@ export default function App() {
       </header>
 
       <div className={`map-area${menuOpen ? " map-area--menu" : ""}`}>
-        <SideMenu
-          open={menuOpen}
-          tab={menuTab}
-          onTabChange={setMenuTab}
-          onClose={closeMenu}
-          counts={{
-            directory: buildings.length,
-            events: upcomingEvents.length,
-            transit: transit ? transit.routes.length : undefined,
-          }}
-        >
-          {tabContent}
-        </SideMenu>
+        {mobile ? (
+          <MobileSheet open={menuOpen} title={SHEET_TITLES[menuTab] || "Places"} onClose={closeMenu}>
+            {tabContent}
+          </MobileSheet>
+        ) : (
+          <SideMenu
+            open={menuOpen}
+            tab={menuTab}
+            onTabChange={setMenuTab}
+            onClose={closeMenu}
+            counts={tabCounts}
+          >
+            {tabContent}
+          </SideMenu>
+        )}
 
         <main className="map-stage">
           {loading && <div className="status-banner">Loading campus map…</div>}
           {error && <div className="status-banner error">{error}</div>}
+          <ErrorBoundary name="map" title="The map hit an error." compact>
           <CampusMap
             center={UTA_CENTER}
             buildings={buildings}
@@ -276,7 +355,47 @@ export default function App() {
             hiddenRoutes={prefs.hiddenRoutes}
             focusStop={focusStop}
             onFocusStop={showStop}
+            userPosition={geo.position}
+            routePath={navTarget ? nav.route?.path : null}
+            routeEnd={navTarget ? nav.route?.end : null}
+            routeEndKind={navTarget ? nav.route?.endKind : null}
+            navTargetId={navTarget?.id ?? null}
+            navigating={Boolean(navTarget)}
+            recenterKey={recenterKey}
+            onFollowChange={setFollowing}
           />
+          </ErrorBoundary>
+          {gpsOn && geo.status === "ok" && (
+            <GpsStatus accuracy={geo.position?.accuracy} updatedAt={geo.updatedAt} following={following} />
+          )}
+          <button
+            type="button"
+            className={`locate-btn${gpsOn ? " is-on" : ""}${gpsOn && following ? " is-following" : ""}`}
+            onClick={locate}
+            aria-pressed={gpsOn && following}
+            aria-label={gpsOn ? (following ? "Following your location" : "Follow my location") : "Show my location"}
+            title={gpsOn ? (following ? "Following you" : "Follow me") : "Show my location"}
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="4" />
+              <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+              <circle cx="12" cy="12" r="8" fill="none" />
+            </svg>
+          </button>
+          {(navTarget || (gpsOn && geo.status !== "ok")) && (
+            <NavBanner
+              target={navTarget}
+              status={geo.status}
+              error={geo.error}
+              route={nav.route}
+              remaining={nav.remaining_m}
+              arrived={nav.arrived}
+              onStop={() => {
+                stopNav();
+                if (geo.status !== "ok") setGpsOn(false);
+              }}
+            />
+          )}
           {selected && (
             <BuildingDetail
               building={selected}
@@ -284,11 +403,29 @@ export default function App() {
               onClose={() => setSelected(null)}
               isFavorite={favorites.isBuildingFav(selected.id)}
               onToggleFavorite={favorites.toggleBuilding}
+              onNavigate={startNav}
+              navigating={navTarget?.id === selected.id}
             />
           )}
           <FaqChat buildings={buildings} detailOpen={Boolean(selected)} onShowBuilding={showBuilding} />
         </main>
       </div>
+
+      {mobile && (
+        <BottomNav
+          active={menuOpen ? menuTab : "map"}
+          counts={tabCounts}
+          onSelect={(tab) => {
+            if (tab === "map") {
+              setMenuOpen(false);
+              return;
+            }
+            setMenuTab(tab);
+            setMenuOpen(true);
+            setSelected(null);
+          }}
+        />
+      )}
 
       {odyssey && <OdysseyFx />}
 

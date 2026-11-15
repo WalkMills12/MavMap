@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 const STORAGE_KEY = "mavmap.favorites.v1";
 
 // Saved events keep a copy of their details so they still show after they drop out of the feed window.
-const EVENT_FIELDS = ["id", "title", "start", "end", "all_day", "location", "room", "address", "url", "types", "lat", "lng", "description"];
+const EVENT_FIELDS = ["id", "title", "start", "end", "all_day", "location", "room", "address", "url", "types", "lat", "lng", "description", "photo_url", "source", "host"];
 
 function snapshot(event) {
   return Object.fromEntries(EVENT_FIELDS.filter((k) => event[k] !== undefined).map((k) => [k, event[k]]));
@@ -31,7 +31,11 @@ export function useFavorites() {
   }, [favs]);
 
   const buildingIds = useMemo(() => new Set(favs.buildings), [favs.buildings]);
-  const eventIds = useMemo(() => new Set(Object.keys(favs.events).map(Number)), [favs.events]);
+  // Object keys are strings: events.uta.edu ids are numbers, MavEngage ids are "me-123".
+  const eventIds = useMemo(
+    () => new Set(Object.keys(favs.events).map((k) => (/^\d+$/.test(k) ? Number(k) : k))),
+    [favs.events],
+  );
 
   const toggleBuilding = useCallback((id) => {
     setFavs((f) => ({

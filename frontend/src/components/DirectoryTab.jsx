@@ -1,9 +1,13 @@
 import { useMemo, useState } from "react";
-import { badgeFor, categoryLabel } from "../categories.js";
+import { badgeFor, categoryLabel, categoryShort } from "../categories.js";
+import { googleMapsUrl } from "../api.js";
+import { buildingPhotoLoader } from "../photos.js";
+import { buildIndex, searchPlaces } from "../search.js";
+import CardPhoto from "./CardPhoto.jsx";
 
 const SAVED = "__saved";
 // Chip order: campus buildings first, then the everyday places.
-const ORDER = ["academic", "student_life", "admin", "athletics", "housing", "dining", "parking"];
+const ORDER = ["academic", "student_life", "admin", "athletics", "recreation", "housing", "dining", "parking"];
 
 export default function DirectoryTab({ buildings, selected, onSelect, favoriteIds, onToggleFavorite }) {
   const [category, setCategory] = useState("all");
@@ -18,20 +22,28 @@ export default function DirectoryTab({ buildings, selected, onSelect, favoriteId
 
   const savedCount = buildings.filter((b) => favoriteIds.has(b.id)).length;
 
-  const visible = useMemo(() => {
-    const needle = query.trim().toLowerCase();
-    return buildings
-      .filter((b) => (category === "all" ? true : category === SAVED ? favoriteIds.has(b.id) : b.category === category))
-      .filter((b) => !needle || [b.name, b.id, b.address, b.note, ...(b.abbr || [])].join(" ").toLowerCase().includes(needle))
+  const index = useMemo(() => buildIndex(buildings), [buildings]);
+
+  // Same smart search as the top bar (keywords + spelling fixes); best matches first.
+  const { visible, corrected } = useMemo(() => {
+    const inCategory = (b) =>
+      category === "all" ? true : category === SAVED ? favoriteIds.has(b.id) : b.category === category;
+    if (query.trim()) {
+      const { results, corrected } = searchPlaces(index, query, { limit: buildings.length });
+      return { visible: results.map((r) => r.building).filter(inCategory), corrected };
+    }
+    const list = buildings
+      .filter(inCategory)
       .sort((a, b) => Number(favoriteIds.has(b.id)) - Number(favoriteIds.has(a.id)) || a.name.localeCompare(b.name));
-  }, [buildings, category, query, favoriteIds]);
+    return { visible: list, corrected: null };
+  }, [buildings, index, category, query, favoriteIds]);
 
   return (
     <div className="side-section">
       <input
         className="side-search"
         type="search"
-        placeholder="Filter buildings, parking, dining, housing"
+        placeholder="Filter: name, NH, basketball, coffee…"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         aria-label="Filter the directory"
@@ -64,39 +76,59 @@ export default function DirectoryTab({ buildings, selected, onSelect, favoriteId
 
       <p className="side-count">
         {visible.length} {visible.length === 1 ? "place" : "places"}
+        {corrected && (
+          <>
+            {" "}for <strong className="side-corrected">{corrected}</strong>
+          </>
+        )}
       </p>
 
       <ul className="dir-list">
         {visible.map((b) => {
           const fav = favoriteIds.has(b.id);
+          const current = selected?.id === b.id;
           return (
-            <li key={b.id} className="dir-row">
-              <button
-                type="button"
-                className="dir-item"
-                aria-current={selected?.id === b.id ? "true" : undefined}
-                onClick={() => onSelect(b)}
-              >
-                <span className={`dir-abbr cat-${b.category}`}>{badgeFor(b)}</span>
-                <span className="dir-text">
-                  <span className="dir-name">{b.name}</span>
-                  <span className="dir-meta">
-                    {categoryLabel(b.category)}
-                    {b.note ? ` · ${b.note}` : ""}
-                    {b.address ? ` · ${b.address}` : ""}
+            <li key={b.id} className={`place-card cat-${b.category}`} aria-current={current ? "true" : undefined}>
+              <CardPhoto load={buildingPhotoLoader(b)} fallbackLabel={badgeFor(b)}>
+                <button
+                  type="button"
+                  className="card-photo-hit"
+                  aria-label={`Show ${b.name} on the map`}
+                  onClick={() => onSelect(b)}
+                />
+                <span className="card-caption">
+                  <span className="card-eyebrow">
+                    {badgeFor(b)} · {categoryShort(b.category)}
                   </span>
+                  <span className="card-title">{b.name}</span>
                 </span>
-              </button>
-              <button
-                type="button"
-                className={`star-toggle${fav ? " is-on" : ""}`}
-                aria-pressed={fav}
-                aria-label={fav ? `Remove ${b.name} from saved places` : `Save ${b.name}`}
-                title={fav ? "Saved" : "Save"}
-                onClick={() => onToggleFavorite(b.id)}
-              >
-                {fav ? "★" : "☆"}
-              </button>
+                <button
+                  type="button"
+                  className={`star-toggle card-star${fav ? " is-on" : ""}`}
+                  aria-pressed={fav}
+                  aria-label={fav ? `Remove ${b.name} from saved places` : `Save ${b.name}`}
+                  title={fav ? "Saved" : "Save"}
+                  onClick={() => onToggleFavorite(b.id)}
+                >
+                  {fav ? "★" : "☆"}
+                </button>
+              </CardPhoto>
+              <div className="place-card-body">
+                {(b.description || b.note) && <p className="place-desc">{b.description || b.note}</p>}
+                {b.address && (
+                  <p className="place-meta">
+                    <span>{b.address}</span>
+                  </p>
+                )}
+                <div className="place-actions">
+                  <button type="button" className="cal-btn" onClick={() => onSelect(b)}>
+                    Show on map
+                  </button>
+                  <a className="cal-btn ghost" href={googleMapsUrl(b)} target="_blank" rel="noreferrer">
+                    Walk here
+                  </a>
+                </div>
+              </div>
             </li>
           );
         })}

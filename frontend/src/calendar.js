@@ -47,12 +47,74 @@ export function hasEnded(event, now = new Date()) {
   return t.end < now;
 }
 
+/**
+ * Live status for timed events: "live" while it's on, "soon" when it starts within 30 minutes,
+ * otherwise null. All-day events never count as live (they'd all light up at once).
+ */
+export function liveStatus(event, now = new Date()) {
+  if (!event.start) return null;
+  const t = eventTimes(event);
+  if (t.allDay) return null;
+  if (t.start <= now && now < t.end) return "live";
+  const mins = (t.start - now) / 60000;
+  if (mins > 0 && mins <= 30) return "soon";
+  return null;
+}
+
 /** The day an event belongs under in the list. Multi-day events already running show under today. */
 export function eventDayKey(event, now = new Date()) {
   const today = localDateKey(now);
   const t = eventTimes(event);
   const key = t.allDay ? t.startDay : localDateKey(t.start);
   return key < today ? today : key;
+}
+
+/** "Today", "Tomorrow", or "Wed, Nov 18" for a local date key (YYYY-MM-DD). */
+function dayName(key, now) {
+  const today = localDateKey(now);
+  const tomorrow = localDateKey(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1));
+  if (key === today) return "Today";
+  if (key === tomorrow) return "Tomorrow";
+  const d = new Date(`${key}T12:00:00`);
+  const sameYear = d.getFullYear() === now.getFullYear();
+  return d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric", ...(sameYear ? {} : { year: "numeric" }) });
+}
+
+/** When an event starts, as a timestamp (all-day events: midnight that day). */
+export function eventStartMs(event) {
+  if (!event?.start) return Infinity;
+  const t = eventTimes(event);
+  return t.allDay ? new Date(`${t.startDay}T00:00:00`).getTime() : t.start.getTime();
+}
+
+/** True when the event began on an earlier day and is still running (multi-day postings). */
+export function isOngoing(event, now = new Date()) {
+  if (!event?.start || hasEnded(event, now)) return false;
+  const t = eventTimes(event);
+  const startKey = t.allDay ? t.startDay : localDateKey(t.start);
+  return startKey < localDateKey(now);
+}
+
+/**
+ * Date and time together, so an event never shows a time without its day:
+ *   "Today · 11:00 AM – 1:00 PM", "Wed, Nov 18 · 7:00 – 9:00 PM",
+ *   "All day · Tomorrow", "Wed, Sep 16 – Mon, Nov 30".
+ */
+export function formatEventWhen(event, now = new Date()) {
+  if (!event?.start) return "Date to be announced";
+  const t = eventTimes(event);
+  if (t.allDay) {
+    const lastKey = addDays(t.endDayExclusive, -1);
+    if (lastKey === t.startDay) return `All day · ${dayName(t.startDay, now)}`;
+    return `${dayName(t.startDay, now)} – ${dayName(lastKey, now)}`;
+  }
+  const opts = { hour: "numeric", minute: "2-digit" };
+  const startKey = localDateKey(t.start);
+  const endKey = localDateKey(t.end);
+  const startTime = t.start.toLocaleTimeString(undefined, opts);
+  const endTime = t.end.toLocaleTimeString(undefined, opts);
+  if (endKey === startKey) return `${dayName(startKey, now)} · ${startTime} – ${endTime}`;
+  return `${dayName(startKey, now)} ${startTime} – ${dayName(endKey, now)} ${endTime}`;
 }
 
 export function formatEventTime(event) {

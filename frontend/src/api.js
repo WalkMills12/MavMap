@@ -38,3 +38,17 @@ export function appleMapsUrl({ lat, lng, name }) {
 export function googleMapsUrl({ lat, lng }) {
   return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=walking`;
 }
+/** Walking route; for a building (has an id) it ends at the nearest door / side, not the center. */
+export function fetchWalkingRoute(from, to) {
+  const p = new URLSearchParams({ from_lat: from.lat, from_lng: from.lng });
+  if (to.id) p.set("building", to.id);
+  else {
+    p.set("to_lat", to.lat);
+    p.set("to_lng", to.lng);
+  }
+  return request(`/api/route?${p}`);
+}
+
+export function fetchBuildingInfo(id) {
+  return request(`/api/buildings/${encodeURIComponent(id)}/info`);
+}

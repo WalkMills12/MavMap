@@ -1,13 +1,24 @@
 from __future__ import annotations
 
+import asyncio
+import logging
+import re
 import time
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Tuple
+from zoneinfo import ZoneInfo
 
 import httpx
 
 from .config import settings
+from .engage import fetch_engage_events
 from .models import CampusEvent, TrafficPoint, TrafficResponse
+
+log = logging.getLogger(__name__)
+try:
+    _CENTRAL = ZoneInfo("America/Chicago")  # campus time, for matching the same event across sites
+except Exception:  # no tz database on this machine
+    _CENTRAL = timezone(timedelta(hours=-6))
 
 # Cache per "days" value so a 1-day request never answers a 7-day one.
 _cache: Dict[int, Dict[str, Any]] = {}
@@ -109,6 +120,62 @@ async def fetch_localist_events(days: int = 2, per_page: int = 100) -> List[Camp
     events.sort(key=lambda e: e.start or "")
     _cache[days] = {"events": events, "fetched_at": now}
     return events
+
+
+_all_cache: Dict[int, Dict[str, Any]] = {}
+_FAR_FUTURE = datetime.max.replace(tzinfo=timezone.utc)
+
+
+def _start_key(event: CampusEvent) -> datetime:
+    start = _parse_localist_datetime(event.start)
+    if start is None:
+        return _FAR_FUTURE
+    return start if start.tzinfo else start.replace(tzinfo=timezone.utc)
+
+
+def _same_event_key(event: CampusEvent) -> Tuple[str, str]:
+    title = re.sub(r"[^a-z0-9]+", " ", event.title.lower()).strip()
+    day = _start_key(event).astimezone(_CENTRAL).date().isoformat() if event.start else ""
+    return title, day
+
+
+async def fetch_campus_events(days: int = 2) -> List[CampusEvent]:
+    """events.uta.edu + MavEngage in one list, sorted by start time.
+
+    The same event posted on both sites shows once (the events.uta.edu copy, borrowing the
+    MavEngage photo if it has none). If one source is down, the other still loads; only if both
+    fail does this raise.
+    """
+    now = time.time()
+    cached = _all_cache.get(days)
+    if cached and now - cached["fetched_at"] < settings.events_cache_ttl_seconds:
+        return cached["events"]
+
+    localist, engage = await asyncio.gather(
+        fetch_localist_events(days=days), fetch_engage_events(days), return_exceptions=True
+    )
+    if isinstance(localist, BaseException) and isinstance(engage, BaseException):
+        raise localist
+    if isinstance(localist, BaseException):
+        log.warning("events.uta.edu failed: %s", localist)
+        localist = []
+    if isinstance(engage, BaseException):
+        log.warning("MavEngage failed: %s", engage)
+        engage = []
+
+    merged: List[CampusEvent] = list(localist)
+    by_key = {_same_event_key(e): e for e in merged}
+    for e in engage:
+        twin = by_key.get(_same_event_key(e))
+        if twin:
+            if not twin.photo_url and e.photo_url:
+                twin.photo_url = e.photo_url
+            continue
+        merged.append(e)
+
+    merged.sort(key=_start_key)
+    _all_cache[days] = {"events": merged, "fetched_at": now}
+    return merged
 
 
 def _event_in_window(event: CampusEvent, now: datetime, window_end: datetime) -> bool:

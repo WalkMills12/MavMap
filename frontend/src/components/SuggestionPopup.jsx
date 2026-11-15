@@ -1,10 +1,5 @@
 import { useEffect, useRef } from "react";
-import { downloadIcs, eventLocation, formatEventTime, googleCalendarUrl } from "../calendar.js";
-
-function dayLabel(event) {
-  const d = new Date(event.all_day ? `${event.start.slice(0, 10)}T12:00:00` : event.start);
-  return d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
-}
+import { downloadIcs, eventLocation, formatEventWhen, googleCalendarUrl } from "../calendar.js";
 
 function reasonText(s) {
   if (s.reasons.length) return `Because you like ${s.reasons.slice(0, 2).join(" and ")} events`;
@@ -46,7 +41,7 @@ export default function SuggestionPopup({ suggestions, calendarPref, isSaved, on
             return (
               <li key={e.id} className="event-card">
                 <p className="event-time">
-                  {dayLabel(e)} · {formatEventTime(e)}
+                  {formatEventWhen(e)}
                 </p>
                 <h3 className="event-title">
                   {e.url ? (
