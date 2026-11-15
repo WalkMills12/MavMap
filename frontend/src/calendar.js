@@ -67,6 +67,12 @@ export function formatEventTime(event) {
   return `${t.start.toLocaleTimeString(undefined, opts)} – ${t.end.toLocaleTimeString(undefined, opts)}`;
 }
 
+/** Card-sized version of a Localist event photo (the feed links the ~160 KB "huge" size). */
+export function eventPhoto(event) {
+  if (!event.photo_url) return null;
+  return event.photo_url.replace("/huge/", "/big_300/");
+}
+
 export function eventLocation(event) {
   return [event.location, event.room && `Room ${event.room}`, event.address].filter(Boolean).join(", ");
 }

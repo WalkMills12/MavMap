@@ -4,6 +4,7 @@ import {
   downloadIcs,
   eventDayKey,
   eventLocation,
+  eventPhoto,
   formatEventTime,
   googleCalendarUrl,
   hasEnded,
@@ -11,6 +12,7 @@ import {
 } from "../calendar.js";
 import { recordInterest, recordTypeFilter } from "../interests.js";
 import { badgeFor } from "../categories.js";
+import Photo from "./Photo.jsx";
 
 const UNTYPED = "__other";
 const SAVED = "__saved";
@@ -158,6 +160,7 @@ export default function EventsTab({
               const fav = isEventFav(e.id);
               return (
                 <li key={e.id} className="event-card">
+                  <Photo src={eventPhoto(e)} className="event-photo" />
                   <div className="event-card-top">
                     <p className="event-time">{formatEventTime(e)}</p>
                     <button

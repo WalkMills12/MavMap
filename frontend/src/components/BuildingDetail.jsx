@@ -1,5 +1,11 @@
 import { appleMapsUrl, googleMapsUrl } from "../api.js";
 import { categoryLabel } from "../categories.js";
+import Photo from "./Photo.jsx";
+
+function photoCredit(photo) {
+  const who = [photo.author, photo.license].filter(Boolean).join(", ");
+  return { text: `Photo: ${who ? `${who} · ` : ""}Wikimedia Commons`, href: photo.page };
+}
 
 function formatWhen(start) {
   if (!start) return null;
@@ -19,10 +25,19 @@ export default function BuildingDetail({ building, onClose, nearbyEvents = [], i
   const google = googleMapsUrl(building);
 
   return (
-    <aside className="detail-panel" aria-live="polite">
+    <aside className={`detail-panel${building.photo ? " has-photo" : ""}`} aria-live="polite">
       <button type="button" className="close-btn" onClick={onClose} aria-label="Close">
         ×
       </button>
+      {building.photo && (
+        <Photo
+          key={building.id}
+          src={building.photo.url}
+          alt={`${building.name}`}
+          className="building-photo"
+          credit={photoCredit(building.photo)}
+        />
+      )}
       <p className="detail-category">{categoryLabel(building.category)}</p>
       <div className="detail-title-row">
         <h2>{building.name}</h2>

@@ -70,6 +70,11 @@ The ☰ button in the top-left opens the side menu (× or Esc closes it). On pho
 
 Besides academic buildings, the directory lists **parking** (garages and lots), **dining** (UC food court, cafes and spots right next to campus) and **housing** (residence halls and student apartments). Those coordinates come from OpenStreetMap; each entry's `source` field in `data/buildings.json` names the OSM object it came from.
 
+## Photos
+
+- **Events:** the photo each event has on events.uta.edu, shown at the top of its card (the `big_300` size).
+- **Buildings:** 23 buildings have a photo at the top of their detail panel, from Wikimedia Commons. All are by Michael Barera (March 2021) under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). The license requires credit, so each photo shows the author and license and links to its Commons page. Photos live in the `photo` field of `data/buildings.json`. Add one with `{ "url", "author", "license", "page" }`, and keep the credit.
+
 ## Transit (MavMover shuttle)
 
 The **Transit** tab and map layer show UTA's MavMover routes from `data/transit.json` (served at `GET /api/transit`):

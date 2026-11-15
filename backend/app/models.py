@@ -5,6 +5,13 @@ from typing import List, Optional
 from pydantic import BaseModel, Field
 
 
+class Photo(BaseModel):
+    url: str  # image to display (a ~800px Wikimedia Commons thumbnail)
+    author: Optional[str] = None
+    license: Optional[str] = None  # e.g. "CC BY-SA 4.0"
+    page: Optional[str] = None  # Commons file page (credit link)
+
+
 class Building(BaseModel):
     id: str
     name: str
@@ -15,6 +22,7 @@ class Building(BaseModel):
     address: str = ""
     note: Optional[str] = None  # short description, e.g. "UC food court"
     source: Optional[str] = None  # where the coordinates came from
+    photo: Optional[Photo] = None
 
 
 class Faq(BaseModel):

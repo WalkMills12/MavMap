@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
-import { downloadIcs, eventLocation, formatEventTime, googleCalendarUrl } from "../calendar.js";
+import { downloadIcs, eventLocation, eventPhoto, formatEventTime, googleCalendarUrl } from "../calendar.js";
+import Photo from "./Photo.jsx";
 
 function dayLabel(event) {
   const d = new Date(event.all_day ? `${event.start.slice(0, 10)}T12:00:00` : event.start);
@@ -45,6 +46,7 @@ export default function SuggestionPopup({ suggestions, calendarPref, isSaved, on
             const saved = isSaved(e.id);
             return (
               <li key={e.id} className="event-card">
+                <Photo src={eventPhoto(e)} className="event-photo" />
                 <p className="event-time">
                   {dayLabel(e)} · {formatEventTime(e)}
                 </p>

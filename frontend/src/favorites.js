@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 const STORAGE_KEY = "mavmap.favorites.v1";
 
 // Saved events keep a copy of their details so they still show after they drop out of the feed window.
-const EVENT_FIELDS = ["id", "title", "start", "end", "all_day", "location", "room", "address", "url", "types", "lat", "lng", "description"];
+const EVENT_FIELDS = ["id", "title", "start", "end", "all_day", "location", "room", "address", "url", "types", "lat", "lng", "description", "photo_url"];
 
 function snapshot(event) {
   return Object.fromEntries(EVENT_FIELDS.filter((k) => event[k] !== undefined).map((k) => [k, event[k]]));
