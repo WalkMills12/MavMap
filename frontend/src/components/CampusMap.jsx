@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { GoogleMap, InfoWindowF, MarkerF, PolylineF, useJsApiLoader } from "@react-google-maps/api";
+import { CircleF, GoogleMap, InfoWindowF, MarkerF, PolylineF, useJsApiLoader } from "@react-google-maps/api";
 import { CATEGORY_COLORS, badgeFor } from "../categories.js";
 
 const mapContainerStyle = { width: "100%", height: "100%" };
@@ -99,6 +99,11 @@ export default function CampusMap({
   hiddenRoutes = [],
   focusStop,
   onFocusStop,
+  navigating = false, // walking navigation is active
+  navPath = null, // [{lat, lng}] route to draw
+  userPos = null, // { lat, lng, acc, heading }
+  following = false, // keep the map centered on the user
+  onUserPan, // the user dragged the map (stop following)
 }) {
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
   const mapRef = useRef(null);
@@ -118,10 +123,35 @@ export default function CampusMap({
   }, [center, selected, focusStop]);
 
   const options = useMemo(
-    () => ({ ...baseOptions, styles: mapType === "roadmap" ? MAP_STYLES[mapStyle] ?? null : null }),
-    [mapStyle, mapType],
+    () => ({
+      ...baseOptions,
+      styles: mapType === "roadmap" ? MAP_STYLES[mapStyle] ?? null : null,
+      // While navigating you may start off campus, so don't lock the camera to UTA.
+      ...(navigating ? { restriction: null, minZoom: 3 } : {}),
+    }),
+    [mapStyle, mapType, navigating],
   );
   const odyssey = mapStyle === "odyssey";
+
+  // Navigation: zoom in once when it starts, then keep the user in view while following.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !mapReady || !navigating) return;
+    map.setZoom(18);
+  }, [navigating, mapReady]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !mapReady || !navigating || !following || !userPos) return;
+    map.panTo({ lat: userPos.lat, lng: userPos.lng });
+  }, [userPos, following, navigating, mapReady]);
+
+  // Restore the campus camera limits after navigation ends.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !mapReady || navigating) return;
+    map.setOptions({ restriction: baseOptions.restriction, minZoom: baseOptions.minZoom });
+  }, [navigating, mapReady]);
 
   // Register the OpenStreetMap tile layer once, then switch map types when the preference changes.
   useEffect(() => {
@@ -243,6 +273,7 @@ export default function CampusMap({
         mapRef.current = map;
         setMapReady(true);
       }}
+      onDragStart={() => onUserPan?.()}
       onUnmount={() => {
         if (heatmapRef.current) {
           heatmapRef.current.setMap(null);
@@ -253,6 +284,47 @@ export default function CampusMap({
         setMapReady(false);
       }}
     >
+      {navPath?.length > 1 && (
+        <>
+          <PolylineF path={navPath} options={{ strokeColor: "#ffffff", strokeOpacity: 1, strokeWeight: 10, zIndex: 20, clickable: false }} />
+          <PolylineF path={navPath} options={{ strokeColor: "#1a73e8", strokeOpacity: 1, strokeWeight: 6, zIndex: 21, clickable: false }} />
+        </>
+      )}
+
+      {userPos && (
+        <>
+          <CircleF
+            center={{ lat: userPos.lat, lng: userPos.lng }}
+            radius={Math.min(userPos.acc || 0, 150)}
+            options={{ fillColor: "#1a73e8", fillOpacity: 0.12, strokeColor: "#1a73e8", strokeOpacity: 0.3, strokeWeight: 1, clickable: false, zIndex: 30 }}
+          />
+          {Number.isFinite(userPos.heading) && (
+            <MarkerF
+              position={{ lat: userPos.lat, lng: userPos.lng }}
+              clickable={false}
+              zIndex={31}
+              icon={{
+                path: g.SymbolPath.FORWARD_CLOSED_ARROW,
+                scale: 5,
+                rotation: userPos.heading,
+                anchor: new g.Point(0, 5.5),
+                fillColor: "#1a73e8",
+                fillOpacity: 0.85,
+                strokeColor: "#ffffff",
+                strokeWeight: 1.5,
+              }}
+            />
+          )}
+          <MarkerF
+            position={{ lat: userPos.lat, lng: userPos.lng }}
+            title="You are here"
+            clickable={false}
+            zIndex={32}
+            icon={{ path: g.SymbolPath.CIRCLE, scale: 8, fillColor: "#1a73e8", fillOpacity: 1, strokeColor: "#ffffff", strokeWeight: 3 }}
+          />
+        </>
+      )}
+
       {visibleRoutes.map((route) => (
         <PolylineF
           key={route.id}

@@ -1238,6 +1238,227 @@ input {
   color: var(--cream);
 }
 
+/* `hidden` must beat .faq-root's display:flex. */
+.faq-root[hidden] {
+  display: none;
+}
+
+/* ---------- Walking navigation ---------- */
+.btn.walk {
+  width: 100%;
+  margin-top: 0.9rem;
+  border: 0;
+  cursor: pointer;
+  gap: 0.5rem;
+  font-size: 1rem;
+  padding: 0.75rem;
+  background: #1a73e8;
+  color: #ffffff;
+}
+
+.btn.walk:hover {
+  background: #1765cc;
+}
+
+.btn.walk:focus-visible,
+.nav-btn:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 2px;
+}
+
+.faq-action--go {
+  border-color: #1a73e8;
+  color: #6ea6ff;
+}
+
+:root[data-theme="light"] .faq-action--go {
+  color: #1a73e8;
+}
+
+.nav-banner {
+  position: absolute;
+  top: 0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 6;
+  width: min(520px, calc(100% - 1.5rem));
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.8rem 1rem;
+  border-radius: 16px;
+  background: #0f6b3a; /* Google-style green turn banner */
+  color: #ffffff;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+}
+
+.nav-banner--locating,
+.nav-banner--routing {
+  background: #1f3b63;
+}
+
+.nav-banner--error {
+  background: #8c1d18;
+}
+
+.nav-banner--arrived {
+  background: #1a73e8;
+}
+
+.nav-icon {
+  flex: none;
+  width: 2.8rem;
+  height: 2.8rem;
+  display: grid;
+  place-items: center;
+  font-size: 2rem;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.nav-text {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.nav-dist {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.nav-main {
+  font-size: 1.02rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.nav-sub {
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+.nav-sheet {
+  position: absolute;
+  left: 50%;
+  bottom: 1.6rem;
+  transform: translateX(-50%);
+  z-index: 6;
+  width: min(560px, calc(100% - 1.5rem));
+  background: var(--navy);
+  color: var(--cream);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.4);
+  padding: 0.75rem 0.9rem;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.nav-sheet-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.nav-eta {
+  display: grid;
+  min-width: 0;
+}
+
+.nav-eta strong {
+  font-size: 1.35rem;
+  line-height: 1.1;
+  color: #2fa866;
+  font-variant-numeric: tabular-nums;
+}
+
+.nav-eta span {
+  font-size: 0.88rem;
+  color: rgba(var(--fg-rgb), 0.75);
+  font-variant-numeric: tabular-nums;
+}
+
+.nav-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.nav-btn {
+  border: 1px solid var(--border);
+  background: rgba(var(--fg-rgb), 0.06);
+  color: var(--cream);
+  border-radius: 999px;
+  padding: 0.45rem 0.85rem;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.nav-btn--quiet {
+  opacity: 0.7;
+  font-weight: 400;
+}
+
+.nav-btn--end {
+  background: #c5221f;
+  border-color: #c5221f;
+  color: #ffffff;
+}
+
+.nav-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 38vh;
+  overflow-y: auto;
+  display: grid;
+  gap: 0.15rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.5rem;
+}
+
+.nav-steps li {
+  display: grid;
+  grid-template-columns: 1.8rem 1fr auto;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.35rem 0.2rem;
+  font-size: 0.9rem;
+}
+
+.nav-steps li.is-done {
+  opacity: 0.45;
+}
+
+.nav-steps li.is-now {
+  font-weight: 700;
+  color: #2fa866;
+}
+
+.nav-step-icon {
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+.nav-steps small {
+  color: rgba(var(--fg-rgb), 0.6);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 820px) {
+  .nav-sheet {
+    bottom: 0.75rem;
+  }
+}
+
 /* ---------- Photos ---------- */
 .photo {
   margin: 0;
@@ -1710,34 +1931,39 @@ input {
   background: radial-gradient(circle at 35% 30%, #fff3c4, #d9a74a 55%, #8a5a1c);
 }
 
-/* Sword cursor (SwordCursor.jsx). The native cursor is hidden only while the sword is active
-   (mouse/pen devices), and it must beat Google Maps' inline grab cursors. */
+/* Sword cursor (SwordCursor.jsx). At rest the sword is the real OS cursor (pixel-exact, no lag),
+   with its hotspot on the blade tip. It must beat Google Maps' inline grab cursors. */
 :root.sword-cursor-on[data-theme="odyssey"],
 :root.sword-cursor-on[data-theme="odyssey"] * {
-  cursor: none !important;
+  cursor: var(--sword-cursor) 1 1, auto !important;
 }
 
 :root.sword-cursor-on[data-theme="odyssey"] :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea) {
   cursor: text !important;
 }
 
-.sword-cursor {
+/* During a swing the real cursor hides and an identical sword swings in its place. */
+:root.sword-swinging[data-theme="odyssey"],
+:root.sword-swinging[data-theme="odyssey"] * {
+  cursor: none !important;
+}
+
+.sword-swing {
   position: fixed;
   left: 0;
   top: 0;
   z-index: 2147483000;
   pointer-events: none;
   will-change: transform;
-  filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 4px rgba(240, 207, 116, 0.35));
 }
 
-.sword-cursor-blade svg {
+.sword-swing-blade svg {
   display: block;
 }
 
-/* One swing: wind up, slash through, settle back. Same element as the cursor, so nothing is left behind. */
-.sword-cursor-blade.is-swinging {
-  animation: sword-swing 260ms cubic-bezier(0.3, 0.7, 0.3, 1);
+/* One swing: wind up, slash through, settle back on the exact spot. */
+.sword-swing-blade.is-swinging {
+  animation: sword-swing 240ms cubic-bezier(0.3, 0.7, 0.3, 1);
 }
 
 @keyframes sword-swing {
@@ -1754,7 +1980,6 @@ input {
     transform: rotate(0deg);
   }
 }
-
 @media (prefers-reduced-motion: reduce) {
   :root[data-theme="odyssey"] .top-bar {
     animation: none;

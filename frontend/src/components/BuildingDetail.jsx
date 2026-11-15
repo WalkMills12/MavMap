@@ -20,7 +20,7 @@ function formatWhen(start) {
   }
 }
 
-export default function BuildingDetail({ building, onClose, nearbyEvents = [], isFavorite = false, onToggleFavorite }) {
+export default function BuildingDetail({ building, onClose, nearbyEvents = [], isFavorite = false, onToggleFavorite, onNavigate }) {
   const apple = appleMapsUrl(building);
   const google = googleMapsUrl(building);
 
@@ -57,6 +57,11 @@ export default function BuildingDetail({ building, onClose, nearbyEvents = [], i
       {building.abbr?.length > 0 && <p className="detail-abbr">{building.abbr.join(" · ")}</p>}
       {building.note && <p className="detail-abbr">{building.note}</p>}
       {building.address && <p className="detail-address">{building.address}</p>}
+      {onNavigate && (
+        <button type="button" className="btn walk" onClick={() => onNavigate(building)}>
+          <span aria-hidden="true">➤</span> Walk me there
+        </button>
+      )}
       <div className="direction-actions">
         <a className="btn apple" href={apple} target="_blank" rel="noreferrer">
           Apple Maps

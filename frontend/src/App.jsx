@@ -11,6 +11,8 @@ import PreferencesMenu from "./components/PreferencesMenu.jsx";
 import SuggestionPopup from "./components/SuggestionPopup.jsx";
 import StormLayer from "./components/StormLayer.jsx";
 import SwordCursor from "./components/SwordCursor.jsx";
+import NavPanel from "./components/NavPanel.jsx";
+import { useNavigation } from "./navigation.js";
 import { fetchBuildings, fetchEvents, fetchTraffic, fetchTransit } from "./api.js";
 import { nearbyEvents } from "./geo.js";
 import { hasEnded } from "./calendar.js";
@@ -61,6 +63,9 @@ export default function App() {
   const [menuTab, setMenuTab] = useState(prefs.defaultTab);
   const [suggestions, setSuggestions] = useState([]);
   const [logoOk, setLogoOk] = useState(true);
+  const navigation = useNavigation(import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "");
+  const [following, setFollowing] = useState(true);
+  const navigating = Boolean(navigation.nav);
   const suggestionsChecked = useRef(false);
 
   useEffect(() => {
@@ -144,6 +149,18 @@ export default function App() {
     // On phones the menu covers the map, so get it out of the way.
     if (isPhone()) setMenuOpen(false);
   }, []);
+
+  // Walk me there: live location + turn-by-turn directions inside the app.
+  const startNav = useCallback(
+    (building) => {
+      setFocusStop(null);
+      setSelected(building);
+      setFollowing(true);
+      if (isPhone()) setMenuOpen(false);
+      navigation.start(building);
+    },
+    [navigation.start],
+  );
 
   const showStop = useCallback((stop) => {
     setFocusStop(stop);
@@ -292,17 +309,40 @@ export default function App() {
             hiddenRoutes={prefs.hiddenRoutes}
             focusStop={focusStop}
             onFocusStop={showStop}
+            navigating={navigating}
+            navPath={navigation.nav?.route?.path ?? null}
+            userPos={navigation.pos}
+            following={following}
+            onUserPan={() => navigating && setFollowing(false)}
           />
-          {selected && (
+          {selected && !navigating && (
             <BuildingDetail
               building={selected}
               nearbyEvents={selectedNearby}
               onClose={() => setSelected(null)}
               isFavorite={favorites.isBuildingFav(selected.id)}
               onToggleFavorite={favorites.toggleBuilding}
+              onNavigate={startNav}
             />
           )}
-          <FaqChat buildings={buildings} detailOpen={Boolean(selected)} onShowBuilding={showBuilding} />
+          {navigating && (
+            <NavPanel
+              nav={navigation.nav}
+              following={following}
+              onRecenter={() => setFollowing(true)}
+              onEnd={navigation.stop}
+              onRetry={navigation.retry}
+              onSimulate={navigation.simulate}
+            />
+          )}
+          {/* Hidden (not unmounted) while navigating, so the chat history survives. */}
+          <FaqChat
+            buildings={buildings}
+            detailOpen={Boolean(selected)}
+            onShowBuilding={showBuilding}
+            onNavigate={startNav}
+            hidden={navigating}
+          />
         </main>
       </div>
 

@@ -70,6 +70,23 @@ The ☰ button in the top-left opens the side menu (× or Esc closes it). On pho
 
 Besides academic buildings, the directory lists **parking** (garages and lots), **dining** (UC food court, cafes and spots right next to campus) and **housing** (residence halls and student apartments). Those coordinates come from OpenStreetMap; each entry's `source` field in `data/buildings.json` names the OSM object it came from.
 
+## Walking directions to class
+
+Tap **Walk me there** on a building's panel, or in the FAQ chat after looking up a room (for example "NH 106"). MavMap then:
+
+- asks the browser for your location and keeps tracking it (blue dot, accuracy circle and a heading arrow),
+- asks Google's **Routes API** for the best walking route and draws it on the map,
+- shows the next turn and the distance to it in a banner at the top, plus time left, distance and arrival time at the bottom, with a step list,
+- follows you as you walk (drag the map to look around, then **Re-center**), finds a new route if you get more than about 30 m off it, and says when you've arrived,
+- keeps the phone screen on while navigating, where the browser allows it.
+
+Requirements:
+- Your Google Maps key needs the **Routes API** enabled (same key as the map).
+- Browsers only share location on `https://` sites or `http://localhost`. To navigate on a phone, open MavMap from an HTTPS address (a deployed site, or a tunnel to your computer). `http://<your-ip>:5173` won't get location.
+- **Simulate walk** (in the bottom bar) walks the route for you at 3× speed, for testing on a computer.
+
+Location is only used in your browser and sent to Google to compute the route. MavMap doesn't store it.
+
 ## Photos
 
 - **Events:** the photo each event has on events.uta.edu, shown at the top of its card (the `big_300` size).
@@ -95,7 +112,7 @@ The **Transit** tab and map layer show UTA's MavMover routes from `data/transit.
 The **Preferences** button in the top-right holds settings saved in the browser (`localStorage`):
 
 - Theme (dark, light, match device, or **The Odyssey**) and text size (normal, large, extra large)
-  - *The Odyssey* (`[data-theme="odyssey"]` in `index.css`): wine-dark and bronze colors with Cinzel headings, a sea-chart map style (Street view), a sword cursor that swings when you click, with no trail left behind (`SwordCursor.jsx`, mouse and pen only), and a stormy top bar with animated rain and lightning (`StormLayer.jsx`). With *reduce motion* turned on in the OS, the rain and the swing are off.
+  - *The Odyssey* (`[data-theme="odyssey"]` in `index.css`): wine-dark and bronze colors with Cinzel headings, a sea-chart map style (Street view), a sword cursor that swings when you click, with no trail left behind (`SwordCursor.jsx`, mouse and pen only; at rest it's the real system cursor with its hotspot on the blade tip, so clicks are pixel-accurate), and a stormy top bar with animated rain and lightning (`StormLayer.jsx`). With *reduce motion* turned on in the OS, the rain and the swing are off.
 - Map view: Street, Satellite, or OpenStreetMap tiles (with OSM attribution, per the [tile usage policy](https://operations.osmfoundation.org/policies/tiles/))
 - Show MavMover shuttle stops and routes
 - Suggest new events at startup, plus buttons to clear learned interests and saved items

@@ -12,7 +12,7 @@ function isPhone() {
   return typeof window !== "undefined" && window.matchMedia("(max-width: 820px)").matches;
 }
 
-export default function FaqChat({ buildings, onShowBuilding, detailOpen = false }) {
+export default function FaqChat({ buildings, onShowBuilding, onNavigate, detailOpen = false, hidden = false }) {
   const [open, setOpen] = useState(false);
   const [faqs, setFaqs] = useState(null);
   const [loadError, setLoadError] = useState(false);
@@ -75,11 +75,19 @@ export default function FaqChat({ buildings, onShowBuilding, detailOpen = false 
     if (isPhone()) setOpen(false);
   };
 
+  const walkThere = (building) => {
+    setOpen(false);
+    onNavigate(building);
+  };
+
   const featured = (faqs ?? []).filter((f) => f.featured);
   const asked = messages.length > 1;
 
   return (
-    <div className={`faq-root${detailOpen ? " faq-root--detail-open" : ""}${open ? " faq-root--open" : ""}`}>
+    <div
+      className={`faq-root${detailOpen ? " faq-root--detail-open" : ""}${open ? " faq-root--open" : ""}`}
+      hidden={hidden}
+    >
       {open && (
         <section className="faq-window" role="dialog" aria-label="Campus FAQs" aria-modal="false">
           <header className="faq-header">
@@ -101,6 +109,11 @@ export default function FaqChat({ buildings, onShowBuilding, detailOpen = false 
                     {m.building && (
                       <button type="button" className="faq-action" onClick={() => showOnMap(m.building)}>
                         Show {m.building.abbr?.[0] ?? m.building.name} on map
+                      </button>
+                    )}
+                    {m.building && onNavigate && (
+                      <button type="button" className="faq-action faq-action--go" onClick={() => walkThere(m.building)}>
+                        ➤ Walk me there
                       </button>
                     )}
                     {m.link && (
