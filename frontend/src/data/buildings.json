@@ -781,5 +781,402 @@
     "address": "501 Spaniolo Dr, Arlington, TX 76010",
     "note": "Pizza next to campus",
     "source": "OpenStreetMap node/3056782500"
+  },
+  {
+    "id": "seir",
+    "name": "Science & Engineering Innovation & Research Building",
+    "abbr": [
+      "SEIR"
+    ],
+    "lat": 32.728058,
+    "lng": -97.113393,
+    "category": "academic",
+    "address": "",
+    "note": "Research labs and classrooms.",
+    "source": "OpenStreetMap way/739660461"
+  },
+  {
+    "id": "cpc",
+    "name": "College Park Center",
+    "abbr": [
+      "CPC"
+    ],
+    "lat": 32.730409,
+    "lng": -97.108126,
+    "category": "athletics",
+    "address": "600 South Center Street, Arlington, TX",
+    "note": "Arena for basketball, volleyball, concerts and commencement.",
+    "source": "OpenStreetMap way/286854828"
+  },
+  {
+    "id": "stadium",
+    "name": "Maverick Stadium",
+    "abbr": [],
+    "lat": 32.729224,
+    "lng": -97.126518,
+    "category": "athletics",
+    "address": "",
+    "note": "Outdoor stadium for track and field and large events.",
+    "source": "OpenStreetMap way/286867632"
+  },
+  {
+    "id": "peb",
+    "name": "Physical Education Building",
+    "abbr": [
+      "PEB"
+    ],
+    "lat": 32.730948,
+    "lng": -97.117647,
+    "category": "athletics",
+    "address": "",
+    "note": "Kinesiology classrooms, gyms and labs.",
+    "source": "OpenStreetMap way/286848471"
+  },
+  {
+    "id": "gacb",
+    "name": "General Academic Classroom Building",
+    "abbr": [
+      "GACB"
+    ],
+    "lat": 32.734524,
+    "lng": -97.114032,
+    "category": "academic",
+    "address": "211 South Cooper Street, Arlington, TX",
+    "note": "Classrooms.",
+    "source": "OpenStreetMap way/287218730"
+  },
+  {
+    "id": "celb",
+    "name": "Civil Engineering Laboratory Building",
+    "abbr": [
+      "CELB"
+    ],
+    "lat": 32.727626,
+    "lng": -97.125579,
+    "category": "academic",
+    "address": "",
+    "note": "Civil engineering labs.",
+    "source": "OpenStreetMap way/641383023"
+  },
+  {
+    "id": "arb",
+    "name": "Aerodynamics Research Building",
+    "abbr": [
+      "ARB"
+    ],
+    "lat": 32.727536,
+    "lng": -97.107264,
+    "category": "academic",
+    "address": "",
+    "note": "Aerospace research labs.",
+    "source": "OpenStreetMap way/287015033"
+  },
+  {
+    "id": "nano",
+    "name": "Nanotech Building",
+    "abbr": [],
+    "lat": 32.732437,
+    "lng": -97.115643,
+    "category": "academic",
+    "address": "",
+    "note": "Nanotechnology research labs.",
+    "source": "OpenStreetMap way/287043668"
+  },
+  {
+    "id": "ardrc",
+    "name": "Amphibian and Reptile Diversity Research Center",
+    "abbr": [],
+    "lat": 32.727836,
+    "lng": -97.124766,
+    "category": "academic",
+    "address": "",
+    "note": "Biology research collections.",
+    "source": "OpenStreetMap way/641383025"
+  },
+  {
+    "id": "cewd",
+    "name": "Continuing Education and Workforce Development",
+    "abbr": [],
+    "lat": 32.726862,
+    "lng": -97.108394,
+    "category": "academic",
+    "address": "",
+    "note": "Continuing education programs.",
+    "source": "OpenStreetMap way/287045147"
+  },
+  {
+    "id": "health-center",
+    "name": "Health Center",
+    "abbr": [],
+    "lat": 32.730461,
+    "lng": -97.110787,
+    "category": "student_life",
+    "address": "605 South West Street, Arlington, TX",
+    "note": "Student health services.",
+    "source": "OpenStreetMap way/286854822"
+  },
+  {
+    "id": "commons",
+    "name": "The Commons",
+    "abbr": [],
+    "lat": 32.732775,
+    "lng": -97.11707,
+    "category": "dining",
+    "address": "",
+    "note": "Dining hall.",
+    "source": "OpenStreetMap way/739660456"
+  },
+  {
+    "id": "bookstore",
+    "name": "UTA Bookstore",
+    "abbr": [],
+    "lat": 32.733386,
+    "lng": -97.109456,
+    "category": "student_life",
+    "address": "400 Spaniolo Drive, Arlington, TX",
+    "note": "Textbooks, supplies and UTA gear.",
+    "source": "OpenStreetMap way/286843705"
+  },
+  {
+    "id": "uta-info",
+    "name": "UTA Information",
+    "abbr": [],
+    "lat": 32.729069,
+    "lng": -97.116407,
+    "category": "student_life",
+    "address": "",
+    "note": "Campus information.",
+    "source": "OpenStreetMap way/1237192463"
+  },
+  {
+    "id": "sab",
+    "name": "Student and Administration Building",
+    "abbr": [],
+    "lat": 32.726264,
+    "lng": -97.117739,
+    "category": "admin",
+    "address": "",
+    "note": "Student services and administrative offices.",
+    "source": "OpenStreetMap way/641382965"
+  },
+  {
+    "id": "mvs",
+    "name": "Military and Veteran Services",
+    "abbr": [],
+    "lat": 32.733875,
+    "lng": -97.122037,
+    "category": "admin",
+    "address": "",
+    "note": "Support for student veterans and military families.",
+    "source": "OpenStreetMap way/641375050"
+  },
+  {
+    "id": "pats",
+    "name": "Parking and Transportation Services",
+    "abbr": [],
+    "lat": 32.729447,
+    "lng": -97.124423,
+    "category": "admin",
+    "address": "",
+    "note": "Parking permits and MavMover shuttle.",
+    "source": "OpenStreetMap way/641383575"
+  },
+  {
+    "id": "ehs",
+    "name": "Environmental Health and Safety",
+    "abbr": [],
+    "lat": 32.732296,
+    "lng": -97.122063,
+    "category": "admin",
+    "address": "",
+    "note": "Campus safety office.",
+    "source": "OpenStreetMap way/641375054"
+  },
+  {
+    "id": "uta-police",
+    "name": "University Police",
+    "abbr": [],
+    "lat": 32.733321,
+    "lng": -97.105093,
+    "category": "admin",
+    "address": "202 East Border Street, Arlington, TX",
+    "note": "UTA Police Department. Emergency: 911; non-emergency: 817-272-3003.",
+    "source": "OpenStreetMap way/472239613, way/641383579, way/641383583"
+  },
+  {
+    "id": "fa-annex",
+    "name": "Finance and Administration Annex",
+    "abbr": [],
+    "lat": 32.736995,
+    "lng": -97.109243,
+    "category": "admin",
+    "address": "219 West Main Street, Arlington, TX",
+    "note": "Administrative offices.",
+    "source": "OpenStreetMap way/312019882"
+  },
+  {
+    "id": "center-point",
+    "name": "Center Point",
+    "abbr": [],
+    "lat": 32.728068,
+    "lng": -97.106818,
+    "category": "housing",
+    "address": "",
+    "note": "Student apartments.",
+    "source": "OpenStreetMap way/287015032"
+  },
+  {
+    "id": "lofts",
+    "name": "The Lofts at College Park",
+    "abbr": [],
+    "lat": 32.732344,
+    "lng": -97.107593,
+    "category": "housing",
+    "address": "500 South Center Street, Arlington, TX",
+    "note": "Student apartments.",
+    "source": "OpenStreetMap way/668767200"
+  },
+  {
+    "id": "arbor-oaks",
+    "name": "Arbor Oaks",
+    "abbr": [],
+    "lat": 32.73007,
+    "lng": -97.120897,
+    "category": "housing",
+    "address": "",
+    "note": "Student apartments.",
+    "source": "OpenStreetMap way/301617582, way/301617578, way/301617581, way/301617579"
+  },
+  {
+    "id": "university-village",
+    "name": "University Village",
+    "abbr": [],
+    "lat": 32.7301,
+    "lng": -97.118995,
+    "category": "housing",
+    "address": "",
+    "note": "Student apartments.",
+    "source": "OpenStreetMap way/301617585, way/301617586, way/301617583, way/301617584, way/301617574, way/301617580"
+  },
+  {
+    "id": "trinity",
+    "name": "Trinity Hall",
+    "abbr": [],
+    "lat": 32.730181,
+    "lng": -97.117097,
+    "category": "campus",
+    "address": "",
+    "note": "Campus building.",
+    "source": "OpenStreetMap way/286848468"
+  },
+  {
+    "id": "swift",
+    "name": "Swift Center",
+    "abbr": [],
+    "lat": 32.733803,
+    "lng": -97.121062,
+    "category": "campus",
+    "address": "",
+    "note": "Campus building.",
+    "source": "OpenStreetMap way/301613893"
+  },
+  {
+    "id": "wetsel",
+    "name": "Wetsel Building",
+    "abbr": [],
+    "lat": 32.726726,
+    "lng": -97.125952,
+    "category": "campus",
+    "address": "",
+    "note": "Facilities and campus services.",
+    "source": "OpenStreetMap way/641383014"
+  },
+  {
+    "id": "thermal-plant",
+    "name": "Thermal Energy Plant",
+    "abbr": [],
+    "lat": 32.730555,
+    "lng": -97.110234,
+    "category": "campus",
+    "address": "",
+    "note": "Campus heating and cooling plant.",
+    "source": "OpenStreetMap way/286854825"
+  },
+  {
+    "id": "lcd",
+    "name": "Library Collections Depository",
+    "abbr": [],
+    "lat": 32.727778,
+    "lng": -97.124146,
+    "category": "campus",
+    "address": "",
+    "note": "Library storage.",
+    "source": "OpenStreetMap way/641383020"
+  },
+  {
+    "id": "tlcdc",
+    "name": "Transforming Lives Child Development Center",
+    "abbr": [],
+    "lat": 32.733785,
+    "lng": -97.122859,
+    "category": "campus",
+    "address": "",
+    "note": "Child development center.",
+    "source": "OpenStreetMap way/962534648"
+  },
+  {
+    "id": "bike-barn",
+    "name": "UTA Bike Barn",
+    "abbr": [],
+    "lat": 32.726196,
+    "lng": -97.109196,
+    "category": "campus",
+    "address": "1100 South Pecan Street, Arlington, TX",
+    "note": "Bike repair and rentals.",
+    "source": "OpenStreetMap way/1455258693"
+  },
+  {
+    "id": "campus-center",
+    "name": "Campus Center",
+    "abbr": [],
+    "lat": 32.732131,
+    "lng": -97.116002,
+    "category": "campus",
+    "address": "",
+    "note": "Campus building.",
+    "source": "OpenStreetMap way/287043665"
+  },
+  {
+    "id": "brazos-park",
+    "name": "Brazos Park",
+    "abbr": [],
+    "lat": 32.730931,
+    "lng": -97.110837,
+    "category": "campus",
+    "address": "",
+    "note": "Campus building.",
+    "source": "OpenStreetMap way/1034048370"
+  },
+  {
+    "id": "wade",
+    "name": "Wade Building",
+    "abbr": [],
+    "lat": 32.734054,
+    "lng": -97.106717,
+    "category": "campus",
+    "address": "",
+    "note": "Campus building.",
+    "source": "OpenStreetMap way/286843716"
+  },
+  {
+    "id": "ded",
+    "name": "DED Technical Training Center",
+    "abbr": [],
+    "lat": 32.726747,
+    "lng": -97.107265,
+    "category": "campus",
+    "address": "",
+    "note": "Training center.",
+    "source": "OpenStreetMap way/287045148"
   }
 ]

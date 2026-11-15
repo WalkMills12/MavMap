@@ -55,13 +55,31 @@ const ODYSSEY_STYLE = [
 
 const MAP_STYLES = { dark: DARK_STYLE, odyssey: ODYSSEY_STYLE };
 
-// Hide Google's own business/school pins so MavMap's building outlines stand out (applies to every theme).
+// Hide Google's own business/school pins and building names so MavMap's outlines and labels stand out.
+// Street names stay. Applies to every theme, and to Satellite view's label layer too.
 const CAMPUS_MAP_STYLES = [
   { featureType: "poi", stylers: [{ visibility: "off" }] },
   { featureType: "poi.school", stylers: [{ visibility: "off" }] },
   { featureType: "poi.business", stylers: [{ visibility: "off" }] },
+  { featureType: "landscape", elementType: "labels", stylers: [{ visibility: "off" }] },
+  { featureType: "administrative.land_parcel", elementType: "labels", stylers: [{ visibility: "off" }] },
+  { featureType: "administrative.neighborhood", elementType: "labels", stylers: [{ visibility: "off" }] },
   { featureType: "transit", stylers: [{ visibility: "simplified" }] },
 ];
+
+// Invisible 1×1 image used as the anchor for text-only label markers.
+const BLANK_PIXEL = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
+
+/** MavMap's own building name: full name zoomed in, abbreviation (or short name) a bit farther out. */
+function labelText(building, zoom) {
+  if (zoom >= 18) return building.name;
+  if (zoom >= 16.5) {
+    const abbr = (building.abbr || [])[0];
+    if (abbr) return abbr;
+    return building.name.length <= 16 ? building.name : null;
+  }
+  return null;
+}
 
 // GeoJSON footprints → Google Maps polygon paths.
 function ringsFromGeometry(geometry) {
@@ -110,6 +128,8 @@ export default function CampusMap({
   buildings,
   footprints, // GeoJSON FeatureCollection of building outlines
   searchMatches = [], // buildings matching the search box get pins while you type
+  showOutlines = true, // building highlights (Preferences)
+  showNames = true, // MavMap building names (Preferences)
   selected,
   onSelect,
   showTraffic,
@@ -132,6 +152,7 @@ export default function CampusMap({
   const heatmapRef = useRef(null);
   const osmCreditRef = useRef(null);
   const [mapReady, setMapReady] = useState(false);
+  const [zoom, setZoom] = useState(15.5);
 
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: apiKey,
@@ -147,7 +168,13 @@ export default function CampusMap({
   const options = useMemo(
     () => ({
       ...baseOptions,
-      styles: mapType === "roadmap" ? [...(MAP_STYLES[mapStyle] ?? []), ...CAMPUS_MAP_STYLES] : null,
+      // Theme colors only apply to Street view; hiding Google's names also works on Satellite's labels.
+      styles:
+        mapType === "roadmap"
+          ? [...(MAP_STYLES[mapStyle] ?? []), ...CAMPUS_MAP_STYLES]
+          : mapType === "hybrid"
+            ? CAMPUS_MAP_STYLES
+            : null,
       // While navigating you may start off campus, so don't lock the camera to UTA.
       ...(navigating ? { restriction: null, minZoom: 3 } : {}),
     }),
@@ -241,6 +268,15 @@ export default function CampusMap({
   // Which routes serve each stop, for stop colors and the info window.
   const buildingById = useMemo(() => new Map(buildings.map((b) => [b.id, b])), [buildings]);
 
+  // Name every outlined building (cafes inside the UC etc. have no outline and stay unlabeled).
+  const labeled = useMemo(() => {
+    const ids = new Set((footprints?.features || []).map((f) => f.properties?.id));
+    return buildings.filter((b) => ids.has(b.id));
+  }, [buildings, footprints]);
+
+  // Dark text on light maps; light text with a dark halo on dark, Odyssey and satellite maps.
+  const labelTone = mapType === "hybrid" || (mapType === "roadmap" && mapStyle === "dark") ? "light" : "dark";
+
   const pins = useMemo(() => {
     const byId = new Map();
     for (const b of searchMatches) byId.set(b.id, b);
@@ -309,6 +345,10 @@ export default function CampusMap({
         setMapReady(true);
       }}
       onDragStart={() => onUserPan?.()}
+      onZoomChanged={() => {
+        const z = mapRef.current?.getZoom();
+        if (Number.isFinite(z)) setZoom(z);
+      }}
       onUnmount={() => {
         if (heatmapRef.current) {
           heatmapRef.current.setMap(null);
@@ -437,7 +477,7 @@ export default function CampusMap({
       )}
 
       {/* Building outlines, colored by type; tap one to open the building. */}
-      {(footprints?.features || []).map((feature) => {
+      {showOutlines && (footprints?.features || []).map((feature) => {
         const props = feature.properties || {};
         const building = buildingById.get(props.id);
         const isSelected = selected?.id === props.id;
@@ -451,6 +491,29 @@ export default function CampusMap({
           />
         ));
       })}
+
+      {/* MavMap's bold building names, drawn on the buildings (Google's own names are hidden). */}
+      {showNames &&
+        labeled.map((building) => {
+          const text = labelText(building, zoom);
+          if (!text) return null;
+          return (
+            <MarkerF
+              key={`label-${building.id}`}
+              position={{ lat: building.lat, lng: building.lng }}
+              clickable={false}
+              zIndex={4}
+              icon={{ url: BLANK_PIXEL, scaledSize: new g.Size(1, 1), anchor: new g.Point(0, 0), labelOrigin: new g.Point(0, 0) }}
+              label={{
+                text,
+                className: `map-label map-label--${labelTone}`,
+                fontWeight: "800",
+                fontSize: zoom >= 18 ? "13px" : "12px",
+                color: labelTone === "dark" ? "#0b1f3a" : "#ffffff",
+              }}
+            />
+          );
+        })}
 
       {/* Pins only where they help: search matches, saved places and the selected building. */}
       {pins.map((building) => {

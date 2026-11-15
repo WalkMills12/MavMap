@@ -17,6 +17,7 @@ COLORS = {
     "dining": "#FFB74D",
     "housing": "#43A047",
     "parking": "#9AA6B8",
+    "campus": "#8FB3A8",
     "default": "#F58220",
 }
 

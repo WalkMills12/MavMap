@@ -7,6 +7,7 @@ export const CATEGORY_COLORS = {
   dining: "#FFB74D", // amber
   housing: "#43A047", // green — dorms / residence halls
   parking: "#9AA6B8", // gray — garages and lots
+  campus: "#8FB3A8", // sage — other UTA buildings (use not confirmed)
   default: "#F58220",
 };
 

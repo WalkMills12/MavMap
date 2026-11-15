@@ -7,6 +7,7 @@ const LABELS = {
   housing: "Housing",
   parking: "Parking",
   dining: "Dining",
+  campus: "Other campus buildings",
 };
 
 // Badge text for places without a MyMav abbreviation (garages, cafes, apartments).

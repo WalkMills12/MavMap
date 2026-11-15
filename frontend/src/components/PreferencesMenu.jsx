@@ -146,6 +146,20 @@ export default function PreferencesMenu({ prefs, onChange, onReset, trafficCount
             <legend>Map</legend>
             <Segmented name="maptype-pref" label="Map view" options={MAP_OPTIONS} value={prefs.mapType} onChange={(v) => onChange({ mapType: v })} />
             <label className="prefs-check">
+              <input type="checkbox" checked={prefs.showOutlines} onChange={(e) => onChange({ showOutlines: e.target.checked })} />
+              <span>
+                Building highlights
+                <small> · colored outlines by building type</small>
+              </span>
+            </label>
+            <label className="prefs-check">
+              <input type="checkbox" checked={prefs.showBuildingNames} onChange={(e) => onChange({ showBuildingNames: e.target.checked })} />
+              <span>
+                Building names on the map
+                <small> · zoom in to see full names</small>
+              </span>
+            </label>
+            <label className="prefs-check">
               <input type="checkbox" checked={routesOn} onChange={(e) => onToggleRoutes(e.target.checked)} />
               <span>
                 Show MavMover shuttle routes

@@ -3,7 +3,7 @@ import { categoryLabel } from "../categories.js";
 
 const SAVED = "__saved";
 // Chip order: campus buildings first, then the everyday places.
-const ORDER = ["academic", "student_life", "admin", "athletics", "housing", "dining", "parking"];
+const ORDER = ["academic", "student_life", "admin", "athletics", "housing", "dining", "parking", "campus"];
 
 export default function DirectoryTab({ buildings, selected, onSelect, favoriteIds, onToggleFavorite }) {
   const [category, setCategory] = useState("all");

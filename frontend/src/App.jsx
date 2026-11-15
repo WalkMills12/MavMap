@@ -287,6 +287,7 @@ export default function App() {
           open={menuOpen}
           tab={menuTab}
           onTabChange={setMenuTab}
+          onOpen={() => setMenuOpen(true)}
           onClose={closeMenu}
           counts={{
             directory: buildings.length,
@@ -309,6 +310,8 @@ export default function App() {
             trafficPoints={traffic?.points ?? EMPTY_TRAFFIC}
             mapType={prefs.mapType}
             mapStyle={mapStyle}
+            showOutlines={prefs.showOutlines}
+            showNames={prefs.showBuildingNames}
             favoriteIds={favorites.buildingIds}
             transit={transit}
             shownRoutes={prefs.shownRoutes}

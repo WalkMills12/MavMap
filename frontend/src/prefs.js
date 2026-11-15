@@ -7,6 +7,8 @@ export const DEFAULT_PREFS = {
   textSize: "normal", // "normal" | "large" | "xlarge"
   mapType: "roadmap", // "roadmap" (street) | "hybrid" (satellite) | "osm" (OpenStreetMap)
   shownRoutes: [], // MavMover route ids shown on the map; none until the user picks some
+  showOutlines: true, // colored building highlights (outlines) on the map
+  showBuildingNames: true, // MavMap's bold building names on the map (Google's are hidden)
   suggestions: true, // learn from saved events and suggest new ones at startup
   showTraffic: true, // event-traffic heatmap on the map
   openMenuOnStart: true, // side menu open when MavMap loads (desktop only)

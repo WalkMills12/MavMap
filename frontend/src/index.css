@@ -239,10 +239,6 @@ input {
   min-height: 0;
 }
 
-.map-area--menu {
-  grid-template-columns: minmax(300px, 380px) 1fr;
-}
-
 .map-stage {
   position: relative;
   min-height: 0;
@@ -910,14 +906,83 @@ input {
   font-size: 0.85rem;
 }
 
-/* ---------- Side menu ---------- */
+/* ---------- Side panel (floating, after Walker's events panel) ---------- */
+.side-pill {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(var(--surface-rgb), 0.94);
+  color: var(--cream);
+  padding: 0.55rem 0.9rem;
+  cursor: pointer;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.side-pill:hover {
+  border-color: var(--orange);
+}
+
+.side-pill svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.side-pill-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.35rem;
+  height: 1.35rem;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  background: var(--orange);
+  color: #0b1f3a;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.side-pill:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 2px;
+}
+
 .side-menu {
-  min-height: 0;
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  bottom: 1rem;
+  width: min(370px, calc(100% - 2rem));
+  z-index: 7;
   display: flex;
   flex-direction: column;
   background: rgba(var(--surface-rgb), 0.96);
-  border-right: 1px solid var(--border);
-  z-index: 5;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  transform: translateX(calc(-100% - 1.25rem));
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.22s ease, opacity 0.18s ease;
+}
+
+.side-menu.open {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .side-scrim {
@@ -926,20 +991,61 @@ input {
 
 .side-head {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 0.75rem 0.6rem 1rem;
-  border-bottom: 1px solid var(--border);
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem 1rem 0.6rem;
+}
+
+.side-kicker {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.7rem;
+  color: var(--orange);
+}
+
+.side-title h2 {
+  margin: 0.15rem 0 0;
+  font-family: "Bebas Neue", sans-serif;
+  font-weight: 400;
+  font-size: 1.8rem;
+  letter-spacing: 0.03em;
+  line-height: 1;
+}
+
+:root[data-theme="odyssey"] .side-title h2 {
+  font-family: var(--display-font);
+  font-weight: 700;
+  font-size: 1.4rem;
+  letter-spacing: 0.05em;
 }
 
 .side-tabs {
-  flex: 1;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0.3rem;
+  margin: 0 1rem 0.6rem;
   padding: 0.25rem;
   border: 1px solid var(--border);
   border-radius: 999px;
+}
+
+.side-body {
+  border-top: 1px solid var(--border);
+}
+
+/* While the panel is open on a computer, move the FAQ bubble out from under it. */
+@media (min-width: 821px) {
+  .map-area--menu .faq-root {
+    left: calc(min(370px, 100% - 2rem) + 2rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .side-menu {
+    transition: none;
+  }
 }
 
 .side-tab {
@@ -968,14 +1074,15 @@ input {
 }
 
 .side-close {
-  border: 0;
+  flex: none;
+  border: 1px solid var(--border);
   background: transparent;
   color: var(--cream);
-  font-size: 1.6rem;
+  font-size: 1.05rem;
   line-height: 1;
-  width: 2.2rem;
-  height: 2.2rem;
-  border-radius: 8px;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
   cursor: pointer;
 }
 
@@ -1049,6 +1156,7 @@ input {
 .cat-parking { --cat: #9AA6B8; }
 .cat-dining { --cat: #FFB74D; }
 .cat-housing { --cat: #43A047; }
+.cat-campus { --cat: #8FB3A8; }
 .cat-favorites { --cat: #ffd447; }
 
 .cat-dot {
@@ -1458,6 +1566,28 @@ input {
   .nav-sheet {
     bottom: 0.75rem;
   }
+}
+
+/* ---------- Building names on the map ---------- */
+/* Google Maps puts the label in a div with this class; a halo keeps names readable over outlines. */
+.map-label {
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.map-label--dark {
+  text-shadow:
+    0 0 2px #ffffff,
+    0 0 3px #ffffff,
+    0 0 5px rgba(255, 255, 255, 0.9);
+}
+
+.map-label--light {
+  text-shadow:
+    0 0 2px #000000,
+    0 0 3px #000000,
+    0 0 6px rgba(0, 0, 0, 0.85);
 }
 
 /* ---------- Photos ---------- */
@@ -1986,20 +2116,18 @@ input {
     animation: none;
   }
 }
-/* Phones: the side menu slides over the map instead of taking a column. */
+/* Phones: the panel takes nearly the full width, with a dimmed map behind it. */
 @media (max-width: 820px) {
-  .map-area--menu {
-    grid-template-columns: 1fr;
+  .side-menu {
+    top: 0.75rem;
+    left: 0.75rem;
+    bottom: 0.75rem;
+    width: calc(100% - 1.5rem);
   }
 
-  .side-menu {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    width: min(88vw, 380px);
-    box-shadow: 18px 0 40px rgba(0, 0, 0, 0.45);
-    z-index: 6;
+  .side-pill {
+    top: 0.75rem;
+    left: 0.75rem;
   }
 
   .side-scrim {
