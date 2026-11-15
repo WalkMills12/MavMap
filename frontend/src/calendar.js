@@ -136,6 +136,17 @@ export function buildIcs(event, now = new Date()) {
 
 /** Download an .ics file. Apple Calendar (and Outlook) open it and offer to add the event. */
 export function downloadIcs(event) {
+  // Prefer UTA's own .ics for the event (Localist), which Apple Calendar opens directly.
+  if (event.ics_url) {
+    const link = document.createElement("a");
+    link.href = event.ics_url;
+    link.target = "_blank";
+    link.rel = "noreferrer";
+    document.body.append(link);
+    link.click();
+    link.remove();
+    return;
+  }
   const blob = new Blob([buildIcs(event)], { type: "text/calendar;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const slug = event.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 50) || "uta-event";

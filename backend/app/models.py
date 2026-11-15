@@ -50,6 +50,8 @@ class CampusEvent(BaseModel):
     description: Optional[str] = None
     types: List[str] = Field(default_factory=list)  # Localist "event_types", e.g. "Workshops"
     photo_url: Optional[str] = None
+    ics_url: Optional[str] = None  # Localist's official .ics for this event
+    experience: Optional[str] = None  # "inperson" | "virtual" | "hybrid"
 
 
 class TrafficPoint(BaseModel):

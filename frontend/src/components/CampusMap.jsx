@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { CircleF, GoogleMap, InfoWindowF, MarkerF, PolylineF, useJsApiLoader } from "@react-google-maps/api";
-import { CATEGORY_COLORS, badgeFor } from "../categories.js";
+import { CircleF, GoogleMap, InfoWindowF, MarkerF, PolygonF, PolylineF, useJsApiLoader } from "@react-google-maps/api";
+import { badgeFor } from "../categories.js";
+import { footprintStyle, markerIconForCategory } from "../markerIcons.js";
 import { decodePolyline } from "../navigation.js";
 import { distanceMeters } from "../geo.js";
 
@@ -54,6 +55,24 @@ const ODYSSEY_STYLE = [
 
 const MAP_STYLES = { dark: DARK_STYLE, odyssey: ODYSSEY_STYLE };
 
+// Hide Google's own business/school pins so MavMap's building outlines stand out (applies to every theme).
+const CAMPUS_MAP_STYLES = [
+  { featureType: "poi", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.school", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.business", stylers: [{ visibility: "off" }] },
+  { featureType: "transit", stylers: [{ visibility: "simplified" }] },
+];
+
+// GeoJSON footprints → Google Maps polygon paths.
+function ringsFromGeometry(geometry) {
+  if (!geometry) return [];
+  if (geometry.type === "Polygon") return [geometry.coordinates[0] || []];
+  if (geometry.type === "MultiPolygon") return (geometry.coordinates || []).map((poly) => poly[0] || []);
+  return [];
+}
+
+const pathFromRing = (ring) => ring.map(([lng, lat]) => ({ lat, lng })); // GeoJSON is [lng, lat]
+
 const OSM_TYPE_ID = "osm";
 
 const baseOptions = {
@@ -89,6 +108,8 @@ function dashedLine(color) {
 export default function CampusMap({
   center,
   buildings,
+  footprints, // GeoJSON FeatureCollection of building outlines
+  searchMatches = [], // buildings matching the search box get pins while you type
   selected,
   onSelect,
   showTraffic,
@@ -126,7 +147,7 @@ export default function CampusMap({
   const options = useMemo(
     () => ({
       ...baseOptions,
-      styles: mapType === "roadmap" ? MAP_STYLES[mapStyle] ?? null : null,
+      styles: mapType === "roadmap" ? [...(MAP_STYLES[mapStyle] ?? []), ...CAMPUS_MAP_STYLES] : null,
       // While navigating you may start off campus, so don't lock the camera to UTA.
       ...(navigating ? { restriction: null, minZoom: 3 } : {}),
     }),
@@ -218,6 +239,16 @@ export default function CampusMap({
   }, [showTraffic, trafficPoints, isLoaded, mapReady]);
 
   // Which routes serve each stop, for stop colors and the info window.
+  const buildingById = useMemo(() => new Map(buildings.map((b) => [b.id, b])), [buildings]);
+
+  const pins = useMemo(() => {
+    const byId = new Map();
+    for (const b of searchMatches) byId.set(b.id, b);
+    for (const b of buildings) if (favoriteIds?.has(b.id)) byId.set(b.id, b);
+    if (selected) byId.set(selected.id, selected);
+    return [...byId.values()];
+  }, [searchMatches, buildings, favoriteIds, selected]);
+
   const visibleRoutes = useMemo(() => {
     if (!transit) return [];
     return transit.routes
@@ -405,25 +436,41 @@ export default function CampusMap({
         </InfoWindowF>
       )}
 
-      {buildings.map((building) => {
+      {/* Building outlines, colored by type; tap one to open the building. */}
+      {(footprints?.features || []).map((feature) => {
+        const props = feature.properties || {};
+        const building = buildingById.get(props.id);
+        const isSelected = selected?.id === props.id;
+        const style = footprintStyle(props.category, isSelected, props.fillColor || props.strokeColor);
+        return ringsFromGeometry(feature.geometry).map((ring, i) => (
+          <PolygonF
+            key={`${props.id}-${i}`}
+            paths={pathFromRing(ring)}
+            options={{ ...style, strokeColor: isSelected ? (odyssey ? "#fff3c4" : "#ffffff") : style.strokeColor }}
+            onClick={() => building && onSelect(building)}
+          />
+        ));
+      })}
+
+      {/* Pins only where they help: search matches, saved places and the selected building. */}
+      {pins.map((building) => {
         const isSelected = selected?.id === building.id;
         const isFav = favoriteIds?.has(building.id);
+        const pin = markerIconForCategory(building.category, isSelected);
         return (
           <MarkerF
-            key={building.id}
+            key={`pin-${building.id}`}
             position={{ lat: building.lat, lng: building.lng }}
-            title={`${building.name}${building.abbr?.length ? ` (${building.abbr.join(", ")})` : ""}${isFav ? " ★" : ""}`}
+            title={`${building.name}${building.abbr?.length ? ` (${building.abbr.join(", ")})` : ""}${isFav ? " ★ saved" : ""}`}
             onClick={() => onSelect(building)}
-            zIndex={isSelected ? 10 : isFav ? 5 : 3}
-            opacity={selected && !isSelected ? 0.6 : 1}
+            zIndex={isSelected ? 1000 : isFav ? 5 : 3}
             icon={{
-              path: g.SymbolPath.CIRCLE,
-              scale: isSelected ? 11 : 8,
-              fillColor: CATEGORY_COLORS[building.category] || "#f3f0e8",
-              fillOpacity: 1,
-              strokeColor: isFav ? "#ffd447" : odyssey ? "#3b2412" : "#0b1f3a",
-              strokeWeight: isFav ? 4 : isSelected ? 3 : odyssey ? 2 : 1.5,
+              url: pin.url,
+              scaledSize: new g.Size(pin.scaledSize.width, pin.scaledSize.height),
+              anchor: new g.Point(pin.anchor.x, pin.anchor.y),
+              labelOrigin: new g.Point(pin.scaledSize.width / 2, pin.scaledSize.width * 0.48),
             }}
+            label={isFav ? { text: "★", color: "#0B1F3A", fontSize: isSelected ? "15px" : "12px", fontWeight: "700" } : undefined}
           />
         );
       })}

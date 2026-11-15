@@ -9,8 +9,16 @@ import httpx
 from .config import settings
 from .models import CampusEvent, TrafficPoint, TrafficResponse
 
-# Cache per "days" value so a 1-day request never answers a 7-day one.
-_cache: Dict[int, Dict[str, Any]] = {}
+# Same footprint as the frontend map restriction — main campus + nearby UTA sites.
+UTA_BOUNDS = {
+    "north": 32.7405,
+    "south": 32.7205,
+    "east": -97.0985,
+    "west": -97.1265,
+}
+
+# Cache per (days, campus_only) so a 1-day request never answers a 7-day one.
+_cache: Dict[str, Dict[str, Any]] = {}
 _MAX_PAGES = 4  # Localist caps pages at 100 events
 _DESCRIPTION_LIMIT = 600
 
@@ -22,6 +30,15 @@ def _parse_localist_datetime(value: Optional[str]) -> Optional[datetime]:
         return datetime.fromisoformat(value.replace("Z", "+00:00"))
     except ValueError:
         return None
+
+
+def is_on_uta_campus(lat: Optional[float], lng: Optional[float]) -> bool:
+    if lat is None or lng is None:
+        return False
+    return (
+        UTA_BOUNDS["south"] <= lat <= UTA_BOUNDS["north"]
+        and UTA_BOUNDS["west"] <= lng <= UTA_BOUNDS["east"]
+    )
 
 
 def _normalize_event(raw: Dict[str, Any]) -> Optional[CampusEvent]:
@@ -63,6 +80,8 @@ def _normalize_event(raw: Dict[str, Any]) -> Optional[CampusEvent]:
         description=description or None,
         types=types,
         photo_url=event.get("photo_url") or None,
+        ics_url=event.get("localist_ics_url"),
+        experience=event.get("experience"),
     )
 
 
@@ -83,9 +102,14 @@ def _pick_instance(instances: List[Dict[str, Any]]) -> Dict[str, Any]:
     return parsed[0] if parsed else {}
 
 
-async def fetch_localist_events(days: int = 2, per_page: int = 100) -> List[CampusEvent]:
+async def fetch_localist_events(
+    days: int = 2,
+    per_page: int = 100,
+    campus_only: bool = True,
+) -> List[CampusEvent]:
+    cache_key = f"events:{days}:{campus_only}"
+    cached = _cache.get(cache_key)
     now = time.time()
-    cached = _cache.get(days)
     if cached and now - cached["fetched_at"] < settings.events_cache_ttl_seconds:
         return cached["events"]
 
@@ -99,15 +123,19 @@ async def fetch_localist_events(days: int = 2, per_page: int = 100) -> List[Camp
             payload = response.json()
             for item in payload.get("events") or []:
                 normalized = _normalize_event(item)
-                if normalized and normalized.id not in seen:
-                    seen.add(normalized.id)
-                    events.append(normalized)
+                if not normalized or normalized.id in seen:
+                    continue
+                # Drop virtual / off-campus / no-location events when campus_only.
+                if campus_only and not is_on_uta_campus(normalized.lat, normalized.lng):
+                    continue
+                seen.add(normalized.id)
+                events.append(normalized)
             info = payload.get("page") or {}
             if not info.get("total") or page >= int(info["total"]):
                 break
 
     events.sort(key=lambda e: e.start or "")
-    _cache[days] = {"events": events, "fetched_at": now}
+    _cache[cache_key] = {"events": events, "fetched_at": now}
     return events
 
 
@@ -143,6 +171,8 @@ def build_traffic(
 
     for event in events:
         if event.lat is None or event.lng is None:
+            continue
+        if not is_on_uta_campus(event.lat, event.lng):
             continue
         if not _event_in_window(event, now, window_end):
             continue

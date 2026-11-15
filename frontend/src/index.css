@@ -1041,13 +1041,14 @@ input {
 }
 
 /* Building type colors, shared by chips and directory badges */
-.cat-academic { --cat: #6ea6ff; }
-.cat-student_life { --cat: #f58220; }
-.cat-athletics { --cat: #3fbf8a; }
-.cat-admin { --cat: #c7a6ff; }
-.cat-parking { --cat: #9aa6b8; }
-.cat-dining { --cat: #ffb347; }
-.cat-housing { --cat: #f28cb1; }
+/* Same palette as markerIcons.js (pins and building outlines). */
+.cat-academic { --cat: #F5C518; }
+.cat-student_life { --cat: #4FC3F7; }
+.cat-athletics { --cat: #F58220; }
+.cat-admin { --cat: #B39DDB; }
+.cat-parking { --cat: #9AA6B8; }
+.cat-dining { --cat: #FFB74D; }
+.cat-housing { --cat: #43A047; }
 .cat-favorites { --cat: #ffd447; }
 
 .cat-dot {

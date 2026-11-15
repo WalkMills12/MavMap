@@ -22,12 +22,16 @@ export function fetchFaqs() {
   return request("/api/faqs");
 }
 
-export function fetchEvents(days = 1) {
-  return request(`/api/events?days=${days}`);
+export function fetchEvents(days = 7) {
+  return request(`/api/events?days=${days}&campus_only=true`);
 }
 
 export function fetchTraffic(windowHours = 3) {
   return request(`/api/traffic?window_hours=${windowHours}`);
+}
+
+export function fetchFootprints() {
+  return request(`/api/footprints`);
 }
 
 export function appleMapsUrl({ lat, lng, name }) {

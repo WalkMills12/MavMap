@@ -16,16 +16,9 @@ export function badgeFor(building) {
   return (building.abbr || [])[0] || BADGES[building.category] || building.id.toUpperCase().slice(0, 4);
 }
 
-// Marker colors on the map (match the .cat-* colors in index.css).
-export const CATEGORY_COLORS = {
-  academic: "#6ea6ff",
-  student_life: "#f58220",
-  athletics: "#3fbf8a",
-  admin: "#c7a6ff",
-  parking: "#9aa6b8",
-  dining: "#ffb347",
-  housing: "#f28cb1",
-};
+// One palette for pins, building outlines and directory chips (defined in markerIcons.js;
+// the .cat-* colors in index.css match it).
+export { CATEGORY_COLORS } from "./markerIcons.js";
 
 export function categoryLabel(category) {
   if (!category) return "Other";

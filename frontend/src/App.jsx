@@ -13,7 +13,11 @@ import StormLayer from "./components/StormLayer.jsx";
 import SwordCursor from "./components/SwordCursor.jsx";
 import NavPanel from "./components/NavPanel.jsx";
 import { useNavigation } from "./navigation.js";
-import { fetchBuildings, fetchEvents, fetchTraffic, fetchTransit } from "./api.js";
+import { fetchEvents, fetchTraffic, fetchTransit } from "./api.js";
+// Buildings + outlines ship with the frontend (bundled JSON, synced from data/ by
+// scripts/sync_frontend_campus_data.py) so the map doesn't wait on the API.
+import buildingsData from "./data/buildings.json";
+import footprintsData from "./data/building_footprints.json";
 import { nearbyEvents } from "./geo.js";
 import { hasEnded } from "./calendar.js";
 import { usePreferences } from "./prefs.js";
@@ -47,7 +51,8 @@ export default function App() {
   const favorites = useFavorites();
   const theme = useResolvedTheme(prefs.theme);
 
-  const [buildings, setBuildings] = useState([]);
+  const [buildings] = useState(buildingsData);
+  const footprints = footprintsData;
   const [events, setEvents] = useState([]);
   const [eventsLoading, setEventsLoading] = useState(true);
   const [eventsError, setEventsError] = useState(null);
@@ -57,8 +62,6 @@ export default function App() {
   const [focusStop, setFocusStop] = useState(null);
   const [query, setQuery] = useState("");
   const [traffic, setTraffic] = useState(null);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [menuOpen, setMenuOpen] = useState(() => prefs.openMenuOnStart && !isPhone());
   const [menuTab, setMenuTab] = useState(prefs.defaultTab);
   const [suggestions, setSuggestions] = useState([]);
@@ -72,21 +75,9 @@ export default function App() {
     document.documentElement.dataset.text = prefs.textSize;
   }, [prefs.textSize]);
 
-  // Buildings, transit and traffic load once. Optional layers failing shouldn't hide the buildings.
+  // Transit and traffic load once from the API (optional layers).
   useEffect(() => {
     let cancelled = false;
-    (async () => {
-      try {
-        const buildingData = await fetchBuildings();
-        if (cancelled) return;
-        setBuildings(buildingData);
-        setError(null);
-      } catch (err) {
-        if (!cancelled) setError(err.message || "Failed to load campus data");
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
     fetchTransit()
       .then((data) => !cancelled && setTransit(data))
       .catch(() => !cancelled && setTransitError(true));
@@ -307,11 +298,11 @@ export default function App() {
         </SideMenu>
 
         <main className="map-stage">
-          {loading && <div className="status-banner">Loading campus map…</div>}
-          {error && <div className="status-banner error">{error}</div>}
           <CampusMap
             center={UTA_CENTER}
             buildings={buildings}
+            footprints={footprints}
+            searchMatches={query.trim() ? filtered : EMPTY_TRAFFIC}
             selected={selected}
             onSelect={showBuilding}
             showTraffic={prefs.showTraffic}

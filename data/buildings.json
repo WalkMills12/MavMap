@@ -6,8 +6,8 @@
       "NH",
       "NEDDERMAN"
     ],
-    "lat": 32.73245,
-    "lng": -97.11395,
+    "lat": 32.732586,
+    "lng": -97.113815,
     "category": "academic",
     "address": "416 Yates St, Arlington, TX 76019",
     "photo": {
@@ -24,8 +24,8 @@
       "WH",
       "WOOLF"
     ],
-    "lat": 32.73285,
-    "lng": -97.11255,
+    "lat": 32.731552,
+    "lng": -97.112686,
     "category": "academic",
     "address": "500 UTA Blvd, Arlington, TX 76019",
     "photo": {
@@ -41,8 +41,8 @@
     "abbr": [
       "ERB"
     ],
-    "lat": 32.73325,
-    "lng": -97.11405,
+    "lat": 32.733414,
+    "lng": -97.112778,
     "category": "academic",
     "address": "500 UTA Blvd, Arlington, TX 76019",
     "photo": {
@@ -59,8 +59,8 @@
       "ELAB",
       "ELB"
     ],
-    "lat": 32.73305,
-    "lng": -97.11335,
+    "lat": 32.732468,
+    "lng": -97.112801,
     "category": "academic",
     "address": "500 UTA Blvd, Arlington, TX 76019",
     "photo": {
@@ -77,8 +77,8 @@
       "UC",
       "UCENTER"
     ],
-    "lat": 32.73145,
-    "lng": -97.11105,
+    "lat": 32.731663,
+    "lng": -97.11097,
     "category": "student_life",
     "address": "300 W 1st St, Arlington, TX 76019",
     "photo": {
@@ -96,8 +96,8 @@
       "LIBRARY",
       "LIB"
     ],
-    "lat": 32.72985,
-    "lng": -97.11285,
+    "lat": 32.729877,
+    "lng": -97.112961,
     "category": "academic",
     "address": "702 Planetarium Pl, Arlington, TX 76019",
     "photo": {
@@ -114,8 +114,8 @@
       "COBA",
       "BUSINESS"
     ],
-    "lat": 32.72855,
-    "lng": -97.11455,
+    "lat": 32.729576,
+    "lng": -97.11058,
     "category": "academic",
     "address": "701 S West St, Arlington, TX 76019",
     "photo": {
@@ -132,8 +132,8 @@
       "FA",
       "FINEARTS"
     ],
-    "lat": 32.73055,
-    "lng": -97.11555,
+    "lat": 32.731068,
+    "lng": -97.114906,
     "category": "academic",
     "address": "700 Greek Row Dr, Arlington, TX 76019",
     "photo": {
@@ -149,7 +149,7 @@
     "abbr": [
       "MAC"
     ],
-    "lat": 32.73355,
+    "lat": 32.731926,
     "lng": -97.11705,
     "category": "athletics",
     "address": "500 W Nedderman Dr, Arlington, TX 76019",
@@ -167,8 +167,8 @@
       "CH",
       "COLLEGE"
     ],
-    "lat": 32.72905,
-    "lng": -97.11355,
+    "lat": 32.730801,
+    "lng": -97.111504,
     "category": "academic",
     "address": "600 S Cooper St, Arlington, TX 76019",
     "photo": {
@@ -185,8 +185,8 @@
       "SH",
       "SCIENCE"
     ],
-    "lat": 32.73005,
-    "lng": -97.11305,
+    "lat": 32.73077,
+    "lng": -97.114098,
     "category": "academic",
     "address": "502 Yates St, Arlington, TX 76019",
     "photo": {
@@ -201,11 +201,11 @@
     "name": "Chemistry & Physics Building",
     "abbr": [
       "CPB",
-      "CHEM",
-      "PHYSICS"
+      "PHYSICS",
+      "CHEM"
     ],
-    "lat": 32.72955,
-    "lng": -97.11385,
+    "lat": 32.73033,
+    "lng": -97.111861,
     "category": "academic",
     "address": "700 Planetarium Pl, Arlington, TX 76019",
     "photo": {
@@ -216,14 +216,27 @@
     }
   },
   {
+    "id": "crb",
+    "name": "Chemistry Research Building",
+    "abbr": [
+      "CRB",
+      "CHEM",
+      "BAKER"
+    ],
+    "lat": 32.730444,
+    "lng": -97.112798,
+    "category": "academic",
+    "address": "501 W. Third St, Arlington, TX 76019"
+  },
+  {
     "id": "ls",
     "name": "Life Sciences Building",
     "abbr": [
       "LS",
       "LIFESCI"
     ],
-    "lat": 32.72805,
-    "lng": -97.11205,
+    "lat": 32.728642,
+    "lng": -97.112892,
     "category": "academic",
     "address": "501 S Nedderman Dr, Arlington, TX 76019",
     "photo": {
@@ -240,8 +253,8 @@
       "PH",
       "PICKARD"
     ],
-    "lat": 32.72755,
-    "lng": -97.11155,
+    "lat": 32.729073,
+    "lng": -97.111679,
     "category": "academic",
     "address": "411 S Nedderman Dr, Arlington, TX 76019"
   },
@@ -252,8 +265,8 @@
       "HH",
       "HAMMOND"
     ],
-    "lat": 32.72925,
-    "lng": -97.11405,
+    "lat": 32.729782,
+    "lng": -97.111923,
     "category": "academic",
     "address": "701 S Cooper St, Arlington, TX 76019"
   },
@@ -264,10 +277,22 @@
       "TH",
       "TRIMBLE"
     ],
-    "lat": 32.72885,
-    "lng": -97.11425,
+    "lat": 32.729942,
+    "lng": -97.111465,
     "category": "academic",
     "address": "700 S Cooper St, Arlington, TX 76019"
+  },
+  {
+    "id": "carh",
+    "name": "Carlisle Hall",
+    "abbr": [
+      "CARH",
+      "CARLISLE"
+    ],
+    "lat": 32.730793,
+    "lng": -97.112556,
+    "category": "academic",
+    "address": "503 W. Third St, Arlington, TX 76019"
   },
   {
     "id": "rh",
@@ -276,8 +301,8 @@
       "RH",
       "RANSOM"
     ],
-    "lat": 32.72965,
-    "lng": -97.11325,
+    "lat": 32.730934,
+    "lng": -97.112183,
     "category": "academic",
     "address": "701 S Cooper St, Arlington, TX 76019",
     "photo": {
@@ -294,8 +319,8 @@
       "PHALL",
       "PRESTON"
     ],
-    "lat": 32.73025,
-    "lng": -97.11355,
+    "lat": 32.730934,
+    "lng": -97.112915,
     "category": "academic",
     "address": "600 S Cooper St, Arlington, TX 76019",
     "photo": {
@@ -312,8 +337,8 @@
       "TEX",
       "TEXAS"
     ],
-    "lat": 32.73105,
-    "lng": -97.11505,
+    "lat": 32.72982,
+    "lng": -97.115479,
     "category": "student_life",
     "address": "700 W Nedderman Dr, Arlington, TX 76019",
     "photo": {
@@ -331,8 +356,8 @@
       "ARCH",
       "ARCHITECTURE"
     ],
-    "lat": 32.73305,
-    "lng": -97.11555,
+    "lat": 32.731266,
+    "lng": -97.116127,
     "category": "academic",
     "address": "601 W Nedderman Dr, Arlington, TX 76019",
     "photo": {
@@ -343,25 +368,6 @@
     }
   },
   {
-    "id": "welcome",
-    "name": "Dan Dipert University Welcome Center",
-    "abbr": [
-      "WELCOME",
-      "DDWC",
-      "COLLEGEPARK"
-    ],
-    "lat": 32.72705,
-    "lng": -97.11005,
-    "category": "student_life",
-    "address": "300 W 1st St, Arlington, TX 76010",
-    "photo": {
-      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8f/University_of_Texas_at_Arlington_March_2021_007_%28Dan_Dipert_University_Welcome_Center%29.jpg/960px-University_of_Texas_at_Arlington_March_2021_007_%28Dan_Dipert_University_Welcome_Center%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-      "author": "Michael Barera",
-      "license": "CC BY-SA 4.0",
-      "page": "https://commons.wikimedia.org/wiki/File:University_of_Texas_at_Arlington_March_2021_007_(Dan_Dipert_University_Welcome_Center).jpg"
-    }
-  },
-  {
     "id": "swsh",
     "name": "School of Social Work / Smart Hospital",
     "abbr": [
@@ -369,8 +375,8 @@
       "SOCIALWORK",
       "SMARTHOSPITAL"
     ],
-    "lat": 32.72764,
-    "lng": -97.11164,
+    "lat": 32.727642,
+    "lng": -97.111671,
     "category": "academic",
     "address": "501 W Mitchell St, Arlington, TX 76010"
   },
@@ -381,8 +387,8 @@
       "UH",
       "UNIVHALL"
     ],
-    "lat": 32.73075,
-    "lng": -97.11455,
+    "lat": 32.729172,
+    "lng": -97.114029,
     "category": "academic",
     "address": "601 S Nedderman Dr, Arlington, TX 76019",
     "photo": {
@@ -399,8 +405,8 @@
       "UAB",
       "ADMIN"
     ],
-    "lat": 32.73095,
-    "lng": -97.11485,
+    "lat": 32.729328,
+    "lng": -97.115303,
     "category": "admin",
     "address": "701 S Nedderman Dr, Arlington, TX 76019",
     "photo": {
@@ -409,6 +415,90 @@
       "license": "CC BY-SA 4.0",
       "page": "https://commons.wikimedia.org/wiki/File:University_of_Texas_at_Arlington_March_2021_121_(E.E._Davis_Hall).jpg"
     }
+  },
+  {
+    "id": "arhl",
+    "name": "Arlington Hall",
+    "abbr": [
+      "ARHL",
+      "ARLINGTON"
+    ],
+    "lat": 32.731186,
+    "lng": -97.109406,
+    "category": "housing",
+    "address": "600 Spaniolo Dr, Arlington, TX 76010",
+    "note": "Residence hall",
+    "source": "OpenStreetMap way/287015034"
+  },
+  {
+    "id": "kch",
+    "name": "Kalpana Chawla Hall (KC Hall)",
+    "abbr": [
+      "KC",
+      "KCH",
+      "KALPANA"
+    ],
+    "lat": 32.728455,
+    "lng": -97.109428,
+    "category": "housing",
+    "address": "300 Greek Row Dr, Arlington, TX 76013",
+    "note": "Residence hall",
+    "source": "OpenStreetMap way/286852871"
+  },
+  {
+    "id": "mavh",
+    "name": "Maverick Hall",
+    "abbr": [
+      "MAVH",
+      "MAVERICK HALL"
+    ],
+    "lat": 32.73378,
+    "lng": -97.118379,
+    "category": "housing",
+    "address": "500 W Nedderman Dr, Arlington, TX 76019",
+    "note": "Residence hall",
+    "source": "OpenStreetMap way/1418143404"
+  },
+  {
+    "id": "vg",
+    "name": "Vandergriff Hall",
+    "abbr": [
+      "VG",
+      "VANDERGRIFF"
+    ],
+    "lat": 32.731842,
+    "lng": -97.108475,
+    "category": "housing",
+    "address": "500 Spaniolo Dr, Arlington, TX 76010",
+    "note": "Residence hall",
+    "source": "OpenStreetMap way/472239611"
+  },
+  {
+    "id": "westh",
+    "name": "West Hall",
+    "abbr": [
+      "WEST",
+      "WESTH"
+    ],
+    "lat": 32.73305,
+    "lng": -97.11841,
+    "category": "housing",
+    "address": "700 W Nedderman Dr, Arlington, TX 76019",
+    "note": "Residence hall",
+    "source": "OpenStreetMap way/567601709"
+  },
+  {
+    "id": "ees",
+    "name": "Earth & Environmental Sciences",
+    "abbr": [
+      "EES",
+      "GEOSCI",
+      "EARTH"
+    ],
+    "lat": 32.731709,
+    "lng": -97.114143,
+    "category": "academic",
+    "address": "500 Yates St, Arlington, TX 76019"
   },
   {
     "id": "maverick-garage",
@@ -492,63 +582,6 @@
     "address": "",
     "note": "Surface lot for Kalpana Chawla Hall residents",
     "source": "OpenStreetMap way/301572235"
-  },
-  {
-    "id": "arlington-hall",
-    "name": "Arlington Hall",
-    "abbr": [],
-    "lat": 32.7311,
-    "lng": -97.10937,
-    "category": "housing",
-    "address": "600 Spaniolo Dr, Arlington, TX 76010",
-    "note": "Residence hall",
-    "source": "OpenStreetMap way/287015034"
-  },
-  {
-    "id": "vandergriff-hall",
-    "name": "Vandergriff Hall",
-    "abbr": [],
-    "lat": 32.73255,
-    "lng": -97.10842,
-    "category": "housing",
-    "address": "587 Spaniolo Dr, Arlington, TX 76010",
-    "note": "Residence hall",
-    "source": "OpenStreetMap way/472239611"
-  },
-  {
-    "id": "kc-hall",
-    "name": "Kalpana Chawla Hall",
-    "abbr": [
-      "KC"
-    ],
-    "lat": 32.72834,
-    "lng": -97.10937,
-    "category": "housing",
-    "address": "",
-    "note": "Residence hall",
-    "source": "OpenStreetMap way/286852871"
-  },
-  {
-    "id": "west-hall",
-    "name": "West Hall",
-    "abbr": [],
-    "lat": 32.73307,
-    "lng": -97.11841,
-    "category": "housing",
-    "address": "",
-    "note": "Residence hall",
-    "source": "OpenStreetMap way/567601709"
-  },
-  {
-    "id": "maverick-hall",
-    "name": "Maverick Hall",
-    "abbr": [],
-    "lat": 32.73374,
-    "lng": -97.1184,
-    "category": "housing",
-    "address": "UTA Blvd, Arlington, TX 76019",
-    "note": "Residence hall",
-    "source": "OpenStreetMap way/1418143404"
   },
   {
     "id": "timber-brook",

@@ -66,6 +66,13 @@ The ☰ button in the top-left opens the side menu (× or Esc closes it). On pho
   - **+ Apple Calendar:** downloads an `.ics` file that Apple Calendar (and Outlook) open and offer to add.
   - **Show on map:** shown when the event is within 150 m of a known building.
 
+## Building data and outlines
+
+- `data/buildings.json` is the source of truth for every place (buildings, parking, dining, housing), and `data/building_footprints.geojson` holds the outlines drawn on the map, colored by category.
+- The frontend bundles copies of both in `frontend/src/data/` so the map shows instantly without waiting on the API. **After editing either file, run** `python scripts/sync_frontend_campus_data.py` (on Windows: `backend\.venv\Scripts\python.exe scripts\sync_frontend_campus_data.py`).
+- Pins appear only for search matches, saved places and the selected building. The outlines mark everything else.
+- Category colors live in one place: `frontend/src/markerIcons.js`. The `.cat-*` colors in `index.css` and the sync script's `COLORS` should match it.
+
 ## Directory places
 
 Besides academic buildings, the directory lists **parking** (garages and lots), **dining** (UC food court, cafes and spots right next to campus) and **housing** (residence halls and student apartments). Those coordinates come from OpenStreetMap; each entry's `source` field in `data/buildings.json` names the OSM object it came from.
