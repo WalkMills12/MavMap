@@ -141,7 +141,6 @@ export default function App() {
   const showBuilding = useCallback((building) => {
     setFocusStop(null);
     setSelected(building);
-    setQuery(building.name);
     // On phones the menu covers the map, so get it out of the way.
     if (isPhone()) setMenuOpen(false);
   }, []);
@@ -213,36 +212,41 @@ export default function App() {
     <div className="app-shell">
       <header className="top-bar">
         {odyssey && <StormLayer />}
-        <button
-          type="button"
-          className="menu-toggle"
-          aria-expanded={menuOpen}
-          aria-controls="side-menu"
-          aria-label={menuOpen ? "Close side menu" : "Open directory, events and transit"}
-          onClick={() => setMenuOpen((o) => !o)}
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            {menuOpen ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
-          </svg>
-        </button>
-        <div className="brand-block">
-          {logoOk ? (
-            <img
-              className="brand-logo"
-              src={LOGO_SRC}
-              alt="UTA MavMap"
-              onError={() => setLogoOk(false)}
-            />
-          ) : (
-            <p className="brand">MavMap</p>
-          )}
-          {odyssey && <p className="tagline">Begin your odyssey across campus</p>}
+        <div className="top-left">
+          <button
+            type="button"
+            className="menu-toggle"
+            aria-expanded={menuOpen}
+            aria-controls="side-menu"
+            aria-label={menuOpen ? "Close side menu" : "Open directory, events and transit"}
+            onClick={() => setMenuOpen((o) => !o)}
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              {menuOpen ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
+            </svg>
+          </button>
+          <div className="brand-block">
+            {logoOk ? (
+              <img
+                className="brand-logo"
+                src={LOGO_SRC}
+                alt="UTA MavMap"
+                onError={() => setLogoOk(false)}
+              />
+            ) : (
+              <p className="brand">MavMap</p>
+            )}
+            {odyssey && <p className="tagline">Begin your odyssey across campus</p>}
+          </div>
         </div>
         <BuildingSearch
           query={query}
           onQueryChange={setQuery}
           results={filtered}
-          onSelect={showBuilding}
+          onSelect={(building) => {
+            showBuilding(building);
+            setQuery(""); // clear the box (and close the results) once a building is picked
+          }}
         />
         <PreferencesMenu
           prefs={prefs}

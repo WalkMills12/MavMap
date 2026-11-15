@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { badgeFor, categoryLabel } from "../categories.js";
+import { categoryLabel } from "../categories.js";
 
 const SAVED = "__saved";
 // Chip order: campus buildings first, then the everyday places.
@@ -77,11 +77,11 @@ export default function DirectoryTab({ buildings, selected, onSelect, favoriteId
                 aria-current={selected?.id === b.id ? "true" : undefined}
                 onClick={() => onSelect(b)}
               >
-                <span className={`dir-abbr cat-${b.category}`}>{badgeFor(b)}</span>
                 <span className="dir-text">
                   <span className="dir-name">{b.name}</span>
                   <span className="dir-meta">
                     {categoryLabel(b.category)}
+                    {b.abbr?.length ? ` · ${b.abbr[0]}` : ""}
                     {b.note ? ` · ${b.note}` : ""}
                     {b.address ? ` · ${b.address}` : ""}
                   </span>
