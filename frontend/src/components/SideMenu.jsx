@@ -23,13 +23,14 @@ export default function SideMenu({ open, tab, onTabChange, onOpen, onClose, coun
 
   return (
     <>
+      {/* The one way into the panel: a "Directory" pill on the map (Events and Transit are tabs inside). */}
       {!open && (
         <button type="button" className="side-pill" onClick={onOpen} aria-expanded={false} aria-controls="side-menu">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M4 7h16M4 12h16M4 17h16" />
           </svg>
-          {current.label}
-          {counts[current.id] != null && <span className="side-pill-count">{counts[current.id]}</span>}
+          Directory
+          {counts.directory != null && <span className="side-pill-count">{counts.directory}</span>}
         </button>
       )}
 

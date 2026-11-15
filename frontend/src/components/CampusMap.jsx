@@ -4,6 +4,7 @@ import { badgeFor } from "../categories.js";
 import { footprintStyle, markerIconForCategory } from "../markerIcons.js";
 import { decodePolyline } from "../navigation.js";
 import { distanceMeters } from "../geo.js";
+import { labelPoint } from "../mapGeometry.js";
 
 const mapContainerStyle = { width: "100%", height: "100%" };
 const libraries = ["visualization"];
@@ -61,11 +62,12 @@ const CAMPUS_MAP_STYLES = [
   { featureType: "poi", stylers: [{ visibility: "off" }] },
   { featureType: "poi.school", stylers: [{ visibility: "off" }] },
   { featureType: "poi.business", stylers: [{ visibility: "off" }] },
-  { featureType: "landscape", elementType: "labels", stylers: [{ visibility: "off" }] },
-  { featureType: "administrative.land_parcel", elementType: "labels", stylers: [{ visibility: "off" }] },
-  { featureType: "administrative.neighborhood", elementType: "labels", stylers: [{ visibility: "off" }] },
   { featureType: "transit", stylers: [{ visibility: "simplified" }] },
+  // No Google text at all: street names, building names, neighborhoods. MavMap draws its own building names.
+  { elementType: "labels", stylers: [{ visibility: "off" }] },
 ];
+
+
 
 // Invisible 1×1 image used as the anchor for text-only label markers.
 const BLANK_PIXEL = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
@@ -268,11 +270,18 @@ export default function CampusMap({
   // Which routes serve each stop, for stop colors and the info window.
   const buildingById = useMemo(() => new Map(buildings.map((b) => [b.id, b])), [buildings]);
 
-  // Name every outlined building (cafes inside the UC etc. have no outline and stay unlabeled).
+  // Name every outlined building, centered inside its outline (cafes inside the UC etc. have no outline).
   const labeled = useMemo(() => {
-    const ids = new Set((footprints?.features || []).map((f) => f.properties?.id));
-    return buildings.filter((b) => ids.has(b.id));
-  }, [buildings, footprints]);
+    const out = [];
+    for (const f of footprints?.features || []) {
+      const b = buildingById.get(f.properties?.id);
+      if (!b) continue;
+      const rings = ringsFromGeometry(f.geometry);
+      const p = rings.length ? labelPoint(rings) : null;
+      out.push({ ...b, labelLat: p?.lat ?? b.lat, labelLng: p?.lng ?? b.lng });
+    }
+    return out;
+  }, [buildingById, footprints]);
 
   // Dark text on light maps; light text with a dark halo on dark, Odyssey and satellite maps.
   const labelTone = mapType === "hybrid" || (mapType === "roadmap" && mapStyle === "dark") ? "light" : "dark";
@@ -500,7 +509,7 @@ export default function CampusMap({
           return (
             <MarkerF
               key={`label-${building.id}`}
-              position={{ lat: building.lat, lng: building.lng }}
+              position={{ lat: building.labelLat, lng: building.labelLng }}
               clickable={false}
               zIndex={4}
               icon={{ url: BLANK_PIXEL, scaledSize: new g.Size(1, 1), anchor: new g.Point(0, 0), labelOrigin: new g.Point(0, 0) }}

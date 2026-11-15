@@ -10,6 +10,7 @@ import TransitTab from "./components/TransitTab.jsx";
 import PreferencesMenu from "./components/PreferencesMenu.jsx";
 import SuggestionPopup from "./components/SuggestionPopup.jsx";
 import StormLayer from "./components/StormLayer.jsx";
+import CloudBorder from "./components/CloudBorder.jsx";
 import SwordCursor from "./components/SwordCursor.jsx";
 import NavPanel from "./components/NavPanel.jsx";
 import { useNavigation } from "./navigation.js";
@@ -234,18 +235,6 @@ export default function App() {
       <header className="top-bar">
         {odyssey && <StormLayer />}
         <div className="top-left">
-          <button
-            type="button"
-            className="menu-toggle"
-            aria-expanded={menuOpen}
-            aria-controls="side-menu"
-            aria-label={menuOpen ? "Close side menu" : "Open directory, events and transit"}
-            onClick={() => setMenuOpen((o) => !o)}
-          >
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              {menuOpen ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
-            </svg>
-          </button>
           <div className="brand-block">
             {logoOk ? (
               <img
@@ -287,7 +276,10 @@ export default function App() {
           open={menuOpen}
           tab={menuTab}
           onTabChange={setMenuTab}
-          onOpen={() => setMenuOpen(true)}
+          onOpen={() => {
+            setMenuTab("directory");
+            setMenuOpen(true);
+          }}
           onClose={closeMenu}
           counts={{
             directory: buildings.length,
@@ -299,6 +291,7 @@ export default function App() {
         </SideMenu>
 
         <main className="map-stage">
+          {odyssey && <CloudBorder />}
           <CampusMap
             center={UTA_CENTER}
             buildings={buildings}

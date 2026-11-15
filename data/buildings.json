@@ -1178,5 +1178,16 @@
     "address": "",
     "note": "Training center.",
     "source": "OpenStreetMap way/287045148"
+  },
+  {
+    "id": "sac",
+    "name": "Studio Arts Center",
+    "abbr": [],
+    "lat": 32.728869,
+    "lng": -97.12465,
+    "category": "academic",
+    "address": "",
+    "note": "Art studios and classrooms.",
+    "source": "OpenStreetMap relation/8895034"
   }
 ]

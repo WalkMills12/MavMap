@@ -1568,6 +1568,16 @@ input {
   }
 }
 
+/* Odyssey: drifting cloud frame around the map (CloudBorder.jsx). Above the map, below panels; ignores clicks. */
+.cloud-border {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+
 /* ---------- Building names on the map ---------- */
 /* Google Maps puts the label in a div with this class; a halo keeps names readable over outlines. */
 .map-label {
