@@ -1,24 +1,99 @@
 {
   "name": "MavMover shuttle",
-  "source": "Routes, stop order and hours from the UTA MavMover page. Stop positions come from OpenStreetMap shuttle stops where they exist (exact: true), otherwise from the building at that stop (exact: false). Lines connect stops in order and do not follow the exact streets.",
+  "source": "Routes, stop order and hours from the UTA MavMover page. Stop positions come from OpenStreetMap shuttle stops where they exist (exact: true), otherwise from the building at that stop (exact: false). Route lines follow the roads between stops (Google driving directions through each stop in order); the bus may use slightly different streets.",
   "info_url": "https://www.uta.edu/campus-ops/pats/transportation/mav-mover-shuttles",
   "phone": "817-272-3907",
   "stops": {
-    "studio-arts": { "name": "Studio Arts", "lat": 32.72956, "lng": -97.1248, "exact": true },
-    "maverick-stadium": { "name": "Maverick Stadium (Lot 26)", "lat": 32.72787, "lng": -97.12616, "exact": true },
-    "maverick-place": { "name": "Maverick Place", "lat": 32.72438, "lng": -97.11925, "exact": true },
-    "848-mitchell": { "name": "848 Mitchell", "lat": 32.72541, "lng": -97.11837, "exact": false },
-    "centennial-court": { "name": "Centennial Court", "lat": 32.72578, "lng": -97.11633, "exact": false },
-    "pickard-hall": { "name": "Pickard Hall", "lat": 32.72879, "lng": -97.11159, "exact": false },
-    "business-building": { "name": "Business Building", "lat": 32.72938, "lng": -97.10997, "exact": true },
-    "smart-hospital": { "name": "Social Work / Smart Hospital", "lat": 32.72769, "lng": -97.11176, "exact": false },
-    "meadow-run": { "name": "Meadow Run", "lat": 32.73162, "lng": -97.12156, "exact": true },
-    "timber-brook": { "name": "Timber Brook", "lat": 32.73368, "lng": -97.11913, "exact": true },
-    "university-center": { "name": "University Center", "lat": 32.73214, "lng": -97.11178, "exact": true },
-    "college-park-center": { "name": "College Park Center", "lat": 32.73038, "lng": -97.10808, "exact": false },
-    "the-mac": { "name": "The MAC", "lat": 32.73265, "lng": -97.11649, "exact": true },
-    "heights-on-pecan": { "name": "Heights on Pecan", "lat": 32.7242, "lng": -97.10834, "exact": false },
-    "liv-plus": { "name": "Liv+ Apartments", "lat": 32.72738, "lng": -97.10559, "exact": false }
+    "studio-arts": {
+      "name": "Studio Arts",
+      "lat": 32.72956,
+      "lng": -97.1248,
+      "exact": true
+    },
+    "maverick-stadium": {
+      "name": "Maverick Stadium (Lot 26)",
+      "lat": 32.72787,
+      "lng": -97.12616,
+      "exact": true
+    },
+    "maverick-place": {
+      "name": "Maverick Place",
+      "lat": 32.72438,
+      "lng": -97.11925,
+      "exact": true
+    },
+    "848-mitchell": {
+      "name": "848 Mitchell",
+      "lat": 32.72541,
+      "lng": -97.11837,
+      "exact": false
+    },
+    "centennial-court": {
+      "name": "Centennial Court",
+      "lat": 32.72578,
+      "lng": -97.11633,
+      "exact": false
+    },
+    "pickard-hall": {
+      "name": "Pickard Hall",
+      "lat": 32.72879,
+      "lng": -97.11159,
+      "exact": false
+    },
+    "business-building": {
+      "name": "Business Building",
+      "lat": 32.72938,
+      "lng": -97.10997,
+      "exact": true
+    },
+    "smart-hospital": {
+      "name": "Social Work / Smart Hospital",
+      "lat": 32.72769,
+      "lng": -97.11176,
+      "exact": false
+    },
+    "meadow-run": {
+      "name": "Meadow Run",
+      "lat": 32.73162,
+      "lng": -97.12156,
+      "exact": true
+    },
+    "timber-brook": {
+      "name": "Timber Brook",
+      "lat": 32.73368,
+      "lng": -97.11913,
+      "exact": true
+    },
+    "university-center": {
+      "name": "University Center",
+      "lat": 32.73214,
+      "lng": -97.11178,
+      "exact": true
+    },
+    "college-park-center": {
+      "name": "College Park Center",
+      "lat": 32.73038,
+      "lng": -97.10808,
+      "exact": false
+    },
+    "the-mac": {
+      "name": "The MAC",
+      "lat": 32.73265,
+      "lng": -97.11649,
+      "exact": true
+    },
+    "heights-on-pecan": {
+      "name": "Heights on Pecan",
+      "lat": 32.7242,
+      "lng": -97.10834,
+      "exact": false
+    },
+    "liv-plus": {
+      "name": "Liv+ Apartments",
+      "lat": 32.72738,
+      "lng": -97.10559,
+      "exact": false
+    }
   },
   "routes": [
     {
@@ -26,24 +101,56 @@
       "name": "Orange",
       "color": "#f58220",
       "hours": "Mon–Fri, 7:30 AM–6:00 PM",
-      "stops": ["studio-arts", "maverick-stadium", "maverick-place", "848-mitchell", "centennial-court", "pickard-hall", "business-building", "smart-hospital"],
-      "unmapped_stops": []
+      "stops": [
+        "studio-arts",
+        "maverick-stadium",
+        "maverick-place",
+        "848-mitchell",
+        "centennial-court",
+        "pickard-hall",
+        "business-building",
+        "smart-hospital"
+      ],
+      "unmapped_stops": [],
+      "path": "}nwfE~txoQ?\\?TARJ?pA?|BDB?J?D?H?j@?F?@?D?@?@?DBB@D@@@@?BABA?P?B?D?@?|C?@?F?JA`E?B?p@?RH?H?D?pB?pD?J?j@@X?AY?AASCSAOAMAGAGAGAGAGCOCUCQAQAUAE?K?KAi@?k@?O?[@i@AS?e@?q@?I?MAs@?WAM@a@?E?GBi@@MBUV?F?R?D?H?@?J?H?D?D?D?@?L?N?H?D?H?\\?hA@H?d@?@gA?oC@kA?S?U?A?aA?E?M?K?G?k@?E?M?q@?M@oA?Y?i@?c@?W@o@?C?}@?|@?BAn@?V?b@?h@?XAnA?L?p@?L?D?j@?F?J?L?D?`A?@?T?RAjAO?}BAA?a@?oB?W??Y@}@?e@?A@C?K?M?K?K?K?Y@K?M?K?M?S?]?C?G?O?C?A@K?A?q@?K?K?M?K?G?K?G@k@?E?G?M?Q?C?E?A?K@oABuA?Q?K@K?a@@QN@F?B?FCZIZ?D?E?[?[HGBC?G?OA?QAK?KGy@CUEUOs@Uu@Wi@MUQWGGCECCCCACGIOQOUEEKUIOGMKY?AnAa@@D?BBFBJDHFFrBhCsBiCGGEICKCG?CAECMsAZCMESCKAECO?CCSAM?EAC?G?A?A?K@S?G?CAQAE@_@?S?M?O?G?]?Q?O@I?C?E@KBWDWDU@EHi@@CBUDS?A@Q@CBU@W@U@W@W?W?C?I?_@C]AQM{AASU?C?A?iCA]?M?w@?Ad@An@@o@@e@S?C?AAaBAA?W?Q@O?C?s@?aBKMACm@Am@?K?{A?SN?B?z@?h@@^?P?B?N@H@F?B?`@?bB@F?B?pA?H?v@@R?H?Z?V?@VZnD?DBPU?C?A?iCAAfAAd@d@@"
     },
     {
       "id": "blue",
       "name": "Blue",
       "color": "#3d7bf0",
       "hours": "Mon–Fri, 7:30 AM–6:00 PM",
-      "stops": ["meadow-run", "timber-brook", "university-center", "business-building", "college-park-center", "university-center", "smart-hospital", "the-mac"],
-      "unmapped_stops": ["The Arlie"]
+      "stops": [
+        "meadow-run",
+        "timber-brook",
+        "university-center",
+        "business-building",
+        "college-park-center",
+        "university-center",
+        "smart-hospital",
+        "the-mac"
+      ],
+      "unmapped_stops": [
+        "The Arlie"
+      ],
+      "path": "s{wfEpaxoQgA?E?CAa@@EAC?E?K?E?C?]?E?M?E?E?c@AE?E?i@?A?e@?A?C?E?A?A?I?E?qBAE?E?O@E?IAI??U?E?m@?Q?S@sB@Q?S?A?aA?M?KBaC?YZ?T?B?@?Z@B?L?N?@?D?E?A?O?M?C?[AA?C?U?[??Y@}@?K?E@aA@iB?Y?y@@YBcA@U@KBMBOHg@^}AJi@BIF]BUFk@@A@S@_@B[?K?U?WAQ?E?W@i@?yA?s@@K@_@@Q?S?E@eB?YT?D?|B@^?F?D?H?J@hA?X??iA@_@?Y?u@@i@GCG?E?E?WAU?A?M@K@C?E?I?E?S?E?I?}@AcBA@Q?aBAu@ASAs@?SAWAs@?S?Q?K?S?K?S?[ZDLB@?@?LBR@n@@T?@?@?D?N?j@?bB@N?T?v@@B?lB?z@@l@?vA??XAvA?~A?RN?B?z@?h@@^?P?B?N@@S?y@?G?K?M?gA?Q?[O?y@AS??i@?gB?ICICGEEGA[CZBF@DDBFBH?H?fB?h@u@?k@AwA?m@?{@AmB?C?w@AU?O?cBAk@?O?E?A?A?U?o@ASAMCA?A?MC[E?Z?R?J?R?J?P?R@r@@V?R@r@@R@t@?`BAP?P?p@?L?J?@?|A?L?XT?D?|B@^?F?D?H?J@hA?X??iA@_@?Y?u@@i@GCG?E?E?WAU?A?M@K@C?E?I?E?S?E?I?}@AcBA?P?p@?L?J?@?|A?L?X?XAdB?D?RAPA^AJ?r@?xAAh@?V?D@P?V?TV?H?b@@ZAn@@bBAd@?bA?N?B?B?D?F?@?zA@V?J?J?b@?B?P@@?P?T?`A?b@?jB@B?B?B?V?L?x@@Z?fA@R@P?^@J?n@?V?f@@L?P?Z?@_@?S?M?O?G?]?Q?O@I?C?E@KBWDWDU@EHi@@CBUDS?A@Q@CBU@W@U@W@W?W?C?I?_@C]AQM{AASU?C?A?iCAAfAAd@d@@e@A@e@@gA]?M?w@?S?C?AAaBAA?W?Q@?S@E?G?aD?E?E?E?KH@F?B?`@?bB@F?B?pA?H?v@@R?H?Z?V?@VZnD?DBP@RLzA@PB\\?^?H?B?VAVAVATAVCTABAP?@ERCTABIh@ADETEVCVAJ?D?BAH?N?Pa@l@ABGFA@CB]XI?C?E?K?I?_A?_@?E?A?I??X?ZAB?J?V?J?B?`AA`B?P?\\AR?D?DA@ADA@CBCBC@E@C?G?I@K?S?QAmACe@Aa@?s@@I?Y@E?I?GAG?U?Q?Q@U?M@K?sB?G?EAuA?U?MAe@?G?A?C?_@?M?C?K?E?"
     },
     {
       "id": "black",
       "name": "Black",
       "color": "#1f2633",
       "hours": "Mon–Fri, 7:30 AM–6:00 PM",
-      "stops": ["heights-on-pecan", "liv-plus", "college-park-center", "business-building", "university-center"],
-      "unmapped_stops": ["Lot 49", "Lot 50"]
+      "stops": [
+        "heights-on-pecan",
+        "liv-plus",
+        "college-park-center",
+        "business-building",
+        "university-center"
+      ],
+      "unmapped_stops": [
+        "Lot 49",
+        "Lot 50"
+      ],
+      "path": "gmvfE~kuoQD?@?b@?L?B@B@B@BD@@@B@J?L@j@ALANANAD?@?@?DAXS?q@?{@AQ?M?A?[AC?]AA?Q?S@s@Aa@?[AO?cBAW?c@?OAk@?yAAA?C?_@?Oa@AESg@IUIU]}@GMAAGSIS?AACEMGSCQEOAMAKAE?AAMAEAIA[AY?G?C@SJ?H?x@AP?N?hB@T?N?T?b@?P@T?@?NALALADAJCJCLCBAHEDAFE@?@A@?^WBADEBA@Ad@YVQTONKNMBAFEHILKJMJKBCJMIe@?ACIAIAIAC?CCIAIE[A?M@G@I?A?C?S?c@?C?S?UAA?g@AQAE?I?I?EAM?e@AA?U@U?U@a@@C?O??J?L?rC?@?B?C?A?sC?M?KU?U?Y?E?O?S?OAO?I?S?Q@A?I?O@Q@A?A@K?G@QB?X?x@?F?J?J?D?p@?L?V?\\?J?J?J?\\?L?XAR?B?F@X@Z@H@D@L?@@D@J@LDNBPFRDL@B?@HRFR@@FL\\|@HTHTRf@@DN`@g@?U?C?uAAsAAa@?CAa@?O?O?y@AS??i@?gB?ICICGEEGA[CZBF@DDBFBH?H?fB?h@u@?k@A?XAvA?~A?RN?B?z@?h@@^?P?B?N@H@F?B?`@?bB@F?B?pA?H?v@@R?H?Z?V?@VZnD?DBP@RLzA@PB\\?^?H?B?VAVAVATAVCTABAP?@ERCTABIh@ADETEVCVAJ?D?BAH?N?Pa@l@ABGFA@CB]XI?C?E?K?I?_A?_@?E?A?I?GAC?C?C?gA?[?k@@a@?A?O?C?E?O?[?U?c@Ac@?q@?U?M?G?Q?g@AE?Y?kCAC?I?E?]?uA?cBCo@AO@K?I?O@SUCCCCQQ?W@i@?yA?s@@K@_@@Q?S?E@eB?YT?D?|B@^?F?D?H?J@hA?X??iA"
     },
     {
       "id": "red",

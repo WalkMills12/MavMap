@@ -6,8 +6,7 @@ export const DEFAULT_PREFS = {
   theme: "dark", // "system" | "light" | "dark"
   textSize: "normal", // "normal" | "large" | "xlarge"
   mapType: "roadmap", // "roadmap" (street) | "hybrid" (satellite) | "osm" (OpenStreetMap)
-  showTransit: true, // MavMover shuttle stops and routes on the map
-  hiddenRoutes: [], // shuttle route ids the user turned off
+  shownRoutes: [], // MavMover route ids shown on the map; none until the user picks some
   suggestions: true, // learn from saved events and suggest new ones at startup
   showTraffic: true, // event-traffic heatmap on the map
   openMenuOnStart: true, // side menu open when MavMap loads (desktop only)
@@ -19,6 +18,9 @@ export const DEFAULT_PREFS = {
 function load() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+    // Older versions showed every bus route by default (showTransit/hiddenRoutes). Routes are now opt-in.
+    delete saved.showTransit;
+    delete saved.hiddenRoutes;
     return { ...DEFAULT_PREFS, ...saved };
   } catch {
     return { ...DEFAULT_PREFS };

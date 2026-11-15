@@ -1,4 +1,4 @@
-export default function TransitTab({ transit, error, showTransit, hiddenRoutes, onToggleTransit, onToggleRoute, onFocusStop }) {
+export default function TransitTab({ transit, error, shownRoutes, onSetAll, onToggleRoute, onFocusStop }) {
   if (error) {
     return (
       <div className="side-section">
@@ -14,6 +14,9 @@ export default function TransitTab({ transit, error, showTransit, hiddenRoutes, 
     );
   }
 
+  const mappable = transit.routes.filter((r) => r.stops.length);
+  const allOn = mappable.length > 0 && mappable.every((r) => shownRoutes.includes(r.id));
+
   return (
     <div className="side-section">
       <div className="transit-head">
@@ -26,17 +29,18 @@ export default function TransitTab({ transit, error, showTransit, hiddenRoutes, 
           or call {transit.phone}.
         </p>
         <label className="prefs-check">
-          <input type="checkbox" checked={showTransit} onChange={(e) => onToggleTransit(e.target.checked)} />
-          <span>Show shuttle stops and routes on the map</span>
+          <input type="checkbox" checked={allOn} onChange={(e) => onSetAll(e.target.checked)} />
+          <span>Show all routes on the map</span>
         </label>
+        <p className="side-count">Routes stay hidden until you turn them on. Tap a stop to see it on the map.</p>
       </div>
 
       <ul className="route-list">
         {transit.routes.map((route) => {
           const onMap = route.stops.length > 0;
-          const visible = showTransit && onMap && !hiddenRoutes.includes(route.id);
+          const visible = onMap && shownRoutes.includes(route.id);
           return (
-            <li key={route.id} className="route-card" style={{ "--route": route.color }}>
+            <li key={route.id} className={`route-card${visible ? " is-shown" : ""}`} style={{ "--route": route.color }}>
               <div className="route-top">
                 <span className="route-swatch" aria-hidden="true" />
                 <div className="route-name">
@@ -48,11 +52,10 @@ export default function TransitTab({ transit, error, showTransit, hiddenRoutes, 
                     <input
                       type="checkbox"
                       checked={visible}
-                      disabled={!showTransit}
                       onChange={() => onToggleRoute(route.id)}
                       aria-label={`Show ${route.name} route on map`}
                     />
-                    <span>Map</span>
+                    <span>Show</span>
                   </label>
                 )}
               </div>
@@ -63,7 +66,7 @@ export default function TransitTab({ transit, error, showTransit, hiddenRoutes, 
                     const stop = transit.stops[id];
                     return (
                       <li key={`${id}-${i}`}>
-                        <button type="button" className="stop-btn" onClick={() => onFocusStop({ id, ...stop })}>
+                        <button type="button" className="stop-btn" onClick={() => onFocusStop({ id, ...stop }, route.id)}>
                           {stop.name}
                           {!stop.exact && <span className="stop-approx" title="Approximate stop location">≈</span>}
                         </button>
@@ -81,8 +84,8 @@ export default function TransitTab({ transit, error, showTransit, hiddenRoutes, 
       </ul>
 
       <p className="side-count">
-        ≈ marks an approximate stop location. Dashed lines connect stops in order and don't follow the exact streets the
-        bus drives.
+        ≈ marks an approximate stop location. Route lines follow the roads between stops; the bus may take slightly
+        different streets.
       </p>
     </div>
   );

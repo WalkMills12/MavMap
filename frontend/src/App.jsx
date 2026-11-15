@@ -168,14 +168,28 @@ export default function App() {
     if (stop && isPhone()) setMenuOpen(false);
   }, []);
 
+  // Bus routes are off until the student picks them.
+  const mappableRouteIds = useMemo(() => (transit?.routes || []).filter((r) => r.stops.length).map((r) => r.id), [transit]);
+
   const toggleRoute = useCallback(
     (id) => {
-      const hidden = prefs.hiddenRoutes.includes(id)
-        ? prefs.hiddenRoutes.filter((r) => r !== id)
-        : [...prefs.hiddenRoutes, id];
-      updatePrefs({ hiddenRoutes: hidden });
+      const shown = prefs.shownRoutes.includes(id)
+        ? prefs.shownRoutes.filter((r) => r !== id)
+        : [...prefs.shownRoutes, id];
+      updatePrefs({ shownRoutes: shown });
     },
-    [prefs.hiddenRoutes, updatePrefs],
+    [prefs.shownRoutes, updatePrefs],
+  );
+
+  const setAllRoutes = useCallback((on) => updatePrefs({ shownRoutes: on ? mappableRouteIds : [] }), [mappableRouteIds, updatePrefs]);
+
+  // Picking a stop from a route's list counts as choosing that route, so show it.
+  const showRouteStop = useCallback(
+    (stop, routeId) => {
+      if (routeId && !prefs.shownRoutes.includes(routeId)) updatePrefs({ shownRoutes: [...prefs.shownRoutes, routeId] });
+      showStop(stop);
+    },
+    [prefs.shownRoutes, updatePrefs, showStop],
   );
 
   const closeMenu = useCallback(() => setMenuOpen(false), []);
@@ -206,11 +220,10 @@ export default function App() {
       <TransitTab
         transit={transit}
         error={transitError}
-        showTransit={prefs.showTransit}
-        hiddenRoutes={prefs.hiddenRoutes}
-        onToggleTransit={(on) => updatePrefs({ showTransit: on })}
+        shownRoutes={prefs.shownRoutes}
+        onSetAll={setAllRoutes}
         onToggleRoute={toggleRoute}
-        onFocusStop={showStop}
+        onFocusStop={showRouteStop}
       />
     );
   } else {
@@ -272,6 +285,8 @@ export default function App() {
           trafficCount={traffic?.points?.length}
           onClearInterests={clearInterests}
           onClearFavorites={favorites.clear}
+          routesOn={prefs.shownRoutes.length > 0}
+          onToggleRoutes={setAllRoutes}
           favoriteCount={favoriteCount}
         />
       </header>
@@ -305,8 +320,7 @@ export default function App() {
             mapStyle={mapStyle}
             favoriteIds={favorites.buildingIds}
             transit={transit}
-            showTransit={prefs.showTransit}
-            hiddenRoutes={prefs.hiddenRoutes}
+            shownRoutes={prefs.shownRoutes}
             focusStop={focusStop}
             onFocusStop={showStop}
             navigating={navigating}

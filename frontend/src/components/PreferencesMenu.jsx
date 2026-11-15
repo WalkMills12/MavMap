@@ -73,7 +73,7 @@ function ConfirmButton({ label, confirmLabel, onConfirm }) {
   );
 }
 
-export default function PreferencesMenu({ prefs, onChange, onReset, trafficCount, onClearInterests, onClearFavorites, favoriteCount = 0 }) {
+export default function PreferencesMenu({ prefs, onChange, onReset, trafficCount, onClearInterests, onClearFavorites, favoriteCount = 0, routesOn = false, onToggleRoutes }) {
   const [open, setOpen] = useState(false);
   const [, setVersion] = useState(0); // re-read learned interests after clearing
   const interests = open ? topInterests() : [];
@@ -146,8 +146,11 @@ export default function PreferencesMenu({ prefs, onChange, onReset, trafficCount
             <legend>Map</legend>
             <Segmented name="maptype-pref" label="Map view" options={MAP_OPTIONS} value={prefs.mapType} onChange={(v) => onChange({ mapType: v })} />
             <label className="prefs-check">
-              <input type="checkbox" checked={prefs.showTransit} onChange={(e) => onChange({ showTransit: e.target.checked })} />
-              <span>Show MavMover shuttle stops and routes</span>
+              <input type="checkbox" checked={routesOn} onChange={(e) => onToggleRoutes(e.target.checked)} />
+              <span>
+                Show MavMover shuttle routes
+                <small> · off by default; pick single routes in the Transit tab</small>
+              </span>
             </label>
             <label className="prefs-check">
               <input type="checkbox" checked={prefs.showTraffic} onChange={(e) => onChange({ showTraffic: e.target.checked })} />

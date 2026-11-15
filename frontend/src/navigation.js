@@ -17,6 +17,7 @@ const ARRIVE_M = 20; // close enough to the building to call it arrived
 const OFF_ROUTE_M = 30; // farther than this from the line means you've left the route
 const REROUTE_COOLDOWN_MS = 20000; // don't ask Google for a new route more often than this
 const SIM_SPEED_MPS = 1.4 * 3; // "Simulate walk" pace: 3× normal walking speed
+const SNAP_M = 20; // within this distance of the route, draw the dot on the route (like Google Maps)
 
 const secs = (s) => parseFloat(String(s ?? "0").replace("s", "")) || 0;
 
@@ -53,6 +54,8 @@ export async function fetchWalkingRoute(apiKey, from, to) {
       origin: { location: { latLng: { latitude: from.lat, longitude: from.lng } } },
       destination: { location: { latLng: { latitude: to.lat, longitude: to.lng } } },
       travelMode: "WALK",
+      // Full-detail line that follows every bend of sidewalks and campus paths.
+      polylineQuality: "HIGH_QUALITY",
       languageCode: "en-US",
       units: "IMPERIAL",
     }),
@@ -124,6 +127,25 @@ export function pointAlong(route, meters) {
     }
   }
   return path[path.length - 1];
+}
+
+/** Direction of travel along the route at a given distance (for the heading arrow when snapped). */
+function routeBearingAt(route, meters) {
+  const a = pointAlong(route, Math.max(0, meters - 3));
+  const b = pointAlong(route, Math.min(route.totalM, meters + 3));
+  return a.lat === b.lat && a.lng === b.lng ? null : bearing(a, b);
+}
+
+/**
+ * The position to draw: snapped onto the route when you're close to it, so the dot rides the path
+ * instead of jittering beside it. Off the route, the raw GPS position is shown as-is.
+ */
+export function displayPosition(route, raw, progress) {
+  if (!route || !progress) return { ...raw, snapped: false };
+  const limit = Math.max(SNAP_M, Math.min(raw.acc || 0, 40));
+  if (progress.off > limit) return { ...raw, snapped: false };
+  const p = pointAlong(route, progress.along);
+  return { ...raw, lat: p.lat, lng: p.lng, heading: routeBearingAt(route, progress.along) ?? raw.heading, snapped: true };
 }
 
 function bearing(a, b) {
@@ -199,18 +221,17 @@ export function useNavigation(apiKey) {
       let heading = Number.isFinite(p.heading) ? p.heading : prev?.heading ?? null;
       if (prev && distanceMeters(prev, p) > 3) heading = Number.isFinite(p.heading) ? p.heading : bearing(prev, p);
       const next = { lat: p.lat, lng: p.lng, acc: p.acc, heading };
-      posRef.current = next;
-      setPos(next);
+      posRef.current = next; // raw GPS, used for heading and route math
 
       const n = navRef.current;
-      if (!n || n.status === "error") return;
-      if (!n.route) {
-        requestRoute(next);
+      if (!n || n.status === "error" || !n.route || n.status === "arrived") {
+        setPos(next);
+        if (n && !n.route && n.status !== "error") requestRoute(next);
         return;
       }
-      if (n.status === "arrived") return;
       const progress = progressFor(n.route, next, n.dest);
       const offRoute = progress.off > Math.max(OFF_ROUTE_M, (p.acc || 0) * 1.2);
+      setPos(displayPosition(n.route, next, progress)); // the dot rides the path when you're on it
       update((cur) => cur && { ...cur, progress, status: progress.arrived ? "arrived" : "navigating" });
       if (offRoute && !progress.arrived && Date.now() - lastRerouteRef.current > REROUTE_COOLDOWN_MS && (p.acc || 0) < 60) {
         lastRerouteRef.current = Date.now();

@@ -75,7 +75,8 @@ Besides academic buildings, the directory lists **parking** (garages and lots), 
 Tap **Walk me there** on a building's panel, or in the FAQ chat after looking up a room (for example "NH 106"). MavMap then:
 
 - asks the browser for your location and keeps tracking it (blue dot, accuracy circle and a heading arrow),
-- asks Google's **Routes API** for the best walking route and draws it on the map,
+- asks Google's **Routes API** for the best walking route (full-detail line along sidewalks and campus paths) and draws it on the map, with a dotted line for the last few meters to the building,
+- snaps your dot onto the route when you're within about 20 m of it, the way Google Maps does, so it rides the path instead of jittering beside it,
 - shows the next turn and the distance to it in a banner at the top, plus time left, distance and arrival time at the bottom, with a step list,
 - follows you as you walk (drag the map to look around, then **Re-center**), finds a new route if you get more than about 30 m off it, and says when you've arrived,
 - keeps the phone screen on while navigating, where the browser allows it.
@@ -98,7 +99,8 @@ The **Transit** tab and map layer show UTA's MavMover routes from `data/transit.
 
 - Routes, stop order and hours come from the [MavMover page](https://www.uta.edu/campus-ops/pats/transportation/mav-mover-shuttles). Schedules change by semester, so update this file when UTA does.
 - Stop positions use mapped curbside stops from OpenStreetMap where they exist (`"exact": true`), otherwise the building at that stop (`"exact": false`, shown with ≈).
-- Dashed lines connect stops in order. They don't trace the streets the bus drives.
+- Route lines follow the roads between stops. They were computed once with Google driving directions through each stop in order and saved as encoded polylines (`path`) in `transit.json`. The bus may use slightly different streets. If you change a route's stops, recompute its `path` (or delete it to fall back to straight dashed lines).
+- Routes are **off by default**. Turn on single routes, or all of them, in the Transit tab or in Preferences.
 - There is no live bus tracking. UTA's old DoubleMap feed no longer exists.
 
 ## Favorites and event suggestions

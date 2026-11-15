@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CircleF, GoogleMap, InfoWindowF, MarkerF, PolylineF, useJsApiLoader } from "@react-google-maps/api";
 import { CATEGORY_COLORS, badgeFor } from "../categories.js";
+import { decodePolyline } from "../navigation.js";
+import { distanceMeters } from "../geo.js";
 
 const mapContainerStyle = { width: "100%", height: "100%" };
 const libraries = ["visualization"];
@@ -95,8 +97,7 @@ export default function CampusMap({
   mapStyle = "dark", // "dark" | "odyssey" | null (Google's default light map)
   favoriteIds,
   transit,
-  showTransit = true,
-  hiddenRoutes = [],
+  shownRoutes = [], // bus route ids the user turned on (none by default)
   focusStop,
   onFocusStop,
   navigating = false, // walking navigation is active
@@ -218,9 +219,12 @@ export default function CampusMap({
 
   // Which routes serve each stop, for stop colors and the info window.
   const visibleRoutes = useMemo(() => {
-    if (!transit || !showTransit) return [];
-    return transit.routes.filter((r) => r.stops.length && !hiddenRoutes.includes(r.id));
-  }, [transit, showTransit, hiddenRoutes]);
+    if (!transit) return [];
+    return transit.routes
+      .filter((r) => r.stops.length && shownRoutes.includes(r.id))
+      // Road-following path saved in transit.json; fall back to straight stop-to-stop lines if missing.
+      .map((r) => ({ ...r, roadPath: r.path ? decodePolyline(r.path) : null }));
+  }, [transit, shownRoutes]);
 
   const stopRoutes = useMemo(() => {
     const map = new Map();
@@ -288,6 +292,18 @@ export default function CampusMap({
         <>
           <PolylineF path={navPath} options={{ strokeColor: "#ffffff", strokeOpacity: 1, strokeWeight: 10, zIndex: 20, clickable: false }} />
           <PolylineF path={navPath} options={{ strokeColor: "#1a73e8", strokeOpacity: 1, strokeWeight: 6, zIndex: 21, clickable: false }} />
+          {/* Walking routes end on the nearest path; dot the last few meters to the building itself. */}
+          {selected && distanceMeters(navPath[navPath.length - 1], selected) > 5 && (
+            <PolylineF
+              path={[navPath[navPath.length - 1], { lat: selected.lat, lng: selected.lng }]}
+              options={{
+                strokeOpacity: 0,
+                zIndex: 21,
+                clickable: false,
+                icons: [{ icon: { path: g.SymbolPath.CIRCLE, scale: 2.5, fillColor: "#1a73e8", fillOpacity: 1, strokeOpacity: 0 }, offset: "0", repeat: "10px" }],
+              }}
+            />
+          )}
         </>
       )}
 
@@ -325,13 +341,36 @@ export default function CampusMap({
         </>
       )}
 
-      {visibleRoutes.map((route) => (
-        <PolylineF
-          key={route.id}
-          path={route.stops.map((id) => transit.stops[id]).map((s) => ({ lat: s.lat, lng: s.lng }))}
-          options={dashedLine(route.color)}
-        />
-      ))}
+      {visibleRoutes
+        .filter((route) => route.roadPath)
+        .map((route) => (
+          <PolylineF
+            key={`${route.id}-edge`}
+            path={route.roadPath}
+            options={{ strokeColor: "#ffffff", strokeOpacity: 0.75, strokeWeight: 8, zIndex: 1, clickable: false }}
+          />
+        ))}
+      {visibleRoutes.map((route) =>
+        route.roadPath ? (
+          <PolylineF
+            key={route.id}
+            path={route.roadPath}
+            options={{
+              strokeColor: route.color,
+              strokeOpacity: 0.95,
+              strokeWeight: 5,
+              zIndex: 2,
+              clickable: false,
+            }}
+          />
+        ) : (
+          <PolylineF
+            key={route.id}
+            path={route.stops.map((id) => transit.stops[id]).map((s) => ({ lat: s.lat, lng: s.lng }))}
+            options={dashedLine(route.color)}
+          />
+        ),
+      )}
 
       {[...stopRoutes.entries()].map(([id, routes]) => {
         const stop = transit.stops[id];
