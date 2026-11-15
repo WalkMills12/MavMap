@@ -1,14 +1,18 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { useSwipeDown } from "../useSwipeDown.js";
 
 // Floating slide-in panel (styled after Walker's "Upcoming events" panel): a pill button on the
 // map opens it; it slides in from the left over the map with a kicker + title header and a ✕.
 const TABS = [
   { id: "directory", label: "Directory", kicker: "On campus" },
+  { id: "classes", label: "Classes", kicker: "Your schedule" },
   { id: "events", label: "Events", kicker: "Happening soon" },
   { id: "transit", label: "Transit", kicker: "MavMover shuttle" },
 ];
 
 export default function SideMenu({ open, tab, onTabChange, onOpen, onClose, counts = {}, children }) {
+  const panelRef = useRef(null);
+  useSwipeDown(panelRef, onClose, open); // phones: drag the panel down to close it
   // Escape closes the panel (only when focus is inside it, so it doesn't fight other popups).
   useEffect(() => {
     if (!open) return;
@@ -37,12 +41,14 @@ export default function SideMenu({ open, tab, onTabChange, onOpen, onClose, coun
       {open && <div className="side-scrim" onClick={onClose} aria-hidden="true" />}
 
       <aside
+        ref={panelRef}
         className={`side-menu${open ? " open" : ""}`}
         id="side-menu"
-        aria-label="Directory, events and transit"
+        aria-label="Directory, classes, events and transit"
         aria-hidden={!open}
         inert={!open}
       >
+        <div className="sheet-handle" aria-hidden="true" />
         <div className="side-head">
           <div className="side-title">
             <p className="side-kicker">{current.kicker}</p>

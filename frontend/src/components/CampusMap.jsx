@@ -73,15 +73,42 @@ const CAMPUS_MAP_STYLES = [
 const BLANK_PIXEL = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
 
 /** MavMap's own building name: full name zoomed in, abbreviation (or short name) a bit farther out. */
-function labelText(building, zoom) {
-  if (zoom >= 18) return building.name;
+function labelText(building, zoom, phone = false) {
+  // Parking gets a "P" badge, with UTA's lot number ("P 49", "P F10") once you zoom in a little;
+  // the named garages show their name when zoomed all the way in.
+  if (building.category === "parking") {
+    if (zoom >= 18.5 && !building.lots?.length && !building.id.startsWith("lot-")) return building.name;
+    if (zoom >= 16.5 && building.lots?.length) return `P ${building.lots.join("/")}`;
+    return zoom >= 16 ? "P" : null;
+  }
+  // Names are big, so very long ones use their code until you zoom all the way in.
+  if (zoom >= 18.5) return building.name;
+  if (zoom >= 18) return building.name.length <= 26 || !building.abbr?.length ? building.name : building.abbr[0];
   if (zoom >= 16.5) {
     const abbr = (building.abbr || [])[0];
     if (abbr) return abbr;
     return building.name.length <= 16 ? building.name : null;
   }
+  // Phones open zoomed out, so show building codes ("NH", "ERB") from the start.
+  if (phone && zoom >= 14.5 && building.category !== "dining") return (building.abbr || [])[0] ?? null;
   return null;
 }
+
+// Rough on-screen box for a label, in world pixels at this zoom (Web Mercator), for overlap checks.
+function labelBox(lat, lng, text, fontPx, zoom) {
+  const scale = 256 * 2 ** zoom;
+  const x = ((lng + 180) / 360) * scale;
+  const s = Math.sin((lat * Math.PI) / 180);
+  const y = (0.5 - Math.log((1 + s) / (1 - s)) / (4 * Math.PI)) * scale;
+  const badge = text === "P" || text.startsWith("P ");
+  const w = badge ? text.length * fontPx * 0.62 + fontPx * 0.9 : text.length * fontPx * 0.62 + 6;
+  const h = fontPx * (badge ? 1.6 : 1.15);
+  return { x0: x - w / 2, x1: x + w / 2, y0: y - h / 2, y1: y + h / 2 };
+}
+
+// Which labels to draw first when two would overlap: the selected place, then classrooms and the UC, then the rest.
+const LABEL_RANK = { academic: 0, student_life: 1, athletics: 2, admin: 3, housing: 4, campus: 5, dining: 6, parking: 7 };
+
 
 // GeoJSON footprints → Google Maps polygon paths.
 function ringsFromGeometry(geometry) {
@@ -132,6 +159,7 @@ export default function CampusMap({
   searchMatches = [], // buildings matching the search box get pins while you type
   showOutlines = true, // building highlights (Preferences)
   showNames = true, // MavMap building names (Preferences)
+  focusCategories = [], // place types picked in the Directory: their outlines stand out, the rest fade
   selected,
   onSelect,
   showTraffic,
@@ -196,6 +224,30 @@ export default function CampusMap({
     if (!map || !mapReady || !navigating || !following || !userPos) return;
     map.panTo({ lat: userPos.lat, lng: userPos.lng });
   }, [userPos, following, navigating, mapReady]);
+
+  // Phones: the building panel covers the bottom of the map, so nudge the map until the picked
+  // building sits in the middle of the part you can still see, above the panel.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !mapReady || !selected || navigating) return;
+    if (!window.matchMedia("(max-width: 820px)").matches) return;
+    let raf2 = 0;
+    // Wait two frames so the panel has rendered and the map has applied its new center/zoom.
+    const raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => {
+        const panel = document.querySelector(".detail-panel");
+        const mapEl = map.getDiv();
+        const panelH = panel ? panel.getBoundingClientRect().height : mapEl.clientHeight * 0.45;
+        const covered = Math.min(panelH + 12, mapEl.clientHeight * 0.75); // panel height plus its gap
+        map.setCenter({ lat: selected.lat, lng: selected.lng });
+        map.panBy(0, covered / 2);
+      });
+    });
+    return () => {
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+    };
+  }, [selected, mapReady, navigating]);
 
   // Restore the campus camera limits after navigation ends.
   useEffect(() => {
@@ -280,19 +332,48 @@ export default function CampusMap({
       const p = rings.length ? labelPoint(rings) : null;
       out.push({ ...b, labelLat: p?.lat ?? b.lat, labelLng: p?.lng ?? b.lng });
     }
+    // Numbered lots from UTA's parking map that have no outline still get their "P" badge.
+    const outlined = new Set(out.map((b) => b.id));
+    for (const b of buildingById.values()) {
+      if (b.category === "parking" && b.lots?.length && !outlined.has(b.id)) out.push({ ...b, labelLat: b.lat, labelLng: b.lng });
+    }
     return out;
   }, [buildingById, footprints]);
 
   // Dark text on light maps; light text with a dark halo on dark, Odyssey and satellite maps.
   const labelTone = mapType === "hybrid" || (mapType === "roadmap" && mapStyle === "dark") ? "light" : "dark";
 
+  // Pick the labels to draw: text and size for this zoom, skipping any that would sit on top of one
+  // already placed (more important places go first), so names stay readable instead of piling up.
+  // Bold names with codes from the starting zoom on every device (began as the phone style).
+  const phone = true;
+  const visibleLabels = useMemo(() => {
+    const z = Math.round(zoom * 2) / 2;
+    const candidates = [];
+    for (const b of labeled) {
+      const text = labelText(b, z, phone);
+      if (!text) continue;
+      const badge = text === "P" || text.startsWith("P ");
+      const fontPx = badge ? 17 : phone ? (z >= 17 ? 24 : 22) : z >= 18 ? 26 : 24;
+      const rank = selected?.id === b.id ? -1 : badge ? 9 : (LABEL_RANK[b.category] ?? 8) + (b.abbr?.length ? 0 : 0.5);
+      candidates.push({ b, text, badge, fontPx, rank, box: labelBox(b.labelLat, b.labelLng, text, fontPx, z) });
+    }
+    candidates.sort((a, c) => a.rank - c.rank);
+    const placed = [];
+    for (const c of candidates) {
+      const hit = placed.some((p) => c.box.x0 < p.box.x1 && c.box.x1 > p.box.x0 && c.box.y0 < p.box.y1 && c.box.y1 > p.box.y0);
+      if (!hit) placed.push(c);
+    }
+    return placed;
+  }, [labeled, zoom, phone, selected]);
+
   const pins = useMemo(() => {
     const byId = new Map();
+    // Saved places don't get a permanent pin: only search matches and the place you have open.
     for (const b of searchMatches) byId.set(b.id, b);
-    for (const b of buildings) if (favoriteIds?.has(b.id)) byId.set(b.id, b);
     if (selected) byId.set(selected.id, selected);
     return [...byId.values()];
-  }, [searchMatches, buildings, favoriteIds, selected]);
+  }, [searchMatches, selected]);
 
   const visibleRoutes = useMemo(() => {
     if (!transit) return [];
@@ -490,7 +571,8 @@ export default function CampusMap({
         const props = feature.properties || {};
         const building = buildingById.get(props.id);
         const isSelected = selected?.id === props.id;
-        const style = footprintStyle(props.category, isSelected, props.fillColor || props.strokeColor);
+        const emphasis = focusCategories.length ? (focusCategories.includes(props.category) ? "focus" : "dim") : undefined;
+        const style = footprintStyle(props.category, isSelected, props.fillColor || props.strokeColor, emphasis);
         return ringsFromGeometry(feature.geometry).map((ring, i) => (
           <PolygonF
             key={`${props.id}-${i}`}
@@ -503,22 +585,20 @@ export default function CampusMap({
 
       {/* MavMap's bold building names, drawn on the buildings (Google's own names are hidden). */}
       {showNames &&
-        labeled.map((building) => {
-          const text = labelText(building, zoom);
-          if (!text) return null;
+        visibleLabels.map(({ b: building, text, badge, fontPx }) => {
           return (
             <MarkerF
               key={`label-${building.id}`}
               position={{ lat: building.labelLat, lng: building.labelLng }}
               clickable={false}
-              zIndex={4}
+              zIndex={badge ? 3 : 4}
               icon={{ url: BLANK_PIXEL, scaledSize: new g.Size(1, 1), anchor: new g.Point(0, 0), labelOrigin: new g.Point(0, 0) }}
               label={{
                 text,
-                className: `map-label map-label--${labelTone}`,
-                fontWeight: "800",
-                fontSize: zoom >= 18 ? "13px" : "12px",
-                color: labelTone === "dark" ? "#0b1f3a" : "#ffffff",
+                className: badge ? "map-label map-label--parking" : `map-label map-label--${labelTone}${phone ? " map-label--phone" : ""}`,
+                fontWeight: phone ? "900" : "800",
+                fontSize: `${fontPx}px`,
+                color: badge ? "#ffffff" : labelTone === "dark" ? "#0b1f3a" : "#ffffff",
               }}
             />
           );

@@ -508,14 +508,17 @@
     "lng": -97.11164,
     "category": "parking",
     "address": "",
-    "note": "Parking garage",
+    "note": "Visitor and hourly parking (pay by the hour or day)",
     "source": "OpenStreetMap way/286852862",
     "photo": {
       "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6f/University_of_Texas_at_Arlington_March_2021_044_%28Maverick_Parking_Garage%29.jpg/960px-University_of_Texas_at_Arlington_March_2021_044_%28Maverick_Parking_Garage%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "author": "Michael Barera",
       "license": "CC BY-SA 4.0",
       "page": "https://commons.wikimedia.org/wiki/File:University_of_Texas_at_Arlington_March_2021_044_(Maverick_Parking_Garage).jpg"
-    }
+    },
+    "permit": [
+      "visitor"
+    ]
   },
   {
     "id": "park-north",
@@ -524,9 +527,12 @@
     "lat": 32.73326,
     "lng": -97.10768,
     "category": "parking",
-    "address": "",
-    "note": "Parking garage (permit)",
-    "source": "OpenStreetMap way/472239612"
+    "address": "100 W. UTA Blvd., Arlington, TX",
+    "note": "Student permits. UTA calls it College Park North Garage",
+    "source": "OpenStreetMap way/472239612",
+    "permit": [
+      "student"
+    ]
   },
   {
     "id": "park-central",
@@ -535,9 +541,12 @@
     "lat": 32.73264,
     "lng": -97.10786,
     "category": "parking",
-    "address": "",
-    "note": "Parking garage (permit)",
-    "source": "OpenStreetMap way/668767199"
+    "address": "500 S. Center St., Arlington, TX",
+    "note": "Student and resident permits. UTA calls it College Park Central Garage",
+    "source": "OpenStreetMap way/668767199",
+    "permit": [
+      "student"
+    ]
   },
   {
     "id": "park-south",
@@ -546,9 +555,12 @@
     "lat": 32.73171,
     "lng": -97.10783,
     "category": "parking",
-    "address": "",
-    "note": "Parking garage",
-    "source": "OpenStreetMap way/1049104123"
+    "address": "550 S. Center St., Arlington, TX",
+    "note": "Student and resident permits; visitors with validation. UTA calls it College Park South Garage",
+    "source": "OpenStreetMap way/1049104123",
+    "permit": [
+      "student"
+    ]
   },
   {
     "id": "west-garage",
@@ -557,31 +569,47 @@
     "lat": 32.7336,
     "lng": -97.11704,
     "category": "parking",
-    "address": "",
-    "note": "Parking garage",
-    "source": "OpenStreetMap way/286867628"
+    "address": "804 UTA Blvd., Arlington, TX",
+    "note": "Visitor/hourly parking and student permits",
+    "source": "OpenStreetMap way/286867628",
+    "permit": [
+      "student"
+    ]
   },
   {
     "id": "commuter-lot",
-    "name": "Commuter Parking Lot",
+    "name": "Lot F10",
     "abbr": [],
     "lat": 32.72811,
     "lng": -97.1105,
     "category": "parking",
-    "address": "",
-    "note": "Surface lot",
-    "source": "OpenStreetMap way/286848470"
+    "address": "800 S. Oak St., Arlington, TX",
+    "note": "Faculty/staff permit required at all times",
+    "source": "OpenStreetMap way/286848470; lot number: UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "F10"
+    ],
+    "permit": [
+      "faculty"
+    ]
   },
   {
     "id": "kc-lot",
-    "name": "Kalpana Chawla Residents Parking Lot",
+    "name": "Lots CN & CS (Kalpana Chawla Hall residents)",
     "abbr": [],
     "lat": 32.72894,
     "lng": -97.10923,
     "category": "parking",
-    "address": "",
-    "note": "Surface lot for Kalpana Chawla Hall residents",
-    "source": "OpenStreetMap way/301572235"
+    "address": "901 S. Oak St., Arlington, TX",
+    "note": "Resident permit required at all times",
+    "source": "OpenStreetMap way/301572235; lot number: UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "CN",
+      "CS"
+    ],
+    "permit": [
+      "resident"
+    ]
   },
   {
     "id": "timber-brook",
@@ -1189,5 +1217,824 @@
     "address": "",
     "note": "Art studios and classrooms.",
     "source": "OpenStreetMap relation/8895034"
+  },
+  {
+    "id": "lot-286848469",
+    "name": "Lot 49",
+    "abbr": [],
+    "lat": 32.726008,
+    "lng": -97.11288,
+    "category": "parking",
+    "address": "1101 S. Cooper St., Arlington, TX",
+    "note": "Student permit required at all times",
+    "source": "OpenStreetMap way/286848469; lot number: UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "49"
+    ],
+    "permit": [
+      "student"
+    ]
+  },
+  {
+    "id": "lot-286848472",
+    "name": "Lot F12",
+    "abbr": [],
+    "lat": 32.733104,
+    "lng": -97.11155,
+    "category": "parking",
+    "address": "400 W. UTA Blvd., Arlington, TX",
+    "note": "Faculty/staff permit required at all times",
+    "source": "OpenStreetMap way/286848472; lot number: UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "F12"
+    ],
+    "permit": [
+      "faculty"
+    ]
+  },
+  {
+    "id": "lot-286852860",
+    "name": "Lot 45",
+    "abbr": [],
+    "lat": 32.728434,
+    "lng": -97.108026,
+    "category": "parking",
+    "address": "",
+    "note": "Student permit required at all times",
+    "source": "OpenStreetMap way/286852860; lot number: UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "45"
+    ],
+    "permit": [
+      "student"
+    ]
+  },
+  {
+    "id": "lot-287043660",
+    "name": "Lot F8",
+    "abbr": [],
+    "lat": 32.731047,
+    "lng": -97.116835,
+    "category": "parking",
+    "address": "801 Greek Row Dr., Arlington, TX",
+    "note": "Faculty/staff permit required at all times",
+    "source": "OpenStreetMap way/287043660; lot number: UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "F8"
+    ],
+    "permit": [
+      "faculty"
+    ]
+  },
+  {
+    "id": "lot-287046357",
+    "name": "Lot 30",
+    "abbr": [],
+    "lat": 32.731172,
+    "lng": -97.119699,
+    "category": "parking",
+    "address": "1000 W. Greek Row Dr., Arlington, TX",
+    "note": "Student permit required at all times",
+    "source": "OpenStreetMap way/287046357; lot number: UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "30"
+    ],
+    "permit": [
+      "student"
+    ]
+  },
+  {
+    "id": "lot-287219396",
+    "name": "Lot 52",
+    "abbr": [],
+    "lat": 32.725666,
+    "lng": -97.110447,
+    "category": "parking",
+    "address": "1101 S. West St., Arlington, TX",
+    "note": "Student permit required at all times",
+    "source": "OpenStreetMap way/287219396; lot number: UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "52"
+    ],
+    "permit": [
+      "student"
+    ]
+  },
+  {
+    "id": "lot-287219400",
+    "name": "Lot 51",
+    "abbr": [],
+    "lat": 32.723162,
+    "lng": -97.110587,
+    "category": "parking",
+    "address": "1301 S. West St., Arlington, TX",
+    "note": "Student permit required at all times",
+    "source": "OpenStreetMap way/287219400; lot number: UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "51"
+    ],
+    "permit": [
+      "student"
+    ]
+  },
+  {
+    "id": "lot-287219406",
+    "name": "Unnumbered parking near UTA Bike Barn",
+    "abbr": [],
+    "lat": 32.724978,
+    "lng": -97.108417,
+    "category": "parking",
+    "address": "",
+    "note": "Not a numbered lot on UTA's parking map, so it may be private, reserved or service parking. Check the signs.",
+    "source": "OpenStreetMap way/287219406"
+  },
+  {
+    "id": "lot-287219408",
+    "name": "Lot 50N",
+    "abbr": [],
+    "lat": 32.724471,
+    "lng": -97.112137,
+    "category": "parking",
+    "address": "1200 S. West St., Arlington, TX",
+    "note": "Student permit required at all times",
+    "source": "OpenStreetMap way/287219408; lot number: UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "50N"
+    ],
+    "permit": [
+      "student"
+    ]
+  },
+  {
+    "id": "lot-287219411",
+    "name": "Lot 50S",
+    "abbr": [],
+    "lat": 32.72321,
+    "lng": -97.112112,
+    "category": "parking",
+    "address": "1200 S. West St., Arlington, TX",
+    "note": "Student permit required at all times",
+    "source": "OpenStreetMap way/287219411; lot number: UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "50S"
+    ],
+    "permit": [
+      "student"
+    ]
+  },
+  {
+    "id": "lot-301572234",
+    "name": "Lot F13",
+    "abbr": [],
+    "lat": 32.729691,
+    "lng": -97.109363,
+    "category": "parking",
+    "address": "700 Spaniolo St., Arlington, TX",
+    "note": "Faculty/staff permit required at all times",
+    "source": "OpenStreetMap way/301572234; lot number: UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "F13"
+    ],
+    "permit": [
+      "faculty"
+    ]
+  },
+  {
+    "id": "lot-301572236",
+    "name": "Unnumbered parking near Hammond Hall",
+    "abbr": [],
+    "lat": 32.729675,
+    "lng": -97.112442,
+    "category": "parking",
+    "address": "",
+    "note": "Not a numbered lot on UTA's parking map, so it may be private, reserved or service parking. Check the signs.",
+    "source": "OpenStreetMap way/301572236"
+  },
+  {
+    "id": "lot-301572240",
+    "name": "Lot 39",
+    "abbr": [],
+    "lat": 32.732808,
+    "lng": -97.109014,
+    "category": "parking",
+    "address": "400 S. Spaniolo St., Arlington, TX",
+    "note": "Student permit required at all times",
+    "source": "OpenStreetMap way/301572240; lot number: UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "39"
+    ],
+    "permit": [
+      "student"
+    ]
+  },
+  {
+    "id": "lot-301572245",
+    "name": "Lot F9",
+    "abbr": [],
+    "lat": 32.728804,
+    "lng": -97.115681,
+    "category": "parking",
+    "address": "701 S. Nedderman Dr., Arlington, TX",
+    "note": "Faculty/staff permit required at all times",
+    "source": "OpenStreetMap way/301572245; lot number: UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "F9"
+    ],
+    "permit": [
+      "faculty"
+    ]
+  },
+  {
+    "id": "lot-301572246",
+    "name": "Lot F6",
+    "abbr": [],
+    "lat": 32.729887,
+    "lng": -97.117201,
+    "category": "parking",
+    "address": "750 Greek Row Dr., Arlington, TX",
+    "note": "Faculty/staff permit required at all times",
+    "source": "OpenStreetMap way/301572246; lot number: UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "F6"
+    ],
+    "permit": [
+      "faculty"
+    ]
+  },
+  {
+    "id": "lot-301589100",
+    "name": "Lot F7",
+    "abbr": [],
+    "lat": 32.732255,
+    "lng": -97.115118,
+    "category": "parking",
+    "address": "500 S. Cooper St., Arlington, TX",
+    "note": "Faculty/staff permit required at all times",
+    "source": "OpenStreetMap way/301589100; lot number: UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "F7"
+    ],
+    "permit": [
+      "faculty"
+    ]
+  },
+  {
+    "id": "lot-301589102",
+    "name": "Lot F14",
+    "abbr": [],
+    "lat": 32.733263,
+    "lng": -97.114103,
+    "category": "parking",
+    "address": "",
+    "note": "Faculty/staff permit required at all times",
+    "source": "OpenStreetMap way/301589102; lot number: UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "F14"
+    ],
+    "permit": [
+      "faculty"
+    ]
+  },
+  {
+    "id": "lot-301589130",
+    "name": "Unnumbered parking near Health Center",
+    "abbr": [],
+    "lat": 32.730459,
+    "lng": -97.110564,
+    "category": "parking",
+    "address": "",
+    "note": "Not a numbered lot on UTA's parking map, so it may be private, reserved or service parking. Check the signs.",
+    "source": "OpenStreetMap way/301589130"
+  },
+  {
+    "id": "lot-301589131",
+    "name": "Unnumbered parking near Thermal Energy Plant",
+    "abbr": [],
+    "lat": 32.730224,
+    "lng": -97.109269,
+    "category": "parking",
+    "address": "",
+    "note": "Not a numbered lot on UTA's parking map, so it may be private, reserved or service parking. Check the signs.",
+    "source": "OpenStreetMap way/301589131"
+  },
+  {
+    "id": "lot-301613883",
+    "name": "Lot WC (West Campus Residence Hall residents)",
+    "abbr": [],
+    "lat": 32.733413,
+    "lng": -97.119323,
+    "category": "parking",
+    "address": "916 UTA Blvd., Arlington, TX",
+    "note": "Resident permit required at all times",
+    "source": "OpenStreetMap way/301613883; lot number: UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "WC"
+    ],
+    "permit": [
+      "resident"
+    ]
+  },
+  {
+    "id": "lot-301613884",
+    "name": "Lot MR (Meadow Run residents)",
+    "abbr": [],
+    "lat": 32.732399,
+    "lng": -97.120807,
+    "category": "parking",
+    "address": "",
+    "note": "Resident permit required at all times",
+    "source": "OpenStreetMap way/301613884; lot number: UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "MR"
+    ],
+    "permit": [
+      "resident"
+    ]
+  },
+  {
+    "id": "lot-301613886",
+    "name": "Lot F5",
+    "abbr": [],
+    "lat": 32.734043,
+    "lng": -97.12036,
+    "category": "parking",
+    "address": "1000 W. UTA Blvd., Arlington, TX",
+    "note": "Faculty/staff permit required at all times",
+    "source": "OpenStreetMap way/301613886; lot number: UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "F5"
+    ],
+    "permit": [
+      "faculty"
+    ]
+  },
+  {
+    "id": "lot-301617575",
+    "name": "Lot UV (University Village residents)",
+    "abbr": [],
+    "lat": 32.729764,
+    "lng": -97.119489,
+    "category": "parking",
+    "address": "900 Greek Row Dr., Arlington, TX",
+    "note": "Resident permit required at all times",
+    "source": "OpenStreetMap way/301617575; lot number: UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "UV"
+    ],
+    "permit": [
+      "resident"
+    ]
+  },
+  {
+    "id": "lot-309506719",
+    "name": "Lot 46",
+    "abbr": [],
+    "lat": 32.727435,
+    "lng": -97.108059,
+    "category": "parking",
+    "address": "140 W. Mitchell St., Arlington, TX",
+    "note": "Student permit required at all times",
+    "source": "OpenStreetMap way/309506719; lot number: UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "46"
+    ],
+    "permit": [
+      "student"
+    ]
+  },
+  {
+    "id": "lot-309506723",
+    "name": "Lot F17",
+    "abbr": [],
+    "lat": 32.726506,
+    "lng": -97.107997,
+    "category": "parking",
+    "address": "600 Southdale St., Arlington, TX",
+    "note": "Faculty/staff permit required at all times",
+    "source": "OpenStreetMap way/309506723; lot number: UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "F17"
+    ],
+    "permit": [
+      "faculty"
+    ]
+  },
+  {
+    "id": "lot-309506724",
+    "name": "Unnumbered parking near Nanotech Building",
+    "abbr": [],
+    "lat": 32.732822,
+    "lng": -97.1157,
+    "category": "parking",
+    "address": "",
+    "note": "Not a numbered lot on UTA's parking map, so it may be private, reserved or service parking. Check the signs.",
+    "source": "OpenStreetMap way/309506724"
+  },
+  {
+    "id": "lot-309506727",
+    "name": "Unnumbered parking near DED Technical Training Center",
+    "abbr": [],
+    "lat": 32.72635,
+    "lng": -97.107355,
+    "category": "parking",
+    "address": "",
+    "note": "Not a numbered lot on UTA's parking map, so it may be private, reserved or service parking. Check the signs.",
+    "source": "OpenStreetMap way/309506727"
+  },
+  {
+    "id": "lot-309506729",
+    "name": "Lot 34",
+    "abbr": [],
+    "lat": 32.733434,
+    "lng": -97.115862,
+    "category": "parking",
+    "address": "700 W. UTA Blvd., Arlington, TX",
+    "note": "Student permit required at all times",
+    "source": "OpenStreetMap way/309506729; lot number: UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "34"
+    ],
+    "permit": [
+      "student"
+    ]
+  },
+  {
+    "id": "lot-309506730",
+    "name": "Unnumbered parking near Aerodynamics Research Building",
+    "abbr": [],
+    "lat": 32.727931,
+    "lng": -97.10728,
+    "category": "parking",
+    "address": "",
+    "note": "Not a numbered lot on UTA's parking map, so it may be private, reserved or service parking. Check the signs.",
+    "source": "OpenStreetMap way/309506730"
+  },
+  {
+    "id": "lot-309646129",
+    "name": "Unnumbered parking near General Academic Classroom Building",
+    "abbr": [],
+    "lat": 32.735368,
+    "lng": -97.115029,
+    "category": "parking",
+    "address": "",
+    "note": "Not a numbered lot on UTA's parking map, so it may be private, reserved or service parking. Check the signs.",
+    "source": "OpenStreetMap way/309646129"
+  },
+  {
+    "id": "lot-309646131",
+    "name": "Lots F15 & 36",
+    "abbr": [],
+    "lat": 32.734811,
+    "lng": -97.113507,
+    "category": "parking",
+    "address": "201 S. Cooper St., Arlington, TX",
+    "note": "Faculty/staff permit / Student permit required at all times",
+    "source": "OpenStreetMap way/309646131; lot number: UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "F15",
+      "36"
+    ],
+    "permit": [
+      "faculty",
+      "student"
+    ]
+  },
+  {
+    "id": "lot-309646134",
+    "name": "Lot 35",
+    "abbr": [],
+    "lat": 32.734117,
+    "lng": -97.11551,
+    "category": "parking",
+    "address": "712 Border Pl., Arlington, TX",
+    "note": "Student permit required at all times",
+    "source": "OpenStreetMap way/309646134; lot number: UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "35"
+    ],
+    "permit": [
+      "student"
+    ]
+  },
+  {
+    "id": "lot-309660731",
+    "name": "Unnumbered parking near UTA Information",
+    "abbr": [],
+    "lat": 32.729726,
+    "lng": -97.116312,
+    "category": "parking",
+    "address": "",
+    "note": "Not a numbered lot on UTA's parking map, so it may be private, reserved or service parking. Check the signs.",
+    "source": "OpenStreetMap way/309660731"
+  },
+  {
+    "id": "lot-472239621",
+    "name": "Unnumbered parking near Timber Brook",
+    "abbr": [],
+    "lat": 32.735135,
+    "lng": -97.119811,
+    "category": "parking",
+    "address": "",
+    "note": "Not a numbered lot on UTA's parking map, so it may be private, reserved or service parking. Check the signs.",
+    "source": "OpenStreetMap way/472239621"
+  },
+  {
+    "id": "lot-1049101410",
+    "name": "Lot 38",
+    "abbr": [],
+    "lat": 32.732765,
+    "lng": -97.109503,
+    "category": "parking",
+    "address": "416 S. Oak St., Arlington, TX",
+    "note": "Student permit required at all times",
+    "source": "OpenStreetMap way/1049101410; lot number: UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "38"
+    ],
+    "permit": [
+      "student"
+    ]
+  },
+  {
+    "id": "lot-1049120010",
+    "name": "Unnumbered parking near Wade Building",
+    "abbr": [],
+    "lat": 32.734427,
+    "lng": -97.106473,
+    "category": "parking",
+    "address": "",
+    "note": "Not a numbered lot on UTA's parking map, so it may be private, reserved or service parking. Check the signs.",
+    "source": "OpenStreetMap way/1049120010"
+  },
+  {
+    "id": "lot-1050333494",
+    "name": "Unnumbered parking near Vandergriff Hall",
+    "abbr": [],
+    "lat": 32.732269,
+    "lng": -97.1093,
+    "category": "parking",
+    "address": "",
+    "note": "Not a numbered lot on UTA's parking map, so it may be private, reserved or service parking. Check the signs.",
+    "source": "OpenStreetMap way/1050333494"
+  },
+  {
+    "id": "lot-1058677421",
+    "name": "Unnumbered parking near Maverick Place",
+    "abbr": [],
+    "lat": 32.725653,
+    "lng": -97.119906,
+    "category": "parking",
+    "address": "",
+    "note": "Not a numbered lot on UTA's parking map, so it may be private, reserved or service parking. Check the signs.",
+    "source": "OpenStreetMap way/1058677421"
+  },
+  {
+    "id": "lot-1241743646",
+    "name": "Lot 28",
+    "abbr": [],
+    "lat": 32.733575,
+    "lng": -97.121972,
+    "category": "parking",
+    "address": "1022 UTA Blvd., Arlington, TX",
+    "note": "Student permit required at all times",
+    "source": "OpenStreetMap way/1241743646; lot number: UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "28"
+    ],
+    "permit": [
+      "student"
+    ]
+  },
+  {
+    "id": "lot-1272606851",
+    "name": "Unnumbered parking near University Police",
+    "abbr": [],
+    "lat": 32.73464,
+    "lng": -97.10411,
+    "category": "parking",
+    "address": "",
+    "note": "Not a numbered lot on UTA's parking map, so it may be private, reserved or service parking. Check the signs.",
+    "source": "OpenStreetMap way/1272606851"
+  },
+  {
+    "id": "lot-1455258692",
+    "name": "Lot 53",
+    "abbr": [],
+    "lat": 32.726652,
+    "lng": -97.109403,
+    "category": "parking",
+    "address": "1100 S. Pecan St., Arlington, TX",
+    "note": "Student permit required at all times",
+    "source": "OpenStreetMap way/1455258692; lot number: UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "53"
+    ],
+    "permit": [
+      "student"
+    ]
+  },
+  {
+    "id": "lot-48",
+    "name": "Lot 48",
+    "abbr": [],
+    "lat": 32.727151,
+    "lng": -97.107444,
+    "category": "parking",
+    "address": "",
+    "note": "Student permit required at all times. Location from UTA's parking map (approximate).",
+    "source": "UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "48"
+    ],
+    "permit": [
+      "student"
+    ]
+  },
+  {
+    "id": "lot-27",
+    "name": "Lot 27",
+    "abbr": [],
+    "lat": 32.729948,
+    "lng": -97.12436,
+    "category": "parking",
+    "address": "800 S. Davis St., Arlington, TX",
+    "note": "Student permit required at all times. Location from UTA's parking map (approximate).",
+    "source": "UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "27"
+    ],
+    "permit": [
+      "student"
+    ]
+  },
+  {
+    "id": "lot-26",
+    "name": "Lot 26",
+    "abbr": [],
+    "lat": 32.727206,
+    "lng": -97.126937,
+    "category": "parking",
+    "address": "1301 W. Mitchell St., Arlington, TX",
+    "note": "Student permit required at all times. Location from UTA's parking map (approximate).",
+    "source": "UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "26"
+    ],
+    "permit": [
+      "student"
+    ]
+  },
+  {
+    "id": "lot-25",
+    "name": "Lot 25",
+    "abbr": [],
+    "lat": 32.724646,
+    "lng": -97.130118,
+    "category": "parking",
+    "address": "1315 S. Fielder Rd., Arlington, TX",
+    "note": "Student permit required at all times. Location from UTA's parking map (approximate).",
+    "source": "UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "25"
+    ],
+    "permit": [
+      "student"
+    ]
+  },
+  {
+    "id": "lot-ao",
+    "name": "Lot AO (Arbor Oaks residents)",
+    "abbr": [],
+    "lat": 32.729795,
+    "lng": -97.120979,
+    "category": "parking",
+    "address": "1000 W. Fourth St., Arlington, TX",
+    "note": "Resident permit required at all times. Location from UTA's parking map (approximate).",
+    "source": "UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "AO"
+    ],
+    "permit": [
+      "resident"
+    ]
+  },
+  {
+    "id": "lot-29",
+    "name": "Lot 29",
+    "abbr": [],
+    "lat": 32.729908,
+    "lng": -97.122674,
+    "category": "parking",
+    "address": "1100 W. Fourth St., Arlington, TX",
+    "note": "Student permit required at all times. Location from UTA's parking map (approximate).",
+    "source": "UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "29"
+    ],
+    "permit": [
+      "student"
+    ]
+  },
+  {
+    "id": "lot-gr",
+    "name": "Lot GR (Greek Row residents)",
+    "abbr": [],
+    "lat": 32.731613,
+    "lng": -97.122612,
+    "category": "parking",
+    "address": "600 Summit Ave., Arlington, TX",
+    "note": "Resident permit required at all times. Location from UTA's parking map (approximate).",
+    "source": "UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "GR"
+    ],
+    "permit": [
+      "resident"
+    ]
+  },
+  {
+    "id": "lot-24",
+    "name": "Lot 24",
+    "abbr": [],
+    "lat": 32.734148,
+    "lng": -97.122125,
+    "category": "parking",
+    "address": "1100 W. UTA Blvd., Arlington, TX",
+    "note": "Student permit required at all times. Location from UTA's parking map (approximate).",
+    "source": "UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "24"
+    ],
+    "permit": [
+      "student"
+    ]
+  },
+  {
+    "id": "lot-f11",
+    "name": "Lot F11",
+    "abbr": [],
+    "lat": 32.733019,
+    "lng": -97.110345,
+    "category": "parking",
+    "address": "415 S. West St., Arlington, TX",
+    "note": "Faculty/staff permit required at all times. Location from UTA's parking map (approximate).",
+    "source": "UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "F11"
+    ],
+    "permit": [
+      "faculty"
+    ]
+  },
+  {
+    "id": "lot-f4",
+    "name": "Lot F4",
+    "abbr": [],
+    "lat": 32.732657,
+    "lng": -97.122027,
+    "category": "parking",
+    "address": "500 Summit Ave., Arlington, TX",
+    "note": "Faculty/staff permit required at all times. Location from UTA's parking map (approximate).",
+    "source": "UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "F4"
+    ],
+    "permit": [
+      "faculty"
+    ]
+  },
+  {
+    "id": "lot-f1",
+    "name": "Lot F1",
+    "abbr": [],
+    "lat": 32.729065,
+    "lng": -97.127668,
+    "category": "parking",
+    "address": "1307 W. Mitchell St., Arlington, TX",
+    "note": "Faculty/staff permit required at all times. Location from UTA's parking map (approximate).",
+    "source": "UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "F1"
+    ],
+    "permit": [
+      "faculty"
+    ]
+  },
+  {
+    "id": "lot-31",
+    "name": "Lot 31",
+    "abbr": [],
+    "lat": 32.733122,
+    "lng": -97.121519,
+    "category": "parking",
+    "address": "600 Summit Ave., Arlington, TX",
+    "note": "Student permit required at all times. Location from UTA's parking map (approximate).",
+    "source": "UTA PATS 2026-27 visitor parking map (lot label position)",
+    "lots": [
+      "31"
+    ],
+    "permit": [
+      "student"
+    ]
   }
 ]

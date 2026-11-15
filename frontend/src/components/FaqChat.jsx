@@ -1,19 +1,52 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { fetchFaqs } from "../api.js";
 import { answerQuestion } from "../faqMatch.js";
+import { nextClass } from "../schedule.js";
+import { useSwipeDown } from "../useSwipeDown.js";
 
 const WELCOME = {
   id: 0,
   from: "bot",
-  text: "Hi! I'm the MavMap helper. Ask a campus question, or type a room like NH 106 and I'll show you the building.",
+  text: "Hi! I'm the MavMap helper. Ask where things are (“where can I play basketball?”, “where is ERB?”), type a room like NH 106, or ask “where is my next class?”. Type help to see everything I can do.",
 };
+
+// "Starbucks (University Center)" → "Starbucks (UC)"; codes for buildings that have them.
+function shortName(b) {
+  if (b.abbr?.[0] && b.abbr[0].length <= 5) return b.abbr[0];
+  return b.name.replace("(University Center)", "(UC)");
+}
+
+function formatWhen(start) {
+  if (!start) return "";
+  const d = new Date(start);
+  return Number.isNaN(d.getTime()) ? "" : d.toLocaleString(undefined, { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+}
 
 function isPhone() {
   return typeof window !== "undefined" && window.matchMedia("(max-width: 820px)").matches;
 }
 
-export default function FaqChat({ buildings, onShowBuilding, onNavigate, detailOpen = false, hidden = false }) {
-  const [open, setOpen] = useState(false);
+export default function FaqChat({
+  buildings,
+  classes = [],
+  events = [], // upcoming UTA events, so the chat can answer "what's happening?" and "any club meetings?"
+  onShowBuilding,
+  onNavigate,
+  detailOpen = false,
+  hidden = false,
+  open: openProp, // optional: the app controls open/closed (phones keep one panel open at a time)
+  onOpenChange,
+}) {
+  const [openState, setOpenState] = useState(false);
+  const open = openProp ?? openState;
+  const setOpen = useCallback(
+    (v) => {
+      setOpenState(v);
+      onOpenChange?.(v);
+    },
+    [onOpenChange],
+  );
+  const windowRef = useRef(null);
   const [faqs, setFaqs] = useState(null);
   const [loadError, setLoadError] = useState(false);
   const [messages, setMessages] = useState([WELCOME]);
@@ -47,7 +80,9 @@ export default function FaqChat({ buildings, onShowBuilding, onNavigate, detailO
   const close = useCallback(() => {
     setOpen(false);
     bubbleRef.current?.focus();
-  }, []);
+  }, [setOpen]);
+
+  useSwipeDown(windowRef, close, open);
 
   useEffect(() => {
     if (!open) return;
@@ -61,7 +96,7 @@ export default function FaqChat({ buildings, onShowBuilding, onNavigate, detailO
   const ask = (text) => {
     const question = text.trim();
     if (!question) return;
-    const reply = answerQuestion(question, { faqs: faqs ?? [], buildings });
+    const reply = answerQuestion(question, { faqs: faqs ?? [], buildings, classes, events, nextClassFn: nextClass });
     setMessages((prev) => [
       ...prev,
       { id: nextId.current++, from: "user", text: question },
@@ -89,7 +124,8 @@ export default function FaqChat({ buildings, onShowBuilding, onNavigate, detailO
       hidden={hidden}
     >
       {open && (
-        <section className="faq-window" role="dialog" aria-label="Campus FAQs" aria-modal="false">
+        <section ref={windowRef} className="faq-window" role="dialog" aria-label="Campus FAQs" aria-modal="false">
+          <div className="sheet-handle" aria-hidden="true" />
           <header className="faq-header">
             <div>
               <p className="faq-title">Campus FAQs</p>
@@ -104,7 +140,26 @@ export default function FaqChat({ buildings, onShowBuilding, onNavigate, detailO
             {messages.map((m) => (
               <div key={m.id} className={`faq-msg faq-msg--${m.from}`}>
                 <p>{m.text}</p>
-                {(m.building || m.link) && (
+                {m.events?.length > 0 && (
+                  <ul className="faq-events">
+                    {m.events.map((e) => (
+                      <li key={e.id}>
+                        {e.url ? (
+                          <a href={e.url} target="_blank" rel="noreferrer">
+                            {e.title}
+                          </a>
+                        ) : (
+                          <strong>{e.title}</strong>
+                        )}
+                        <span>
+                          {formatWhen(e.start)}
+                          {e.location ? ` · ${e.location}` : ""}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {(m.building || m.link || m.places?.length > 0) && (
                   <div className="faq-actions">
                     {m.building && (
                       <button type="button" className="faq-action" onClick={() => showOnMap(m.building)}>
@@ -113,12 +168,18 @@ export default function FaqChat({ buildings, onShowBuilding, onNavigate, detailO
                     )}
                     {m.building && onNavigate && (
                       <button type="button" className="faq-action faq-action--go" onClick={() => walkThere(m.building)}>
-                        ➤ Walk me there
+                        ➤ Get directions
                       </button>
                     )}
+                    {!m.building &&
+                      m.places?.map((p) => (
+                        <button key={p.id} type="button" className="faq-action" onClick={() => showOnMap(p)}>
+                          Show {shortName(p)}
+                        </button>
+                      ))}
                     {m.link && (
                       <a className="faq-action" href={m.link} target="_blank" rel="noreferrer">
-                        Open {new URL(m.link).hostname.replace(/^www\./, "")}
+                        {m.linkLabel || `Open ${new URL(m.link).hostname.replace(/^www\./, "")}`}
                       </a>
                     )}
                   </div>
@@ -166,7 +227,7 @@ export default function FaqChat({ buildings, onShowBuilding, onNavigate, detailO
               className="faq-input"
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
-              placeholder="Ask a question or type a room (ERB 228)"
+              placeholder="Ask anything: “where can I eat?”, “ERB 228”"
               aria-label="Ask a question"
               autoComplete="off"
             />

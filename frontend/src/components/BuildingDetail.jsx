@@ -1,4 +1,6 @@
+import { useEffect, useRef } from "react";
 import { appleMapsUrl, googleMapsUrl } from "../api.js";
+import { useSwipeDown } from "../useSwipeDown.js";
 import { categoryLabel } from "../categories.js";
 import Photo from "./Photo.jsx";
 
@@ -23,43 +25,64 @@ function formatWhen(start) {
 export default function BuildingDetail({ building, onClose, nearbyEvents = [], isFavorite = false, onToggleFavorite, onNavigate }) {
   const apple = appleMapsUrl(building);
   const google = googleMapsUrl(building);
+  const panelRef = useRef(null);
+  useSwipeDown(panelRef, onClose); // phones: drag the panel down to close it
+
+  // Share the panel's height (as --detail-h) so the chat bubble on phones can float just above it.
+  useEffect(() => {
+    const el = panelRef.current;
+    if (!el) return;
+    const root = document.documentElement;
+    const ro = new ResizeObserver(() => root.style.setProperty("--detail-h", `${el.offsetHeight}px`));
+    ro.observe(el);
+    return () => {
+      ro.disconnect();
+      root.style.removeProperty("--detail-h");
+    };
+  }, []);
 
   return (
-    <aside className={`detail-panel${building.photo ? " has-photo" : ""}`} aria-live="polite">
+    <aside ref={panelRef} className={`detail-panel${building.photo ? " has-photo" : ""}`} aria-live="polite">
+      <div className="sheet-handle" aria-hidden="true" />
       <button type="button" className="close-btn" onClick={onClose} aria-label="Close">
         ×
       </button>
-      {building.photo && (
-        <Photo
-          key={building.id}
-          src={building.photo.url}
-          alt={`${building.name}`}
-          className="building-photo"
-          credit={photoCredit(building.photo)}
-        />
-      )}
-      <p className="detail-category">{categoryLabel(building.category)}</p>
-      <div className="detail-title-row">
-        <h2>{building.name}</h2>
-        {onToggleFavorite && (
-          <button
-            type="button"
-            className={`star-toggle${isFavorite ? " is-on" : ""}`}
-            aria-pressed={isFavorite}
-            aria-label={isFavorite ? `Remove ${building.name} from saved places` : `Save ${building.name}`}
-            title={isFavorite ? "Saved" : "Save"}
-            onClick={() => onToggleFavorite(building.id)}
-          >
-            {isFavorite ? "★" : "☆"}
-          </button>
+      {/* The photo sits behind the title and fades into the panel, so they read as one piece. */}
+      <div className={`detail-hero${building.photo ? " has-photo" : ""}`}>
+        {building.photo && (
+          <Photo
+            key={building.id}
+            src={building.photo.url}
+            alt={`${building.name}`}
+            className="building-photo"
+            credit={photoCredit(building.photo)}
+          />
         )}
+        <div className="detail-hero-text">
+          <p className="detail-category">{categoryLabel(building.category)}</p>
+          <div className="detail-title-row">
+            <h2>{building.name}</h2>
+            {onToggleFavorite && (
+              <button
+                type="button"
+                className={`star-toggle${isFavorite ? " is-on" : ""}`}
+                aria-pressed={isFavorite}
+                aria-label={isFavorite ? `Remove ${building.name} from saved places` : `Save ${building.name}`}
+                title={isFavorite ? "Saved" : "Save"}
+                onClick={() => onToggleFavorite(building.id)}
+              >
+                {isFavorite ? "★" : "☆"}
+              </button>
+            )}
+          </div>
+        </div>
       </div>
       {building.abbr?.length > 0 && <p className="detail-abbr">{building.abbr.join(" · ")}</p>}
       {building.note && <p className="detail-abbr">{building.note}</p>}
       {building.address && <p className="detail-address">{building.address}</p>}
       {onNavigate && (
         <button type="button" className="btn walk" onClick={() => onNavigate(building)}>
-          <span aria-hidden="true">➤</span> Walk me there
+          <span aria-hidden="true">➤</span> Get directions
         </button>
       )}
       <div className="direction-actions">

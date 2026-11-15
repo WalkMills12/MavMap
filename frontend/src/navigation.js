@@ -13,11 +13,14 @@ const FIELD_MASK = [
   "routes.legs.steps.navigationInstruction",
 ].join(",");
 
-const ARRIVE_M = 20; // close enough to the building to call it arrived
-const OFF_ROUTE_M = 30; // farther than this from the line means you've left the route
+// Tuned per travel mode: cars stop farther from the door and GPS drifts more at speed.
+const MODE_SETTINGS = {
+  WALK: { arriveM: 20, offRouteM: 30 },
+  DRIVE: { arriveM: 45, offRouteM: 50 },
+};
 const REROUTE_COOLDOWN_MS = 20000; // don't ask Google for a new route more often than this
-const SIM_SPEED_MPS = 1.4 * 3; // "Simulate walk" pace: 3× normal walking speed
 const SNAP_M = 20; // within this distance of the route, draw the dot on the route (like Google Maps)
+const settingsFor = (mode) => MODE_SETTINGS[mode] || MODE_SETTINGS.WALK;
 
 const secs = (s) => parseFloat(String(s ?? "0").replace("s", "")) || 0;
 
@@ -46,15 +49,16 @@ export function decodePolyline(str) {
   return points;
 }
 
-export async function fetchWalkingRoute(apiKey, from, to) {
+/** Best route from `from` to `to`. mode: "WALK" (sidewalks and campus paths) or "DRIVE" (roads). */
+export async function fetchRoute(apiKey, from, to, mode = "WALK") {
   const res = await fetch(ROUTES_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json", "X-Goog-Api-Key": apiKey, "X-Goog-FieldMask": FIELD_MASK },
     body: JSON.stringify({
       origin: { location: { latLng: { latitude: from.lat, longitude: from.lng } } },
       destination: { location: { latLng: { latitude: to.lat, longitude: to.lng } } },
-      travelMode: "WALK",
-      // Full-detail line that follows every bend of sidewalks and campus paths.
+      travelMode: mode === "DRIVE" ? "DRIVE" : "WALK",
+      // Full-detail line that follows every bend of the roads, sidewalks and campus paths.
       polylineQuality: "HIGH_QUALITY",
       languageCode: "en-US",
       units: "IMPERIAL",
@@ -64,12 +68,14 @@ export async function fetchWalkingRoute(apiKey, from, to) {
   if (!res.ok) {
     const msg = data?.error?.message || `Routes API error ${res.status}`;
     if (/not been used|disabled|not enabled|PERMISSION_DENIED|API key/i.test(msg)) {
-      throw new Error("Walking directions need the Routes API turned on for your Google Maps key (Google Cloud Console → APIs & Services → Library → Routes API).");
+      throw new Error("Directions need the Routes API turned on for your Google Maps key (Google Cloud Console → APIs & Services → Library → Routes API).");
     }
     throw new Error(msg);
   }
   const route = data.routes?.[0];
-  if (!route?.polyline?.encodedPolyline) throw new Error("Google couldn't find a walking route to this building.");
+  if (!route?.polyline?.encodedPolyline) {
+    throw new Error(`Google couldn't find a ${mode === "DRIVE" ? "driving" : "walking"} route to this place.`);
+  }
   const path = decodePolyline(route.polyline.encodedPolyline);
 
   // Distance along the path where each segment starts, for fast progress math.
@@ -92,8 +98,11 @@ export async function fetchWalkingRoute(apiKey, from, to) {
   const scale = acc > 0 ? total / acc : 1;
   for (const s of steps) s.endAlongM *= scale;
 
-  return { path, cum, totalM: total, durationS: secs(route.duration), steps };
+  return { path, cum, totalM: total, durationS: secs(route.duration), steps, mode };
 }
+
+/** Kept for older callers: a walking route. */
+export const fetchWalkingRoute = (apiKey, from, to) => fetchRoute(apiKey, from, to, "WALK");
 
 /** Where a position sits relative to the route: distance off the line and distance traveled along it. */
 function project(route, p) {
@@ -156,13 +165,14 @@ function bearing(a, b) {
 }
 
 export function progressFor(route, pos, dest) {
+  const { arriveM } = settingsFor(route.mode);
   const { off, along } = project(route, pos);
   const remainingM = Math.max(0, route.totalM - along);
   let stepIdx = route.steps.findIndex((s) => s.endAlongM > along + 1);
   if (stepIdx < 0) stepIdx = route.steps.length - 1;
   const toNextM = Math.max(0, (route.steps[stepIdx]?.endAlongM ?? route.totalM) - along);
   const remainingS = route.totalM ? (route.durationS * remainingM) / route.totalM : 0;
-  const arrived = distanceMeters(pos, dest) <= ARRIVE_M || remainingM <= ARRIVE_M * 0.75;
+  const arrived = distanceMeters(pos, dest) <= arriveM || remainingM <= arriveM * 0.75;
   return { off, along, remainingM, remainingS, stepIdx, toNextM, arrived };
 }
 
@@ -174,7 +184,7 @@ function geoErrorMessage(err) {
 
 /**
  * Hook driving a navigation session.
- * nav: null | { dest, status: "locating"|"routing"|"navigating"|"arrived"|"error", error?, route?, progress?, simulating }
+ * nav: null | { dest, mode: "WALK"|"DRIVE", status: "locating"|"routing"|"navigating"|"arrived"|"error", error?, route?, progress? }
  * pos: null | { lat, lng, acc, heading }
  */
 export function useNavigation(apiKey) {
@@ -183,7 +193,6 @@ export function useNavigation(apiKey) {
   const navRef = useRef(null);
   const posRef = useRef(null);
   const watchRef = useRef(null);
-  const simRef = useRef(null);
   const routingRef = useRef(false);
   const lastRerouteRef = useRef(0);
   const wakeLockRef = useRef(null);
@@ -200,8 +209,9 @@ export function useNavigation(apiKey) {
       routingRef.current = true;
       if (!current.route) update((n) => n && { ...n, status: "routing" });
       try {
-        const route = await fetchWalkingRoute(apiKey, from, current.dest);
-        if (navRef.current?.dest !== current.dest) return; // cancelled meanwhile
+        const route = await fetchRoute(apiKey, from, current.dest, current.mode);
+        // Cancelled, or switched between walking and driving, meanwhile.
+        if (navRef.current?.dest !== current.dest || navRef.current?.mode !== current.mode) return;
         const progress = progressFor(route, from, current.dest);
         update((n) => n && { ...n, route, progress, status: progress.arrived ? "arrived" : "navigating", error: null, rerouting: false });
       } catch (err) {
@@ -230,7 +240,7 @@ export function useNavigation(apiKey) {
         return;
       }
       const progress = progressFor(n.route, next, n.dest);
-      const offRoute = progress.off > Math.max(OFF_ROUTE_M, (p.acc || 0) * 1.2);
+      const offRoute = progress.off > Math.max(settingsFor(n.mode).offRouteM, (p.acc || 0) * 1.2);
       setPos(displayPosition(n.route, next, progress)); // the dot rides the path when you're on it
       update((cur) => cur && { ...cur, progress, status: progress.arrived ? "arrived" : "navigating" });
       if (offRoute && !progress.arrived && Date.now() - lastRerouteRef.current > REROUTE_COOLDOWN_MS && (p.acc || 0) < 60) {
@@ -245,8 +255,6 @@ export function useNavigation(apiKey) {
   const stopWatching = useCallback(() => {
     if (watchRef.current != null) navigator.geolocation?.clearWatch(watchRef.current);
     watchRef.current = null;
-    clearInterval(simRef.current);
-    simRef.current = null;
     wakeLockRef.current?.release?.().catch(() => {});
     wakeLockRef.current = null;
   }, []);
@@ -275,15 +283,27 @@ export function useNavigation(apiKey) {
   }, [handlePosition, update]);
 
   const start = useCallback(
-    (dest) => {
+    (dest, mode = "WALK") => {
       stopWatching();
       posRef.current = null;
       setPos(null);
       lastRerouteRef.current = 0;
-      update({ dest, status: "locating", simulating: false });
+      update({ dest, mode, status: "locating" });
       watch();
     },
     [stopWatching, update, watch],
+  );
+
+  /** Switch between walking and driving without losing your location. */
+  const setMode = useCallback(
+    (mode) => {
+      const n = navRef.current;
+      if (!n || n.mode === mode) return;
+      routingRef.current = false; // a walking request still in flight is ignored when it lands
+      update({ dest: n.dest, mode, status: posRef.current ? "routing" : "locating" });
+      if (posRef.current) requestRoute(posRef.current);
+    },
+    [requestRoute, update],
   );
 
   const stop = useCallback(() => {
@@ -295,36 +315,23 @@ export function useNavigation(apiKey) {
 
   const retry = useCallback(() => {
     const n = navRef.current;
-    if (n) start(n.dest);
+    if (n) start(n.dest, n.mode);
   }, [start]);
-
-  /** For testing on a computer: walk along the current route at 3× speed instead of using GPS. */
-  const simulate = useCallback(() => {
-    const n = navRef.current;
-    if (!n?.route) return;
-    if (watchRef.current != null) navigator.geolocation?.clearWatch(watchRef.current);
-    watchRef.current = null;
-    clearInterval(simRef.current);
-    let along = n.progress?.along ?? 0;
-    let route = n.route;
-    update((cur) => cur && { ...cur, simulating: true });
-    simRef.current = setInterval(() => {
-      const cur = navRef.current;
-      if (!cur?.route || cur.status === "arrived") {
-        clearInterval(simRef.current);
-        return;
-      }
-      if (cur.route !== route) {
-        route = cur.route;
-        along = 0;
-      }
-      along += SIM_SPEED_MPS;
-      const p = pointAlong(route, along);
-      handlePosition({ ...p, acc: 5, heading: null });
-    }, 1000);
-  }, [handlePosition, update]);
 
   useEffect(() => stopWatching, [stopWatching]);
 
-  return { nav, pos, start, stop, retry, simulate };
+  return { nav, pos, start, stop, retry, setMode };
+}
+
+/** One-off location fix (for "how long to my next class?"). Resolves { lat, lng, acc }. */
+export function getCurrentLocation() {
+  return new Promise((resolve, reject) => {
+    if (!window.isSecureContext) return reject(new Error("Browsers only share location on https:// sites or http://localhost."));
+    if (!("geolocation" in navigator)) return reject(new Error("This browser can't share your location."));
+    navigator.geolocation.getCurrentPosition(
+      (g) => resolve({ lat: g.coords.latitude, lng: g.coords.longitude, acc: g.coords.accuracy }),
+      (err) => reject(new Error(geoErrorMessage(err))),
+      { enableHighAccuracy: true, maximumAge: 30000, timeout: 20000 },
+    );
+  });
 }

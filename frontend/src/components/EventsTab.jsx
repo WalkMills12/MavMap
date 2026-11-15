@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { distanceMeters } from "../geo.js";
+import SwipeRow from "./SwipeRow.jsx";
 import {
   downloadIcs,
   eventDayKey,
@@ -40,7 +41,10 @@ export default function EventsTab({
   isEventFav,
   onToggleFavorite,
 }) {
-  const [type, setType] = useState("all");
+  // Picked type chips (several allowed); empty = all. SAVED narrows to saved events.
+  const [picked, setPicked] = useState([]);
+  const savedOnly = picked.includes(SAVED);
+  const pickedTypes = picked.filter((t) => t !== SAVED);
   const [query, setQuery] = useState("");
   const now = new Date();
 
@@ -68,10 +72,13 @@ export default function EventsTab({
 
   const groups = useMemo(() => {
     const needle = query.trim().toLowerCase();
-    const source = type === SAVED ? savedUpcoming : upcoming;
+    const source = savedOnly ? savedUpcoming : upcoming;
     const filtered = source.filter((e) => {
-      if (type === UNTYPED && e.types?.length) return false;
-      if (type !== "all" && type !== UNTYPED && type !== SAVED && !(e.types || []).includes(type)) return false;
+      // Matches any of the picked types ("Music" + "Sports" shows both).
+      if (pickedTypes.length) {
+        const ok = pickedTypes.some((t) => (t === UNTYPED ? !e.types?.length : (e.types || []).includes(t)));
+        if (!ok) return false;
+      }
       if (!needle) return true;
       return [e.title, e.location, e.description, ...(e.types || [])].join(" ").toLowerCase().includes(needle);
     });
@@ -85,7 +92,8 @@ export default function EventsTab({
       list.sort((a, b) => Number(b.all_day) - Number(a.all_day) || (a.start || "").localeCompare(b.start || ""));
     }
     return [...byDay.entries()].sort((a, b) => a[0].localeCompare(b[0]));
-  }, [upcoming, savedUpcoming, type, query]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [upcoming, savedUpcoming, picked, query]);
 
   const nearestBuilding = (e) => {
     if (e.lat == null || e.lng == null) return null;
@@ -99,8 +107,10 @@ export default function EventsTab({
   };
 
   const pickType = (t) => {
-    setType(t);
-    if (t !== "all" && t !== SAVED && t !== UNTYPED) recordTypeFilter(t);
+    if (t === "all") return setPicked([]);
+    const on = !picked.includes(t);
+    setPicked(on ? [...picked, t] : picked.filter((x) => x !== t));
+    if (on && t !== SAVED && t !== UNTYPED) recordTypeFilter(t);
   };
 
   const toggleSave = (e) => {
@@ -109,7 +119,7 @@ export default function EventsTab({
   };
 
   const shown = groups.reduce((n, [, list]) => n + list.length, 0);
-  const rangeLabel = type === SAVED ? "your saved list" : days === 1 ? "today" : `the next ${days} days`;
+  const rangeLabel = savedOnly ? "your saved list" : days === 1 ? "today" : `the next ${days} days`;
 
   return (
     <div className="side-section">
@@ -121,24 +131,24 @@ export default function EventsTab({
         onChange={(e) => setQuery(e.target.value)}
         aria-label="Search events"
       />
-      <div className="filter-chips" role="group" aria-label="Event type">
-        <button type="button" className="filter-chip" aria-pressed={type === "all"} onClick={() => pickType("all")}>
+      <SwipeRow className="filter-chips filter-chips--swipe" label="Event types (pick one or more)">
+        <button type="button" className="filter-chip" aria-pressed={picked.length === 0} onClick={() => pickType("all")}>
           All <span>{upcoming.length}</span>
         </button>
-        <button
-          type="button"
-          className="filter-chip cat-favorites"
-          aria-pressed={type === SAVED}
-          onClick={() => pickType(SAVED)}
-        >
+        <button type="button" className="filter-chip cat-favorites" aria-pressed={savedOnly} onClick={() => pickType(SAVED)}>
           ★ Saved <span>{savedUpcoming.length}</span>
         </button>
         {types.map(([t, n]) => (
-          <button key={t} type="button" className="filter-chip" aria-pressed={type === t} onClick={() => pickType(t)}>
+          <button key={t} type="button" className="filter-chip" aria-pressed={picked.includes(t)} onClick={() => pickType(t)}>
+            {picked.includes(t) && (
+              <i className="chip-check" aria-hidden="true">
+                ✓
+              </i>
+            )}
             {t === UNTYPED ? "Other" : t} <span>{n}</span>
           </button>
         ))}
-      </div>
+      </SwipeRow>
 
       {loading && <p className="side-empty">Loading UTA events…</p>}
       {error && !loading && (
@@ -231,7 +241,7 @@ export default function EventsTab({
 
       {!loading && !error && shown === 0 && (
         <p className="side-empty">
-          {type === SAVED
+          {savedOnly && !savedUpcoming.length
             ? "No saved events coming up. Tap ☆ on an event to save it."
             : "No events match. Pick another type, or show more days in Preferences."}
         </p>

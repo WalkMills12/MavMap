@@ -14,7 +14,7 @@ export const DEFAULT_PREFS = {
   openMenuOnStart: true, // side menu open when MavMap loads (desktop only)
   defaultTab: "directory", // "directory" | "events"
   eventDays: 7, // how far ahead the Events tab looks: 1, 3, 7 or 14
-  calendar: "both", // which add-to-calendar buttons to show: "both" | "google" | "apple"
+  travelMode: "WALK", // "Get directions" default: "WALK" | "DRIVE" (the last one you picked)
 };
 
 function load() {
@@ -23,6 +23,8 @@ function load() {
     // Older versions showed every bus route by default (showTransit/hiddenRoutes). Routes are now opt-in.
     delete saved.showTransit;
     delete saved.hiddenRoutes;
+    // The "Calendar buttons" preference was removed: events always offer Google and Apple.
+    delete saved.calendar;
     return { ...DEFAULT_PREFS, ...saved };
   } catch {
     return { ...DEFAULT_PREFS };

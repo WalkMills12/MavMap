@@ -113,7 +113,7 @@
     "answer": "Student Health Services runs a clinic for students with appointments, a pharmacy and immunizations. Book through the Health Services page on uta.edu. For an emergency, call 911.",
     "keywords": ["health", "sick", "doctor", "clinic", "nurse", "vaccine", "immunization", "pharmacy", "medical"],
     "link": null,
-    "building": null,
+    "building": "health-center",
     "featured": false
   },
   {
@@ -167,7 +167,7 @@
     "answer": "Campus tours and visitor check-in happen at the Dan Dipert University Welcome Center. Book a tour on uta.edu/admissions.",
     "keywords": ["tour", "tours", "campus tour", "visit", "visitor", "admissions", "welcome center"],
     "link": "https://www.uta.edu/admissions",
-    "building": "welcome",
+    "building": null,
     "featured": false
   },
   {

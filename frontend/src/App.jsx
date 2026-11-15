@@ -13,7 +13,10 @@ import StormLayer from "./components/StormLayer.jsx";
 import CloudBorder from "./components/CloudBorder.jsx";
 import SwordCursor from "./components/SwordCursor.jsx";
 import NavPanel from "./components/NavPanel.jsx";
+import ScheduleTab from "./components/ScheduleTab.jsx";
 import { useNavigation } from "./navigation.js";
+import { useSchedule } from "./schedule.js";
+import { distanceMeters } from "./geo.js";
 import { fetchEvents, fetchTraffic, fetchTransit } from "./api.js";
 // Buildings + outlines ship with the frontend (bundled JSON, synced from data/ by
 // scripts/sync_frontend_campus_data.py) so the map doesn't wait on the API.
@@ -29,6 +32,7 @@ const UTA_CENTER = { lat: 32.7296, lng: -97.1135 };
 const EMPTY_TRAFFIC = [];
 // Official UTA A-star logo (frontend/public/uta-logo.png). If the file is missing, the header falls back to "MavMap".
 const LOGO_SRC = "/uta-logo.png";
+const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
 const isPhone = () => typeof window !== "undefined" && window.matchMedia("(max-width: 820px)").matches;
 
 function useResolvedTheme(theme) {
@@ -67,7 +71,12 @@ export default function App() {
   const [menuTab, setMenuTab] = useState(prefs.defaultTab);
   const [suggestions, setSuggestions] = useState([]);
   const [logoOk, setLogoOk] = useState(true);
-  const navigation = useNavigation(import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "");
+  const [logoSpin, setLogoSpin] = useState(false);
+  const [dirFilters, setDirFilters] = useState([]); // Directory type chips picked (several allowed)
+  const [chatOpen, setChatOpen] = useState(false);
+  const [prefsOpen, setPrefsOpen] = useState(false);
+  const schedule = useSchedule();
+  const navigation = useNavigation(API_KEY);
   const [following, setFollowing] = useState(true);
   const navigating = Boolean(navigation.nav);
   const suggestionsChecked = useRef(false);
@@ -135,24 +144,56 @@ export default function App() {
     [selected, upcomingEvents],
   );
 
-  const showBuilding = useCallback((building) => {
-    setFocusStop(null);
-    setSelected(building);
-    // On phones the menu covers the map, so get it out of the way.
-    if (isPhone()) setMenuOpen(false);
+  // Phones have room for one panel at a time: opening one closes whichever was open before.
+  const closeOtherPanels = useCallback((keep) => {
+    if (!isPhone()) return;
+    if (keep !== "menu") setMenuOpen(false);
+    if (keep !== "chat") setChatOpen(false);
+    if (keep !== "prefs") setPrefsOpen(false);
+    if (keep !== "detail") setSelected(null);
   }, []);
 
-  // Walk me there: live location + turn-by-turn directions inside the app.
+  const showBuilding = useCallback(
+    (building) => {
+      setFocusStop(null);
+      closeOtherPanels("detail");
+      setSelected(building);
+    },
+    [closeOtherPanels],
+  );
+
+  // Get directions: live location + turn-by-turn directions inside the app, walking or driving.
   const startNav = useCallback(
     (building) => {
       setFocusStop(null);
+      closeOtherPanels("detail");
       setSelected(building);
       setFollowing(true);
-      if (isPhone()) setMenuOpen(false);
-      navigation.start(building);
+      navigation.start(building, prefs.travelMode);
     },
-    [navigation.start],
+    [navigation.start, prefs.travelMode, closeOtherPanels],
   );
+
+  const changeTravelMode = useCallback(
+    (mode) => {
+      updatePrefs({ travelMode: mode });
+      navigation.setMode(mode);
+    },
+    [navigation.setMode, updatePrefs],
+  );
+
+  // When driving, point out the closest parking to where you're going.
+  const navDest = navigation.nav?.dest;
+  const nearestParking = useMemo(() => {
+    if (!navDest || navDest.category === "parking") return null;
+    let best = null;
+    for (const b of buildings) {
+      if (b.category !== "parking") continue;
+      const d = distanceMeters(b, navDest);
+      if (!best || d < best.d) best = { b, d };
+    }
+    return best?.b ?? null;
+  }, [navDest, buildings]);
 
   const showStop = useCallback((stop) => {
     setFocusStop(stop);
@@ -199,12 +240,23 @@ export default function App() {
         loading={eventsLoading}
         error={eventsError}
         days={prefs.eventDays}
-        calendarPref={prefs.calendar}
         buildings={buildings}
         onShowBuilding={showBuilding}
         savedEvents={favorites.savedEvents}
         isEventFav={favorites.isEventFav}
         onToggleFavorite={favorites.toggleEvent}
+      />
+    );
+  } else if (menuTab === "classes") {
+    tabContent = (
+      <ScheduleTab
+        buildings={buildings}
+        schedule={schedule}
+        apiKey={API_KEY}
+        travelMode={prefs.travelMode}
+        onTravelModeChange={(mode) => updatePrefs({ travelMode: mode })}
+        onShowBuilding={showBuilding}
+        onNavigate={startNav}
       />
     );
   } else if (menuTab === "transit") {
@@ -226,9 +278,14 @@ export default function App() {
         onSelect={showBuilding}
         favoriteIds={favorites.buildingIds}
         onToggleFavorite={favorites.toggleBuilding}
+        filters={dirFilters}
+        onFiltersChange={setDirFilters}
       />
     );
   }
+
+  // The place types picked in the Directory stand out on the map while the Directory is open.
+  const focusCategories = menuOpen && menuTab === "directory" ? dirFilters.filter((f) => f !== "__saved") : EMPTY_TRAFFIC;
 
   return (
     <div className="app-shell">
@@ -238,10 +295,13 @@ export default function App() {
           <div className="brand-block">
             {logoOk ? (
               <img
-                className="brand-logo"
+                className={`brand-logo${logoSpin ? " is-spinning" : ""}`}
                 src={LOGO_SRC}
                 alt="UTA MavMap"
                 onError={() => setLogoOk(false)}
+                // One full spin per hover; it always finishes, even if the mouse leaves mid-spin.
+                onMouseEnter={() => setLogoSpin(true)}
+                onAnimationEnd={() => setLogoSpin(false)}
               />
             ) : (
               <p className="brand">MavMap</p>
@@ -268,6 +328,11 @@ export default function App() {
           routesOn={prefs.shownRoutes.length > 0}
           onToggleRoutes={setAllRoutes}
           favoriteCount={favoriteCount}
+          open={prefsOpen}
+          onOpenChange={(v) => {
+            if (v) closeOtherPanels("prefs");
+            setPrefsOpen(v);
+          }}
         />
       </header>
 
@@ -277,12 +342,14 @@ export default function App() {
           tab={menuTab}
           onTabChange={setMenuTab}
           onOpen={() => {
+            closeOtherPanels("menu");
             setMenuTab("directory");
             setMenuOpen(true);
           }}
           onClose={closeMenu}
           counts={{
             directory: buildings.length,
+            classes: schedule.classes.length || undefined,
             events: upcomingEvents.length,
             transit: transit ? transit.routes.length : undefined,
           }}
@@ -305,6 +372,7 @@ export default function App() {
             mapStyle={mapStyle}
             showOutlines={prefs.showOutlines}
             showNames={prefs.showBuildingNames}
+            focusCategories={focusCategories}
             favoriteIds={favorites.buildingIds}
             transit={transit}
             shownRoutes={prefs.shownRoutes}
@@ -333,12 +401,20 @@ export default function App() {
               onRecenter={() => setFollowing(true)}
               onEnd={navigation.stop}
               onRetry={navigation.retry}
-              onSimulate={navigation.simulate}
+              onModeChange={changeTravelMode}
+              nearestParking={nearestParking}
             />
           )}
           {/* Hidden (not unmounted) while navigating, so the chat history survives. */}
           <FaqChat
             buildings={buildings}
+            classes={schedule.classes}
+            events={upcomingEvents}
+            open={chatOpen}
+            onOpenChange={(v) => {
+              if (v) closeOtherPanels("chat");
+              setChatOpen(v);
+            }}
             detailOpen={Boolean(selected)}
             onShowBuilding={showBuilding}
             onNavigate={startNav}
@@ -352,7 +428,6 @@ export default function App() {
       {suggestions.length > 0 && (
         <SuggestionPopup
           suggestions={suggestions}
-          calendarPref={prefs.calendar}
           isSaved={favorites.isEventFav}
           onSave={(e) => {
             const nowSaved = favorites.toggleEvent(e);
@@ -360,6 +435,7 @@ export default function App() {
           }}
           onCalendar={(e) => recordInterest(e, "calendar")}
           onViewAll={() => {
+            closeOtherPanels("menu");
             setMenuTab("events");
             setMenuOpen(true);
             closeSuggestions();

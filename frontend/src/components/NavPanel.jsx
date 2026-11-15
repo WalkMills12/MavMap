@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { googleMapsUrl } from "../api.js";
 
 // Arrow for each Google maneuver type.
@@ -26,20 +25,31 @@ function fmtDistance(m) {
 
 const fmtClock = (d) => d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
 
-export default function NavPanel({ nav, following, onRecenter, onEnd, onRetry, onSimulate }) {
-  const [showSteps, setShowSteps] = useState(false);
+const MODES = [
+  { id: "WALK", icon: "🚶", label: "Walk" },
+  { id: "DRIVE", icon: "🚗", label: "Drive" },
+];
+
+export default function NavPanel({ nav, following, onRecenter, onEnd, onRetry, onModeChange, nearestParking }) {
   if (!nav) return null;
   const { dest, status, route, progress, error } = nav;
+  const driving = nav.mode === "DRIVE";
 
   let banner;
   if (status === "locating") {
     banner = { icon: "◎", main: "Finding your location…", sub: "Allow location access if your browser asks." };
   } else if (status === "routing") {
-    banner = { icon: "…", main: "Finding the best walking route…", sub: dest.name };
+    banner = { icon: "…", main: `Finding the best ${driving ? "driving" : "walking"} route…`, sub: dest.name };
   } else if (status === "error") {
-    banner = { icon: "!", main: "Can't navigate right now", sub: error };
+    banner = { icon: "!", main: "Can't get directions right now", sub: error };
   } else if (status === "arrived") {
-    banner = { icon: "✓", main: `You've arrived at ${dest.name}`, sub: "Room numbers usually start with the floor number." };
+    banner = driving
+      ? {
+          icon: "✓",
+          main: `You've arrived near ${dest.name}`,
+          sub: nearestParking ? `Closest parking: ${nearestParking.name}. Check the signs for which permit it needs.` : "Park in a lot your permit allows.",
+        }
+      : { icon: "✓", main: `You've arrived at ${dest.name}`, sub: "Room numbers usually start with the floor number." };
   } else {
     const next = route.steps[progress.stepIdx + 1];
     banner = next
@@ -65,19 +75,20 @@ export default function NavPanel({ nav, following, onRecenter, onEnd, onRetry, o
       </div>
 
       <div className="nav-sheet">
-        {showSteps && route && (
-          <ol className="nav-steps">
-            {route.steps.map((s, i) => (
-              <li key={i} className={progress && i <= progress.stepIdx && status !== "arrived" ? (i === progress.stepIdx ? "is-now" : "is-done") : ""}>
-                <span className="nav-step-icon" aria-hidden="true">
-                  {ARROWS[s.maneuver] || "↑"}
-                </span>
-                <span>{s.text}</span>
-                <small>{fmtDistance(s.distanceM)}</small>
-              </li>
-            ))}
-          </ol>
-        )}
+        <div className="nav-modes" role="radiogroup" aria-label="Travel mode">
+          {MODES.map((m) => (
+            <button
+              key={m.id}
+              type="button"
+              role="radio"
+              aria-checked={nav.mode === m.id}
+              className="nav-mode"
+              onClick={() => onModeChange?.(m.id)}
+            >
+              <span aria-hidden="true">{m.icon}</span> {m.label}
+            </button>
+          ))}
+        </div>
         <div className="nav-sheet-row">
           <div className="nav-eta">
             {navigating ? (
@@ -90,7 +101,7 @@ export default function NavPanel({ nav, following, onRecenter, onEnd, onRetry, o
             ) : (
               <>
                 <strong>{dest.name}</strong>
-                <span>Walking directions</span>
+                <span>{driving ? "Driving directions" : "Walking directions"}</span>
               </>
             )}
           </div>
@@ -105,19 +116,9 @@ export default function NavPanel({ nav, following, onRecenter, onEnd, onRetry, o
                 </a>
               </>
             )}
-            {route && (
-              <button type="button" className="nav-btn" aria-expanded={showSteps} onClick={() => setShowSteps((v) => !v)}>
-                {showSteps ? "Hide steps" : "Steps"}
-              </button>
-            )}
             {navigating && !following && (
               <button type="button" className="nav-btn" onClick={onRecenter}>
                 ◎ Re-center
-              </button>
-            )}
-            {navigating && !nav.simulating && (
-              <button type="button" className="nav-btn nav-btn--quiet" onClick={onSimulate} title="For testing on a computer: walks the route for you">
-                Simulate walk
               </button>
             )}
             <button type="button" className="nav-btn nav-btn--end" onClick={onEnd}>

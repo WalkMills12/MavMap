@@ -77,23 +77,37 @@ The ☰ button in the top-left opens the side menu (× or Esc closes it). On pho
 
 Besides academic buildings, the directory lists **parking** (garages and lots), **dining** (UC food court, cafes and spots right next to campus) and **housing** (residence halls and student apartments). Those coordinates come from OpenStreetMap; each entry's `source` field in `data/buildings.json` names the OSM object it came from.
 
-## Walking directions to class
+## Directions to class (walking or driving)
 
-Tap **Walk me there** on a building's panel, or in the FAQ chat after looking up a room (for example "NH 106"). MavMap then:
+Tap **Get directions** on a building's panel, in the FAQ chat, or next to a class in **Classes**. Switch between **🚶 Walk** and **🚗 Drive** in the bottom bar (MavMap remembers your choice); when driving it also names the closest parking on arrival. MavMap then:
 
 - asks the browser for your location and keeps tracking it (blue dot, accuracy circle and a heading arrow),
 - asks Google's **Routes API** for the best walking route (full-detail line along sidewalks and campus paths) and draws it on the map, with a dotted line for the last few meters to the building,
 - snaps your dot onto the route when you're within about 20 m of it, the way Google Maps does, so it rides the path instead of jittering beside it,
-- shows the next turn and the distance to it in a banner at the top, plus time left, distance and arrival time at the bottom, with a step list,
+- shows the next turn and the distance to it in a banner at the top, plus time left, distance and arrival time at the bottom,
 - follows you as you walk (drag the map to look around, then **Re-center**), finds a new route if you get more than about 30 m off it, and says when you've arrived,
 - keeps the phone screen on while navigating, where the browser allows it.
 
 Requirements:
 - Your Google Maps key needs the **Routes API** enabled (same key as the map).
 - Browsers only share location on `https://` sites or `http://localhost`. To navigate on a phone, open MavMap from an HTTPS address (a deployed site, or a tunnel to your computer). `http://<your-ip>:5173` won't get location.
-- **Simulate walk** (in the bottom bar) walks the route for you at 3× speed, for testing on a computer.
 
 Location is only used in your browser and sent to Google to compute the route. MavMap doesn't store it.
+
+## Classes (schedule)
+
+The **Classes** tab in the side menu holds your class schedule:
+
+- **Upload schedule PDF** (MyMav → My Class Schedule → save as PDF), paste the schedule text, or add classes by hand. The PDF is read in the browser with pdf.js and never uploaded.
+- Each class shows its building, room and floor. Anything MavMap couldn't place is marked "Building not set" and can be fixed with ✎.
+- The **Next class** card shows when it starts and, from your current location, how long the walk or drive is and when to leave.
+- The FAQ chat answers "where is my next class?".
+
+The schedule is saved in this browser only (`localStorage` key `mavmap.schedule.v1`).
+
+## Parking lots
+
+41 extra surface lots and garages were added from OpenStreetMap (`amenity=parking`, UTA area, excluding private, customer-only and street-side parking). They're outlined in blue with a **P** on the map, and the Directory's **Parking** filter splits them into garages and surface lots. Lots OSM doesn't name are named after the nearest building or part of campus, so they aren't UTA's official lot names.
 
 ## Photos
 

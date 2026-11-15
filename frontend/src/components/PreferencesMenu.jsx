@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useSwipeDown } from "../useSwipeDown.js";
 import { topInterests } from "../interests.js";
 
 const DAY_OPTIONS = [
@@ -6,12 +7,6 @@ const DAY_OPTIONS = [
   { value: 3, label: "Next 3 days" },
   { value: 7, label: "Next 7 days" },
   { value: 14, label: "Next 14 days" },
-];
-
-const CAL_OPTIONS = [
-  { value: "both", label: "Google and Apple" },
-  { value: "google", label: "Google only" },
-  { value: "apple", label: "Apple only" },
 ];
 
 const THEME_OPTIONS = [
@@ -73,8 +68,32 @@ function ConfirmButton({ label, confirmLabel, onConfirm }) {
   );
 }
 
-export default function PreferencesMenu({ prefs, onChange, onReset, trafficCount, onClearInterests, onClearFavorites, favoriteCount = 0, routesOn = false, onToggleRoutes }) {
-  const [open, setOpen] = useState(false);
+export default function PreferencesMenu({
+  prefs,
+  onChange,
+  onReset,
+  trafficCount,
+  onClearInterests,
+  onClearFavorites,
+  favoriteCount = 0,
+  routesOn = false,
+  onToggleRoutes,
+  open: openProp, // optional: the app controls open/closed (phones keep one panel open at a time)
+  onOpenChange,
+}) {
+  const [openState, setOpenState] = useState(false);
+  const open = openProp ?? openState;
+  const setOpen = useCallback(
+    (v) => {
+      const next = typeof v === "function" ? v(open) : v;
+      setOpenState(next);
+      onOpenChange?.(next);
+    },
+    [open, onOpenChange],
+  );
+  const panelRef = useRef(null);
+  const closePanel = useCallback(() => setOpen(false), [setOpen]);
+  useSwipeDown(panelRef, closePanel, open);
   const [, setVersion] = useState(0); // re-read learned interests after clearing
   const interests = open ? topInterests() : [];
   const rootRef = useRef(null);
@@ -121,7 +140,8 @@ export default function PreferencesMenu({ prefs, onChange, onReset, trafficCount
       </button>
 
       {open && (
-        <section className="prefs-panel" id="prefs-panel" role="dialog" aria-label="Preferences">
+        <section ref={panelRef} className="prefs-panel" id="prefs-panel" role="dialog" aria-label="Preferences">
+          <div className="sheet-handle" aria-hidden="true" />
           <h2 className="prefs-title">Preferences</h2>
 
           <fieldset className="prefs-group">
@@ -185,6 +205,7 @@ export default function PreferencesMenu({ prefs, onChange, onReset, trafficCount
               <span>Start on</span>
               <select value={prefs.defaultTab} onChange={(e) => onChange({ defaultTab: e.target.value })}>
                 <option value="directory">Directory</option>
+                <option value="classes">Classes</option>
                 <option value="events">Events</option>
                 <option value="transit">Transit</option>
               </select>
@@ -203,7 +224,6 @@ export default function PreferencesMenu({ prefs, onChange, onReset, trafficCount
                 ))}
               </select>
             </label>
-            <Segmented name="calendar-pref" label="Calendar buttons" options={CAL_OPTIONS} value={prefs.calendar} onChange={(v) => onChange({ calendar: v })} />
           </fieldset>
 
           <fieldset className="prefs-group">
